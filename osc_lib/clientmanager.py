@@ -70,7 +70,6 @@ class ClientManager(object):
         self,
         cli_options=None,
         api_version=None,
-        verify=True,
         pw_func=None,
     ):
         """Set up a ClientManager
@@ -79,10 +78,6 @@ class ClientManager(object):
             Options collected from the command-line, environment, or wherever
         :param api_version:
             Dict of API versions: key is API name, value is the version
-        :param verify:
-            TLS certificate verification; may be a boolean to enable or disable
-            server certificate verification, or a filename of a CA certificate
-            bundle to be used in verification (implies True)
         :param pw_func:
             Callback function for asking the user for a password.  The function
             takes an optional string for the prompt ('Password: ' on None) and
@@ -93,32 +88,44 @@ class ClientManager(object):
         self._api_version = api_version
         self._pw_callback = pw_func
         self._url = self._cli_options.auth.get('url')
-        self._region_name = self._cli_options.region_name
-        self._interface = self._cli_options.interface
+        self.region_name = self._cli_options.region_name
+        self.interface = self._cli_options.interface
 
         self.timing = self._cli_options.timing
 
         self._auth_ref = None
         self.session = None
 
-        # verify is the Requests-compatible form
-        self._verify = verify
-        # also store in the form used by the legacy client libs
-        self._cacert = None
-        if isinstance(verify, bool):
-            self._insecure = not verify
+        # self.verify is the Requests-compatible form
+        # self.cacert is the form used by the legacy client libs
+        # self.insecure is not needed, use 'not self.verify'
+
+        # NOTE(dtroyer): Per bug https://bugs.launchpad.net/bugs/1447784
+        #                --insecure overrides any --os-cacert setting
+
+        if self._cli_options.insecure:
+            # Handle --insecure
+            self.verify = False
+            self.cacert = None
         else:
-            self._cacert = verify
-            self._insecure = False
+            if (self._cli_options.cacert is not None
+                    and self._cli_options.cacert != ''):
+                # --cacert implies --verify here
+                self.verify = self._cli_options.cacert
+                self.cacert = self._cli_options.cacert
+            else:
+                # Fall through also gets --verify
+                self.verify = True
+                self.cacert = None
 
         # Set up client certificate and key
         # NOTE(cbrandily): This converts client certificate/key to requests
         #                  cert argument: None (no client certificate), a path
         #                  to client certificate or a tuple with client
         #                  certificate/key paths.
-        self._cert = self._cli_options.cert
-        if self._cert and self._cli_options.key:
-            self._cert = self._cert, self._cli_options.key
+        self.cert = self._cli_options.cert
+        if self.cert and self._cli_options.key:
+            self.cert = self.cert, self._cli_options.key
 
         # Get logging from root logger
         root_logger = logging.getLogger('')
@@ -215,8 +222,8 @@ class ClientManager(object):
         self.session = osc_session.TimingSession(
             auth=self.auth,
             session=request_session,
-            verify=self._verify,
-            cert=self._cert,
+            verify=self.verify,
+            cert=self.cert,
             user_agent=USER_AGENT,
         )
 

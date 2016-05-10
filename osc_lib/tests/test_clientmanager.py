@@ -51,6 +51,9 @@ class FakeOptions(object):
         for option in auth.OPTIONS_LIST:
             setattr(self, option.replace('-', '_'), None)
         self.auth_type = None
+        self.verify = True
+        self.cacert = None
+        self.insecure = None
         self.identity_api_version = '2.0'
         self.timing = None
         self.region_name = None
@@ -111,7 +114,6 @@ class TestClientManager(utils.TestCase):
                 region_name=fakes.REGION_NAME,
             ),
             api_version=API_VERSION,
-            verify=True
         )
         client_manager.setup_auth()
         client_manager.auth_ref
@@ -126,14 +128,13 @@ class TestClientManager(utils.TestCase):
         )
         self.assertEqual(
             fakes.INTERFACE,
-            client_manager._interface,
+            client_manager.interface,
         )
         self.assertEqual(
             fakes.REGION_NAME,
-            client_manager._region_name,
+            client_manager.region_name,
         )
-        self.assertFalse(client_manager._insecure)
-        self.assertTrue(client_manager._verify)
+        self.assertTrue(client_manager.verify)
         self.assertTrue(client_manager.is_network_endpoint_enabled())
 
     def test_client_manager_password(self):
@@ -148,7 +149,6 @@ class TestClientManager(utils.TestCase):
                 ),
             ),
             api_version=API_VERSION,
-            verify=False,
         )
         client_manager.setup_auth()
         client_manager.auth_ref
@@ -169,8 +169,7 @@ class TestClientManager(utils.TestCase):
             client_manager.auth,
             auth_v2.Password,
         )
-        self.assertTrue(client_manager._insecure)
-        self.assertFalse(client_manager._verify)
+        self.assertTrue(client_manager.verify)
 
         # These need to stick around until the old-style clients are gone
         self.assertEqual(
@@ -200,7 +199,6 @@ class TestClientManager(utils.TestCase):
                 auth_type='v3password',
             ),
             api_version={"identity": "3"},
-            verify=False,
         )
         client_manager.setup_auth()
         client_manager.auth_ref
@@ -225,6 +223,28 @@ class TestClientManager(utils.TestCase):
                                    headers=headers,
                                    text=text)
 
+    def test_client_manager_password_verify(self):
+
+        client_manager = clientmanager.ClientManager(
+            cli_options=FakeOptions(
+                auth=dict(
+                    auth_url=fakes.AUTH_URL,
+                    username=fakes.USERNAME,
+                    password=fakes.PASSWORD,
+                    project_name=fakes.PROJECT_NAME,
+                ),
+                auth_type='v2password',
+                verify=True,
+            ),
+            api_version=API_VERSION,
+        )
+        client_manager.setup_auth()
+        client_manager.auth_ref
+
+        self.assertTrue(client_manager.verify)
+        self.assertEqual(None, client_manager.cacert)
+        self.assertTrue(client_manager.is_network_endpoint_enabled())
+
     def test_client_manager_password_verify_ca(self):
 
         client_manager = clientmanager.ClientManager(
@@ -236,32 +256,80 @@ class TestClientManager(utils.TestCase):
                     project_name=fakes.PROJECT_NAME,
                 ),
                 auth_type='v2password',
+                cacert='cafile',
             ),
             api_version=API_VERSION,
-            verify='cafile',
         )
         client_manager.setup_auth()
         client_manager.auth_ref
 
-        self.assertFalse(client_manager._insecure)
-        self.assertTrue(client_manager._verify)
-        self.assertEqual('cafile', client_manager._cacert)
+        # Test that client_manager.verify is Requests-compatible,
+        # i.e. it contains the value of cafile here
+        self.assertTrue(client_manager.verify)
+        self.assertEqual('cafile', client_manager.verify)
+        self.assertEqual('cafile', client_manager.cacert)
+        self.assertTrue(client_manager.is_network_endpoint_enabled())
+
+    def test_client_manager_password_verify_insecure(self):
+
+        client_manager = clientmanager.ClientManager(
+            cli_options=FakeOptions(
+                auth=dict(
+                    auth_url=fakes.AUTH_URL,
+                    username=fakes.USERNAME,
+                    password=fakes.PASSWORD,
+                    project_name=fakes.PROJECT_NAME,
+                ),
+                auth_type='v2password',
+                insecure=True,
+            ),
+            api_version=API_VERSION,
+        )
+        client_manager.setup_auth()
+        client_manager.auth_ref
+
+        self.assertFalse(client_manager.verify)
+        self.assertEqual(None, client_manager.cacert)
+        self.assertTrue(client_manager.is_network_endpoint_enabled())
+
+    def test_client_manager_password_verify_insecure_ca(self):
+
+        client_manager = clientmanager.ClientManager(
+            cli_options=FakeOptions(
+                auth=dict(
+                    auth_url=fakes.AUTH_URL,
+                    username=fakes.USERNAME,
+                    password=fakes.PASSWORD,
+                    project_name=fakes.PROJECT_NAME,
+                ),
+                auth_type='v2password',
+                insecure=True,
+                cacert='cafile',
+            ),
+            api_version=API_VERSION,
+        )
+        client_manager.setup_auth()
+        client_manager.auth_ref
+
+        # insecure overrides cacert
+        self.assertFalse(client_manager.verify)
+        self.assertEqual(None, client_manager.cacert)
         self.assertTrue(client_manager.is_network_endpoint_enabled())
 
     def test_client_manager_password_no_cert(self):
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions())
-        self.assertIsNone(client_manager._cert)
+        self.assertIsNone(client_manager.cert)
 
     def test_client_manager_password_client_cert(self):
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(cert='cert'))
-        self.assertEqual('cert', client_manager._cert)
+        self.assertEqual('cert', client_manager.cert)
 
     def test_client_manager_password_client_cert_and_key(self):
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(cert='cert', key='key'))
-        self.assertEqual(('cert', 'key'), client_manager._cert)
+        self.assertEqual(('cert', 'key'), client_manager.cert)
 
     def _select_auth_plugin(self, auth_params, api_version, auth_plugin_name):
         auth_params['auth_type'] = auth_plugin_name
@@ -269,7 +337,6 @@ class TestClientManager(utils.TestCase):
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(**auth_params),
             api_version={"identity": api_version},
-            verify=True
         )
         client_manager.setup_auth()
         client_manager.auth_ref
@@ -315,7 +382,6 @@ class TestClientManager(utils.TestCase):
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(os_auth_plugin=''),
             api_version=API_VERSION,
-            verify=True,
         )
         self.assertRaises(
             exc.CommandError,
@@ -334,7 +400,6 @@ class TestClientManager(utils.TestCase):
                 ),
             ),
             api_version=API_VERSION,
-            verify=False,
         )
         self.assertFalse(client_manager._auth_setup_completed)
         client_manager.setup_auth()
