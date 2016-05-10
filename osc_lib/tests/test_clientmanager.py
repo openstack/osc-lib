@@ -15,17 +15,16 @@
 
 import json as jsonutils
 import mock
-from requests_mock.contrib import fixture
 
 from keystoneclient.auth.identity import v2 as auth_v2
 from keystoneclient import service_catalog
-
 from openstackclient.api import auth
-from openstackclient.common import clientmanager
-from openstackclient.common import exceptions as exc
-from openstackclient.tests import fakes
-from openstackclient.tests import utils
+from requests_mock.contrib import fixture
 
+from osc_lib import clientmanager
+from osc_lib import exceptions as exc
+from osc_lib.tests import fakes
+from osc_lib.tests import utils
 
 API_VERSION = {"identity": "2.0"}
 

@@ -17,23 +17,22 @@
 
 import copy
 import logging
-import pkg_resources
 import sys
 
+from openstackclient.api import auth
 from oslo_utils import strutils
 import requests
 import six
 
-from openstackclient.api import auth
-from openstackclient.common import exceptions
-from openstackclient.common import session as osc_session
+from osc_lib import exceptions
+from osc_lib import session as osc_session
 
 
 LOG = logging.getLogger(__name__)
 
 PLUGIN_MODULES = []
 
-USER_AGENT = 'python-openstackclient'
+USER_AGENT = 'osc-lib'
 
 
 class ClientCache(object):
@@ -58,9 +57,6 @@ class ClientCache(object):
 
 class ClientManager(object):
     """Manages access to API clients, including authentication."""
-
-    # A simple incrementing version for the plugin to know what is available
-    PLUGIN_INTERFACE_VERSION = "2"
 
     def __getattr__(self, name):
         # this is for the auth-related parameters.
@@ -276,48 +272,3 @@ class ClientManager(object):
 
     def get_configuration(self):
         return copy.deepcopy(self._cli_options.config)
-
-
-# Plugin Support
-
-def get_plugin_modules(group):
-    """Find plugin entry points"""
-    mod_list = []
-    for ep in pkg_resources.iter_entry_points(group):
-        LOG.debug('Found plugin %r', ep.name)
-
-        __import__(ep.module_name)
-        module = sys.modules[ep.module_name]
-        mod_list.append(module)
-        init_func = getattr(module, 'Initialize', None)
-        if init_func:
-            init_func('x')
-
-        # Add the plugin to the ClientManager
-        setattr(
-            ClientManager,
-            module.API_NAME,
-            ClientCache(
-                getattr(sys.modules[ep.module_name], 'make_client', None)
-            ),
-        )
-    return mod_list
-
-
-def build_plugin_option_parser(parser):
-    """Add plugin options to the parser"""
-
-    # Loop through extensions to get parser additions
-    for mod in PLUGIN_MODULES:
-        parser = mod.build_option_parser(parser)
-    return parser
-
-
-# # Get list of base plugin modules
-# PLUGIN_MODULES = get_plugin_modules(
-#     'openstack.cli.base',
-# )
-# # Append list of external plugin modules
-# PLUGIN_MODULES.extend(get_plugin_modules(
-#     'openstack.cli.extension',
-# ))
