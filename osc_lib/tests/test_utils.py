@@ -18,10 +18,10 @@ import uuid
 
 import mock
 
-from openstackclient.common import exceptions
-from openstackclient.common import utils
-from openstackclient.tests import fakes
-from openstackclient.tests import utils as test_utils
+from osc_lib import exceptions
+from osc_lib.tests import fakes
+from osc_lib.tests import utils as test_utils
+from osc_lib import utils
 
 PASSWORD = "Pa$$w0rd"
 WASSPORD = "Wa$$p0rd"

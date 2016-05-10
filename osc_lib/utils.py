@@ -23,7 +23,7 @@ import time
 
 from oslo_utils import importutils
 
-from openstackclient.common import exceptions
+from osc_lib import exceptions
 
 
 def find_resource(manager, name_or_id, **kwargs):

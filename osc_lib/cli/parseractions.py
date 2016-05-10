@@ -17,7 +17,7 @@
 
 import argparse
 
-from openstackclient.i18n import _
+from osc_lib.i18n import _
 
 
 class KeyValueAction(argparse.Action):

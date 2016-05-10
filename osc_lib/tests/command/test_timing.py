@@ -15,9 +15,9 @@
 
 import datetime
 
-from openstackclient.common import timing
-from openstackclient.tests import fakes
-from openstackclient.tests import utils
+from osc_lib.command import timing
+from osc_lib.tests import fakes
+from osc_lib.tests import utils
 
 
 timing_url = 'GET http://localhost:5000'

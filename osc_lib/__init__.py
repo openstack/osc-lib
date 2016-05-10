@@ -1,5 +1,3 @@
-#   Copyright 2016 NEC Corporation
-#
 #   Licensed under the Apache License, Version 2.0 (the "License"); you may
 #   not use this file except in compliance with the License. You may obtain
 #   a copy of the License at
@@ -11,23 +9,14 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
+#
 
-import mock
+__all__ = ['__version__']
 
-from openstackclient.common import command
-from openstackclient.tests import utils as test_utils
+import pbr.version
 
-
-class FakeCommand(command.Command):
-
-    def take_action(self, parsed_args):
-        pass
-
-
-class TestCommand(test_utils.TestCase):
-
-    def test_command_has_logger(self):
-        cmd = FakeCommand(mock.Mock(), mock.Mock())
-        self.assertTrue(hasattr(cmd, 'log'))
-        self.assertEqual('openstackclient.tests.common.test_command.'
-                         'FakeCommand', cmd.log.name)
+version_info = pbr.version.VersionInfo('python-openstackclient')
+try:
+    __version__ = version_info.version_string()
+except AttributeError:
+    __version__ = None

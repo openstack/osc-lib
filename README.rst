@@ -39,3 +39,23 @@ Getting Started
 osc-lib can be installed from PyPI using pip::
 
     pip install osc-lib
+
+Transition From OpenStackclient
+===============================
+
+This library was extracted from the main OSC repo after the OSC 2.4.0 release.
+The following are the changes to imports that will cover the majority of
+transition to using osc-lib:
+
+* openstackclient.common.parseractions -> osc_lib.cli.parseractions
+* openstackclient.common.command -> osc_lib.command.command
+* openstackclient.common.exceptions -> osc_lib.exceptions
+* openstackclient.common.logs -> osc_lib.logs
+* openstackclient.common.session -> osc_lib.session
+* openstackclient.common.utils -> osc_lib.utils
+* openstackclient.i18n -> osc_lib.i18n
+
+Also, some of the test fixtures and modules may be used:
+
+* openstackclient.tests.fakes -> osc_lib.tests.fakes
+* openstackclient.tests.utils -> osc_lib.tests.utils

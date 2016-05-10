@@ -22,7 +22,7 @@ from keystoneclient.auth import base
 
 from openstackclient.common import exceptions as exc
 from openstackclient.common import utils
-from openstackclient.i18n import _
+from osc_lib.i18n import _
 
 
 LOG = logging.getLogger(__name__)

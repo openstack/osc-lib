@@ -19,7 +19,7 @@ import os
 import fixtures
 import testtools
 
-from openstackclient.tests import fakes
+from osc_lib.tests import fakes
 
 
 class ParserException(Exception):

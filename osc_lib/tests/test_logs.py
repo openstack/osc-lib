@@ -14,8 +14,8 @@
 import logging
 import mock
 
-from openstackclient.common import logs
-from openstackclient.tests import utils
+from osc_lib import logs
+from osc_lib.tests import utils
 
 
 class TestContext(utils.TestCase):
@@ -121,7 +121,7 @@ class TestLogConfigurator(utils.TestCase):
 
     @mock.patch('logging.StreamHandler')
     @mock.patch('logging.getLogger')
-    @mock.patch('openstackclient.common.logs.set_warning_filter')
+    @mock.patch('osc_lib.logs.set_warning_filter')
     def test_init(self, warning_filter, getLogger, handle):
         getLogger.side_effect = self.loggers
         console_logger = mock.Mock()
@@ -142,7 +142,7 @@ class TestLogConfigurator(utils.TestCase):
         self.assertFalse(configurator.dump_trace)
 
     @mock.patch('logging.getLogger')
-    @mock.patch('openstackclient.common.logs.set_warning_filter')
+    @mock.patch('osc_lib.logs.set_warning_filter')
     def test_init_no_debug(self, warning_filter, getLogger):
         getLogger.side_effect = self.loggers
         self.options.debug = True
@@ -155,8 +155,8 @@ class TestLogConfigurator(utils.TestCase):
 
     @mock.patch('logging.FileHandler')
     @mock.patch('logging.getLogger')
-    @mock.patch('openstackclient.common.logs.set_warning_filter')
-    @mock.patch('openstackclient.common.logs._FileFormatter')
+    @mock.patch('osc_lib.logs.set_warning_filter')
+    @mock.patch('osc_lib.logs._FileFormatter')
     def test_init_log_file(self, formatter, warning_filter, getLogger, handle):
         getLogger.side_effect = self.loggers
         self.options.log_file = '/tmp/log_file'
@@ -176,8 +176,8 @@ class TestLogConfigurator(utils.TestCase):
 
     @mock.patch('logging.FileHandler')
     @mock.patch('logging.getLogger')
-    @mock.patch('openstackclient.common.logs.set_warning_filter')
-    @mock.patch('openstackclient.common.logs._FileFormatter')
+    @mock.patch('osc_lib.logs.set_warning_filter')
+    @mock.patch('osc_lib.logs._FileFormatter')
     def test_configure(self, formatter, warning_filter, getLogger, handle):
         getLogger.side_effect = self.loggers
         configurator = logs.LogConfigurator(self.options)
