@@ -21,7 +21,6 @@ from keystoneclient.auth.identity import v2 as auth_v2
 from keystoneclient import service_catalog
 
 from openstackclient.api import auth
-from openstackclient.api import auth_plugin
 from openstackclient.common import clientmanager
 from openstackclient.common import exceptions as exc
 from openstackclient.tests import fakes
@@ -99,38 +98,6 @@ class TestClientManager(utils.TestCase):
         self.stub_auth(json=fakes.TEST_VERSIONS,
                        url=fakes.AUTH_URL,
                        verb='GET')
-
-    def test_client_manager_token_endpoint(self):
-
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(
-                auth_type='token_endpoint',
-                auth=dict(
-                    token=fakes.AUTH_TOKEN,
-                    url=fakes.AUTH_URL,
-                ),
-            ),
-            api_version=API_VERSION,
-            verify=True
-        )
-        client_manager.setup_auth()
-        client_manager.auth_ref
-
-        self.assertEqual(
-            fakes.AUTH_URL,
-            client_manager._url,
-        )
-        self.assertEqual(
-            fakes.AUTH_TOKEN,
-            client_manager.auth.get_token(None),
-        )
-        self.assertIsInstance(
-            client_manager.auth,
-            auth_plugin.TokenEndpoint,
-        )
-        self.assertFalse(client_manager._insecure)
-        self.assertTrue(client_manager._verify)
-        self.assertTrue(client_manager.is_network_endpoint_enabled())
 
     def test_client_manager_token(self):
 
@@ -328,7 +295,6 @@ class TestClientManager(utils.TestCase):
                 token=fakes.AUTH_TOKEN,
             ),
         )
-        self._select_auth_plugin(params, 'XXX', 'token_endpoint')
         # test password auth
         params = dict(
             auth=dict(

@@ -116,26 +116,6 @@ global_options = {
     '--os-interface': (DEFAULT_INTERFACE, True, True)
 }
 
-auth_options = {
-    '--os-auth-url': (DEFAULT_AUTH_URL, True, True),
-    '--os-project-id': (DEFAULT_PROJECT_ID, True, True),
-    '--os-project-name': (DEFAULT_PROJECT_NAME, True, True),
-    '--os-domain-id': (DEFAULT_DOMAIN_ID, True, True),
-    '--os-domain-name': (DEFAULT_DOMAIN_NAME, True, True),
-    '--os-user-domain-id': (DEFAULT_USER_DOMAIN_ID, True, True),
-    '--os-user-domain-name': (DEFAULT_USER_DOMAIN_NAME, True, True),
-    '--os-project-domain-id': (DEFAULT_PROJECT_DOMAIN_ID, True, True),
-    '--os-project-domain-name': (DEFAULT_PROJECT_DOMAIN_NAME, True, True),
-    '--os-username': (DEFAULT_USERNAME, True, True),
-    '--os-password': (DEFAULT_PASSWORD, True, True),
-    '--os-region-name': (DEFAULT_REGION_NAME, True, True),
-    '--os-trust-id': ("1234", True, True),
-    '--os-auth-type': ("v2password", True, True),
-    '--os-token': (DEFAULT_TOKEN, True, True),
-    '--os-url': (DEFAULT_SERVICE_URL, True, True),
-    '--os-interface': (DEFAULT_INTERFACE, True, True),
-}
-
 
 def opt2attr(opt):
     if opt.startswith('--os-'):
@@ -216,68 +196,6 @@ class TestShell(utils.TestCase):
                     "%s does not match" % k,
                 )
 
-    def _assert_cloud_config_arg(self, cmd_options, default_args):
-        """Check the args passed to cloud_config.get_one_cloud()
-
-        The argparse argument to get_one_cloud() is an argparse.Namespace
-        object that contains all of the options processed to this point in
-        initialize_app().
-        """
-
-        cloud = mock.Mock(name="cloudy")
-        cloud.config = {}
-        self.occ_get_one = mock.Mock(return_value=cloud)
-        with mock.patch(
-                "os_client_config.config.OpenStackConfig.get_one_cloud",
-                self.occ_get_one,
-        ):
-            _shell, _cmd = make_shell(), cmd_options + " list project"
-            fake_execute(_shell, _cmd)
-
-            opts = self.occ_get_one.call_args[1]['argparse']
-            for k in default_args.keys():
-                self.assertEqual(
-                    default_args[k],
-                    vars(opts)[k],
-                    "%s does not match" % k,
-                )
-
-    def _assert_token_auth(self, cmd_options, default_args):
-        with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
-                        self.app):
-            _shell, _cmd = make_shell(), cmd_options + " list role"
-            fake_execute(_shell, _cmd)
-
-            self.app.assert_called_with(["list", "role"])
-            self.assertEqual(
-                default_args.get("token", ''),
-                _shell.options.token,
-                "token"
-            )
-            self.assertEqual(
-                default_args.get("auth_url", ''),
-                _shell.options.auth_url,
-                "auth_url"
-            )
-
-    def _assert_token_endpoint_auth(self, cmd_options, default_args):
-        with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
-                        self.app):
-            _shell, _cmd = make_shell(), cmd_options + " list role"
-            fake_execute(_shell, _cmd)
-
-            self.app.assert_called_with(["list", "role"])
-            self.assertEqual(
-                default_args.get("token", ''),
-                _shell.options.token,
-                "token",
-            )
-            self.assertEqual(
-                default_args.get("url", ''),
-                _shell.options.url,
-                "url",
-            )
-
     def _assert_cli(self, cmd_options, default_args):
         with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
                         self.app):
@@ -339,20 +257,6 @@ class TestShellOptions(TestShell):
             }
             self._assert_initialize_app_arg(cmd, kwargs)
 
-    def _test_options_get_one_cloud(self, test_opts):
-        for opt in test_opts.keys():
-            if not test_opts[opt][1]:
-                continue
-            key = opt2attr(opt)
-            if isinstance(test_opts[opt][0], str):
-                cmd = opt + " " + test_opts[opt][0]
-            else:
-                cmd = opt
-            kwargs = {
-                key: test_opts[opt][0],
-            }
-            self._assert_cloud_config_arg(cmd, kwargs)
-
     def _test_env_init_app(self, test_opts):
         for opt in test_opts.keys():
             if not test_opts[opt][2]:
@@ -385,110 +289,6 @@ class TestShellOptions(TestShell):
         os.environ = {}
         self._assert_initialize_app_arg("", {})
         self._assert_cloud_config_arg("", {})
-
-    def test_global_options(self):
-        self._test_options_init_app(global_options)
-        self._test_options_get_one_cloud(global_options)
-
-    def test_auth_options(self):
-        self._test_options_init_app(auth_options)
-        self._test_options_get_one_cloud(auth_options)
-
-    def test_global_env(self):
-        self._test_env_init_app(global_options)
-        self._test_env_get_one_cloud(global_options)
-
-    def test_auth_env(self):
-        self._test_env_init_app(auth_options)
-        self._test_env_get_one_cloud(auth_options)
-
-
-class TestShellTokenAuthEnv(TestShell):
-
-    def setUp(self):
-        super(TestShellTokenAuthEnv, self).setUp()
-        env = {
-            "OS_TOKEN": DEFAULT_TOKEN,
-            "OS_AUTH_URL": DEFAULT_AUTH_URL,
-        }
-        self.useFixture(EnvFixture(env.copy()))
-
-    def test_env(self):
-        flag = ""
-        kwargs = {
-            "token": DEFAULT_TOKEN,
-            "auth_url": DEFAULT_AUTH_URL,
-        }
-        self._assert_token_auth(flag, kwargs)
-
-    def test_only_token(self):
-        flag = "--os-token xyzpdq"
-        kwargs = {
-            "token": "xyzpdq",
-            "auth_url": DEFAULT_AUTH_URL,
-        }
-        self._assert_token_auth(flag, kwargs)
-
-    def test_only_auth_url(self):
-        flag = "--os-auth-url http://cloud.local:555"
-        kwargs = {
-            "token": DEFAULT_TOKEN,
-            "auth_url": "http://cloud.local:555",
-        }
-        self._assert_token_auth(flag, kwargs)
-
-    def test_empty_auth(self):
-        os.environ = {}
-        flag = ""
-        kwargs = {
-            "token": '',
-            "auth_url": '',
-        }
-        self._assert_token_auth(flag, kwargs)
-
-
-class TestShellTokenEndpointAuthEnv(TestShell):
-
-    def setUp(self):
-        super(TestShellTokenEndpointAuthEnv, self).setUp()
-        env = {
-            "OS_TOKEN": DEFAULT_TOKEN,
-            "OS_URL": DEFAULT_SERVICE_URL,
-        }
-        self.useFixture(EnvFixture(env.copy()))
-
-    def test_env(self):
-        flag = ""
-        kwargs = {
-            "token": DEFAULT_TOKEN,
-            "url": DEFAULT_SERVICE_URL,
-        }
-        self._assert_token_auth(flag, kwargs)
-
-    def test_only_token(self):
-        flag = "--os-token xyzpdq"
-        kwargs = {
-            "token": "xyzpdq",
-            "url": DEFAULT_SERVICE_URL,
-        }
-        self._assert_token_auth(flag, kwargs)
-
-    def test_only_url(self):
-        flag = "--os-url http://cloud.local:555"
-        kwargs = {
-            "token": DEFAULT_TOKEN,
-            "url": "http://cloud.local:555",
-        }
-        self._assert_token_auth(flag, kwargs)
-
-    def test_empty_auth(self):
-        os.environ = {}
-        flag = ""
-        kwargs = {
-            "token": '',
-            "url": '',
-        }
-        self._assert_token_auth(flag, kwargs)
 
 
 class TestShellCli(TestShell):

@@ -27,7 +27,6 @@ import six
 from openstackclient.api import auth
 from openstackclient.common import exceptions
 from openstackclient.common import session as osc_session
-from openstackclient.identity import client as identity_client
 
 
 LOG = logging.getLogger(__name__)
@@ -62,8 +61,6 @@ class ClientManager(object):
 
     # A simple incrementing version for the plugin to know what is available
     PLUGIN_INTERFACE_VERSION = "2"
-
-    identity = ClientCache(identity_client.make_client)
 
     def __getattr__(self, name):
         # this is for the auth-related parameters.
@@ -316,11 +313,11 @@ def build_plugin_option_parser(parser):
     return parser
 
 
-# Get list of base plugin modules
-PLUGIN_MODULES = get_plugin_modules(
-    'openstack.cli.base',
-)
-# Append list of external plugin modules
-PLUGIN_MODULES.extend(get_plugin_modules(
-    'openstack.cli.extension',
-))
+# # Get list of base plugin modules
+# PLUGIN_MODULES = get_plugin_modules(
+#     'openstack.cli.base',
+# )
+# # Append list of external plugin modules
+# PLUGIN_MODULES.extend(get_plugin_modules(
+#     'openstack.cli.extension',
+# ))
