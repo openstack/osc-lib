@@ -86,3 +86,11 @@ about global configuration.
   * ``_insecure`` -> removed, use '`not verify'`
   * ``_interface`` -> ``interface``
   * ``_region_name`` -> ``region_name``
+
+Shell
+=====
+
+* ``openstackclient.shell`` -> ``osc_lib.shell``
+* Break up ``OpenStackShell.initialize_app()``
+  * leave all plugin initialization in OSC in ``_load_plugins()``
+  * leave all command loading in OSC in ``_load_commands()``
