@@ -29,13 +29,13 @@ from cliff import help
 from oslo_utils import importutils
 from oslo_utils import strutils
 
-import openstackclient
-from openstackclient.common import clientmanager
-from openstackclient.common import commandmanager
-from openstackclient.common import exceptions as exc
-from openstackclient.common import logs
-from openstackclient.common import timing
-from openstackclient.common import utils
+# import openstackclient
+from osc_lib import clientmanager
+from osc_lib.command import commandmanager
+from osc_lib.command import timing
+from osc_lib import exceptions as exc
+from osc_lib import logs
+from osc_lib import utils
 
 from os_client_config import config as cloud_config
 
@@ -90,9 +90,11 @@ class OpenStackShell(app.App):
 
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
-            version=openstackclient.__version__,
+            version=None,
+            # version=openstackclient.__version__,
             command_manager=commandmanager.CommandManager('openstack.cli'),
-            deferred_help=True)
+            deferred_help=True,
+        )
 
         self.api_version = {}
 

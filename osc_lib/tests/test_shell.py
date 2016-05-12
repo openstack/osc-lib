@@ -19,8 +19,8 @@ import mock
 import os
 import testtools
 
-from openstackclient import shell
-from openstackclient.tests import utils
+from osc_lib import shell
+from osc_lib.tests import utils
 
 
 DEFAULT_AUTH_URL = "http://127.0.0.1:5000/v2.0/"
@@ -165,7 +165,7 @@ class TestShell(utils.TestCase):
 
     def setUp(self):
         super(TestShell, self).setUp()
-        patch = "openstackclient.shell.OpenStackShell.run_subcommand"
+        patch = "osc_lib.shell.OpenStackShell.run_subcommand"
         self.cmd_patch = mock.patch(patch)
         self.cmd_save = self.cmd_patch.start()
         self.addCleanup(self.cmd_patch.stop)
@@ -176,13 +176,13 @@ class TestShell(utils.TestCase):
 
         The argv argument to initialize_app() is the remainder from parsing
         global options declared in both cliff.app and
-        openstackclient.OpenStackShell build_option_parser().  Any global
+        osc_lib.OpenStackShell build_option_parser().  Any global
         options passed on the commmad line should not be in argv but in
         _shell.options.
         """
 
         with mock.patch(
-                "openstackclient.shell.OpenStackShell.initialize_app",
+                "osc_lib.shell.OpenStackShell.initialize_app",
                 self.app,
         ):
             _shell, _cmd = make_shell(), cmd_options + " list project"
@@ -197,7 +197,7 @@ class TestShell(utils.TestCase):
                 )
 
     def _assert_cli(self, cmd_options, default_args):
-        with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
+        with mock.patch("osc_lib.shell.OpenStackShell.initialize_app",
                         self.app):
             _shell, _cmd = make_shell(), cmd_options + " list server"
             fake_execute(_shell, _cmd)
@@ -228,7 +228,7 @@ class TestShellHelp(TestShell):
         kwargs = {
             "deferred_help": True,
         }
-        with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
+        with mock.patch("osc_lib.shell.OpenStackShell.initialize_app",
                         self.app):
             _shell, _cmd = make_shell(), flag
             fake_execute(_shell, _cmd)
@@ -306,7 +306,7 @@ class TestShellCli(TestShell):
 
     def test_shell_args_no_options(self):
         _shell = make_shell()
-        with mock.patch("openstackclient.shell.OpenStackShell.initialize_app",
+        with mock.patch("osc_lib.shell.OpenStackShell.initialize_app",
                         self.app):
             fake_execute(_shell, "list user")
             self.app.assert_called_with(["list", "user"])
