@@ -76,7 +76,17 @@ class OpenStackShell(app.App):
     log = logging.getLogger(__name__)
     timing_data = []
 
-    def __init__(self):
+    def __init__(
+            self,
+            description=None,
+            version=None,
+            command_manager=None,
+            stdin=None,
+            stdout=None,
+            stderr=None,
+            interactive_app_factory=None,
+            deferred_help=False,
+    ):
         # Patch command.Command to add a default auth_required = True
         command.Command.auth_required = True
 
@@ -88,21 +98,24 @@ class OpenStackShell(app.App):
         self.DEFAULT_DEBUG_VALUE = None
         self.DEFAULT_DEBUG_HELP = 'Set debug logging and traceback on errors.'
 
+        # Do default for positionals
+        if not command_manager:
+            cm = commandmanager.CommandManager('openstack.cli')
+        else:
+            command_manager
+
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
-            version=None,
-            # version=openstackclient.__version__,
-            command_manager=commandmanager.CommandManager('openstack.cli'),
+            version=version,
+            command_manager=cm,
             deferred_help=True,
         )
-
-        self.api_version = {}
 
         # Until we have command line arguments parsed, dump any stack traces
         self.dump_stack_trace = True
 
-        # Assume TLS host certificate verification is enabled
-        self.verify = True
+        # Set in subclasses
+        self.api_version = None
 
         self.client_manager = None
         self.command_options = None
@@ -200,7 +213,7 @@ class OpenStackShell(app.App):
             '--os-cacert',
             metavar='<ca-bundle-file>',
             dest='cacert',
-            default=utils.env('OS_CACERT'),
+            default=utils.env('OS_CACERT', default=None),
             help='CA certificate bundle file (Env: OS_CACERT)')
         parser.add_argument(
             '--os-cert',
@@ -274,28 +287,26 @@ class OpenStackShell(app.App):
 
         return clientmanager.build_plugin_option_parser(parser)
 
-    def initialize_app(self, argv):
-        """Global app init bits:
+    """
+    Break up initialize_app() so that overriding it in a subclass does not
+    require duplicating a lot of the method
 
-        * set up API versions
-        * validate authentication info
-        * authenticate against Identity if requested
-        """
+    * super()
+    * _final_defaults()
+    * OpenStackConfig
+    * get_one_cloud
+    * _load_plugins()
+    * _load_commands()
+    * ClientManager
 
-        # Parent __init__ parses argv into self.options
-        super(OpenStackShell, self).initialize_app(argv)
-        self.log.info("START with options: %s",
-                      strutils.mask_password(self.command_options))
-        self.log.debug("options: %s",
-                       strutils.mask_password(self.options))
+    """
+    def _final_defaults(self):
+        # Set the default plugin to None
+        # NOTE(dtroyer): This is here to set up for setting it to a default
+        #                in the calling CLI
+        self._auth_type = None
 
-        # Set the default plugin to token_endpoint if url and token are given
-        if (self.options.url and self.options.token):
-            # Use service token authentication
-            auth_type = 'token_endpoint'
-        else:
-            auth_type = 'password'
-
+        # Converge project/tenant options
         project_id = getattr(self.options, 'project_id', None)
         project_name = getattr(self.options, 'project_name', None)
         tenant_id = getattr(self.options, 'tenant_id', None)
@@ -313,6 +324,41 @@ class OpenStackShell(app.App):
         if tenant_name and not project_name:
             self.options.project_name = tenant_name
 
+        # Save default domain
+        self.default_domain = self.options.default_domain
+
+    def _load_plugins(self):
+        """Load plugins via stevedore
+
+        osc-lib has no opinion on what plugins should be loaded
+        """
+        pass
+
+    def _load_commands(self):
+        """Load commands via cliff/stevedore
+
+        osc-lib has no opinion on what commands should be loaded
+        """
+        pass
+
+    def initialize_app(self, argv):
+        """Global app init bits:
+
+        * set up API versions
+        * validate authentication info
+        * authenticate against Identity if requested
+        """
+
+        # Parent __init__ parses argv into self.options
+        super(OpenStackShell, self).initialize_app(argv)
+        self.log.info("START with options: %s",
+                      strutils.mask_password(self.command_options))
+        self.log.debug("options: %s",
+                       strutils.mask_password(self.options))
+
+        # Callout for stuff between superclass init and o-c-c
+        self._final_defaults()
+
         # Do configuration file handling
         # Ignore the default value of interface. Only if it is set later
         # will it be used.
@@ -320,7 +366,7 @@ class OpenStackShell(app.App):
             cc = cloud_config.OpenStackConfig(
                 override_defaults={
                     'interface': None,
-                    'auth_type': auth_type,
+                    'auth_type': self._auth_type,
                 },
             )
         except (IOError, OSError) as e:
@@ -343,85 +389,18 @@ class OpenStackShell(app.App):
         self.log.debug("cloud cfg: %s",
                        strutils.mask_password(self.cloud.config))
 
-        # Set up client TLS
-        # NOTE(dtroyer): --insecure is the non-default condition that
-        #                overrides any verify setting in clouds.yaml
-        #                so check it first, then fall back to any verify
-        #                setting provided.
-        self.verify = not self.cloud.config.get(
-            'insecure',
-            not self.cloud.config.get('verify', True),
-        )
+        # Callout for stuff between o-c-c and ClientManager
+        # self._initialize_app_2(self.options)
 
-        # NOTE(dtroyer): Per bug https://bugs.launchpad.net/bugs/1447784
-        #                --insecure now overrides any --os-cacert setting,
-        #                where before --insecure was ignored if --os-cacert
-        #                was set.
-        if self.verify and self.cloud.cacert:
-            self.verify = self.cloud.cacert
+        self._load_plugins()
 
-        # Save default domain
-        self.default_domain = self.options.default_domain
-
-        # Loop through extensions to get API versions
-        for mod in clientmanager.PLUGIN_MODULES:
-            default_version = getattr(mod, 'DEFAULT_API_VERSION', None)
-            option = mod.API_VERSION_OPTION.replace('os_', '')
-            version_opt = str(self.cloud.config.get(option, default_version))
-            if version_opt:
-                api = mod.API_NAME
-                self.api_version[api] = version_opt
-
-                # Add a plugin interface to let the module validate the version
-                # requested by the user
-                skip_old_check = False
-                mod_check_api_version = getattr(mod, 'check_api_version', None)
-                if mod_check_api_version:
-                    # this throws an exception if invalid
-                    skip_old_check = mod_check_api_version(version_opt)
-
-                mod_versions = getattr(mod, 'API_VERSIONS', None)
-                if not skip_old_check and mod_versions:
-                    if version_opt not in mod_versions:
-                        self.log.warning(
-                            "%s version %s is not in supported versions %s"
-                            % (api, version_opt,
-                               ', '.join(list(mod.API_VERSIONS.keys()))))
-
-                # Command groups deal only with major versions
-                version = '.v' + version_opt.replace('.', '_').split('_')[0]
-                cmd_group = 'openstack.' + api.replace('-', '_') + version
-                self.command_manager.add_command_group(cmd_group)
-                self.log.debug(
-                    '%(name)s API version %(version)s, cmd group %(group)s',
-                    {'name': api, 'version': version_opt, 'group': cmd_group}
-                )
-
-        # Commands that span multiple APIs
-        self.command_manager.add_command_group(
-            'openstack.common')
-
-        # This is the naive extension implementation referred to in
-        # blueprint 'client-extensions'
-        # Extension modules can register their commands in an
-        # 'openstack.extension' entry point group:
-        # entry_points={
-        #     'openstack.extension': [
-        #         'list_repo=qaz.github.repo:ListRepo',
-        #         'show_repo=qaz.github.repo:ShowRepo',
-        #     ],
-        # }
-        self.command_manager.add_command_group(
-            'openstack.extension')
-        # call InitializeXxx() here
-        # set up additional clients to stuff in to client_manager??
+        self._load_commands()
 
         # Handle deferred help and exit
         self.print_help_if_requested()
 
         self.client_manager = clientmanager.ClientManager(
             cli_options=self.cloud,
-            verify=self.verify,
             api_version=self.api_version,
             pw_func=prompt_for_password,
         )
