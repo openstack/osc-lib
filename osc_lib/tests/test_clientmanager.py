@@ -16,8 +16,8 @@
 import json as jsonutils
 import mock
 
-from keystoneclient.auth.identity import v2 as auth_v2
-from keystoneclient import service_catalog
+from keystoneauth1.access import service_catalog
+from keystoneauth1.identity import v2 as auth_v2
 from openstackclient.api import auth
 from requests_mock.contrib import fixture
 
@@ -174,8 +174,12 @@ class TestClientManager(utils.TestCase):
 
         # These need to stick around until the old-style clients are gone
         self.assertEqual(
-            AUTH_REF,
-            client_manager.auth_ref,
+            AUTH_REF.pop('version'),
+            client_manager.auth_ref.version,
+        )
+        self.assertEqual(
+            fakes.to_unicode_dict(AUTH_REF),
+            client_manager.auth_ref._data['access'],
         )
         self.assertEqual(
             dir(SERVICE_CATALOG),
@@ -264,7 +268,7 @@ class TestClientManager(utils.TestCase):
         auth_params['identity_api_version'] = api_version
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(**auth_params),
-            api_version=API_VERSION,
+            api_version={"identity": api_version},
             verify=True
         )
         client_manager.setup_auth()
