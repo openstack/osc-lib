@@ -96,3 +96,14 @@ Shell
 * Break up ``OpenStackShell.initialize_app()``
   * leave all plugin initialization in OSC in ``_load_plugins()``
   * leave all command loading in OSC in ``_load_commands()``
+
+API
+===
+
+The API base layer is the common point for all API subclasses.  It is a
+wrapper around ``keystoneauth1.session.Session`` that fixes the ``request()``
+interface and provides simple endpoint handling that is useful when a Service
+Catalog is either not available or is insufficient.  It also adds simple
+implementations of the common API CRUD operations: create(), delete(), etc.
+
+* ``KeystoneSession`` -> merged into ``BaseAPI``
