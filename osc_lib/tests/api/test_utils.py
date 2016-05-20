@@ -15,9 +15,9 @@
 
 import copy
 
-from openstackclient.api import api
-from openstackclient.api import utils as api_utils
-from openstackclient.tests.api import fakes as api_fakes
+from osc_lib.api import api
+from osc_lib.api import utils as api_utils
+from osc_lib.tests.api import fakes as api_fakes
 
 
 class TestBaseAPIFilter(api_fakes.TestSession):

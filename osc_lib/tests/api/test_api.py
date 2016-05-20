@@ -13,9 +13,9 @@
 
 """Base API Library Tests"""
 
-from openstackclient.api import api
-from openstackclient.common import exceptions
-from openstackclient.tests.api import fakes as api_fakes
+from osc_lib.api import api
+from osc_lib import exceptions
+from osc_lib.tests.api import fakes as api_fakes
 
 
 class TestKeystoneSession(api_fakes.TestSession):
