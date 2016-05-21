@@ -238,25 +238,26 @@ class ClientManager(object):
             self._auth_ref = self.auth.get_auth_ref(self.session)
         return self._auth_ref
 
-    def is_network_endpoint_enabled(self):
-        """Check if the network endpoint is enabled"""
-        # Trigger authentication necessary to determine if the network
-        # endpoint is enabled.
+    def is_service_available(self, service_type):
+        """Check if a service type is in the current Service Catalog"""
+
+        # Trigger authentication necessary to discover endpoint
         if self.auth_ref:
             service_catalog = self.auth_ref.service_catalog
         else:
             service_catalog = None
         # Assume that the network endpoint is enabled.
-        network_endpoint_enabled = True
+        service_available = None
         if service_catalog:
-            if 'network' in service_catalog.get_endpoints():
-                LOG.debug("Network endpoint in service catalog")
+            if service_type in service_catalog.get_endpoints():
+                service_available = True
+                LOG.debug("%s endpoint in service catalog", service_type)
             else:
-                LOG.debug("No network endpoint in service catalog")
-                network_endpoint_enabled = False
+                service_available = False
+                LOG.debug("No %s endpoint in service catalog", service_type)
         else:
-            LOG.debug("No service catalog, assuming network endpoint enabled")
-        return network_endpoint_enabled
+            LOG.debug("No service catalog")
+        return service_available
 
     def get_endpoint_for_service_type(self, service_type, region_name=None,
                                       interface='public'):
