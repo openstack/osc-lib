@@ -21,34 +21,47 @@ from keystoneauth1 import session as ks_session
 from osc_lib import exceptions
 
 
-class KeystoneSession(object):
-    """Wrapper for the Keystone Session
+class BaseAPI(object):
+    """Base API wrapper for keystoneauth1.session.Session
 
-    Restore some requests.session.Session compatibility;
-    keystoneauth1.session.Session.request() has the method and url
-    arguments swapped from the rest of the requests-using world.
-
+    Encapsulate the translation between keystoneauth1.session.Session
+    and requests.Session in a single layer:
+    * Restore some requests.session.Session compatibility;
+      keystoneauth1.session.Session.request() has the method and url
+      arguments swapped from the rest of the requests-using world.
+    * Provide basic endpoint handling when a Service Catalog is not available.
     """
 
     def __init__(
         self,
         session=None,
+        service_type=None,
         endpoint=None,
         **kwargs
     ):
         """Base object that contains some common API objects and methods
 
-        :param Session session:
-            The default session to be used for making the HTTP API calls.
+        :param keystoneauth1.session.Session session:
+            The session to be used for making the HTTP API calls.  If None,
+            a default keystoneauth1.session.Session will be created.
+        :param string service_type:
+            API name, i.e. ``identity`` or ``compute``
         :param string endpoint:
-            The URL from the Service Catalog to be used as the base for API
-            requests on this API.
+            An optional URL to be used as the base for API requests on
+            this API.
+        :param kwargs:
+            Keyword arguments passed to keystoneauth1.session.Session().
         """
 
-        super(KeystoneSession, self).__init__()
+        super(BaseAPI, self).__init__()
 
-        # a requests.Session-style interface
-        self.session = session
+        # Create a keystoneauth1.session.Session if one is not supplied
+        if not session:
+            self.session = ks_session.Session(**kwargs)
+        else:
+            self.session = session
+
+        self.service_type = service_type
         self.endpoint = endpoint
 
     def _request(self, method, url, session=None, **kwargs):
@@ -60,53 +73,33 @@ class KeystoneSession(object):
         :param string method:
             The HTTP method name, i.e. ``GET``, ``PUT``, etc
         :param string url:
-            The API-specific portion of the URL path
-        :param Session session:
-            HTTP client session
+            The API-specific portion of the URL path, or a full URL if
+            ``endpoint`` was not supplied at initialization.
+        :param keystoneauth1.session.Session session:
+            An initialized session to override the one created at
+            initialization.
         :param kwargs:
-            keyword arguments passed to requests.request().
+            Keyword arguments passed to requests.request().
         :return: the requests.Response object
         """
 
+        # If session arg is supplied, use it this time, but don't save it
         if not session:
             session = self.session
-        if not session:
-            session = ks_session.Session()
 
+        # Do the auto-endpoint magic
         if self.endpoint:
             if url:
                 url = '/'.join([self.endpoint.rstrip('/'), url.lstrip('/')])
             else:
                 url = self.endpoint.rstrip('/')
+        else:
+            # Pass on the lack of URL unmolested to maintain the same error
+            # handling from keystoneauth: raise EndpointNotFound
+            pass
 
         # Why is ksc session backwards???
         return session.request(url, method, **kwargs)
-
-
-class BaseAPI(KeystoneSession):
-    """Base API"""
-
-    def __init__(
-        self,
-        session=None,
-        service_type=None,
-        endpoint=None,
-        **kwargs
-    ):
-        """Base object that contains some common API objects and methods
-
-        :param Session session:
-            The default session to be used for making the HTTP API calls.
-        :param string service_type:
-            API name, i.e. ``identity`` or ``compute``
-        :param string endpoint:
-            The URL from the Service Catalog to be used as the base for API
-            requests on this API.
-        """
-
-        super(BaseAPI, self).__init__(session=session, endpoint=endpoint)
-
-        self.service_type = service_type
 
     # The basic action methods all take a Session and return dict/lists
 

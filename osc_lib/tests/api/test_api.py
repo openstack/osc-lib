@@ -13,21 +13,75 @@
 
 """Base API Library Tests"""
 
+from keystoneauth1 import exceptions as ks_exceptions
+from keystoneauth1 import session
+
 from osc_lib.api import api
 from osc_lib import exceptions
 from osc_lib.tests.api import fakes as api_fakes
 
 
-class TestKeystoneSession(api_fakes.TestSession):
+class TestBaseAPIDefault(api_fakes.TestSession):
 
     def setUp(self):
-        super(TestKeystoneSession, self).setUp()
-        self.api = api.KeystoneSession(
+        super(TestBaseAPIDefault, self).setUp()
+        self.api = api.BaseAPI()
+
+    def test_baseapi_request_url(self):
+        self.requests_mock.register_uri(
+            'GET',
+            self.BASE_URL + '/qaz',
+            json=api_fakes.RESP_ITEM_1,
+            status_code=200,
+        )
+        ret = self.api._request('GET', self.BASE_URL + '/qaz')
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret.json())
+        self.assertIsNotNone(self.api.session)
+        self.assertNotEqual(self.sess, self.api.session)
+
+    def test_baseapi_request_url_path(self):
+        self.requests_mock.register_uri(
+            'GET',
+            self.BASE_URL + '/qaz',
+            json=api_fakes.RESP_ITEM_1,
+            status_code=200,
+        )
+        self.assertRaises(
+            ks_exceptions.EndpointNotFound,
+            self.api._request,
+            'GET',
+            '/qaz',
+        )
+        self.assertIsNotNone(self.api.session)
+        self.assertNotEqual(self.sess, self.api.session)
+
+    def test_baseapi_request_session(self):
+        self.requests_mock.register_uri(
+            'GET',
+            self.BASE_URL + '/qaz',
+            json=api_fakes.RESP_ITEM_1,
+            status_code=200,
+        )
+        ret = self.api._request(
+            'GET',
+            self.BASE_URL + '/qaz',
+            session=self.sess,
+        )
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret.json())
+        self.assertIsNotNone(self.api.session)
+        self.assertNotEqual(self.sess, self.api.session)
+
+
+class TestBaseAPIArgs(api_fakes.TestSession):
+
+    def setUp(self):
+        super(TestBaseAPIArgs, self).setUp()
+        self.api = api.BaseAPI(
             session=self.sess,
             endpoint=self.BASE_URL,
         )
 
-    def test_session_request(self):
+    def test_baseapi_request_url_path(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
@@ -36,18 +90,33 @@ class TestKeystoneSession(api_fakes.TestSession):
         )
         ret = self.api._request('GET', '/qaz')
         self.assertEqual(api_fakes.RESP_ITEM_1, ret.json())
+        self.assertIsNotNone(self.api.session)
+        self.assertEqual(self.sess, self.api.session)
+
+    def test_baseapi_request_session(self):
+        self.requests_mock.register_uri(
+            'GET',
+            self.BASE_URL + '/qaz',
+            json=api_fakes.RESP_ITEM_1,
+            status_code=200,
+        )
+        new_session = session.Session()
+        ret = self.api._request('GET', '/qaz', session=new_session)
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret.json())
+        self.assertIsNotNone(self.api.session)
+        self.assertNotEqual(new_session, self.api.session)
 
 
-class TestBaseAPI(api_fakes.TestSession):
+class TestBaseAPICreate(api_fakes.TestSession):
 
     def setUp(self):
-        super(TestBaseAPI, self).setUp()
+        super(TestBaseAPICreate, self).setUp()
         self.api = api.BaseAPI(
             session=self.sess,
             endpoint=self.BASE_URL,
         )
 
-    def test_create_post(self):
+    def test_baseapi_create_post(self):
         self.requests_mock.register_uri(
             'POST',
             self.BASE_URL + '/qaz',
@@ -57,7 +126,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.create('qaz')
         self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
-    def test_create_put(self):
+    def test_baseapi_create_put(self):
         self.requests_mock.register_uri(
             'PUT',
             self.BASE_URL + '/qaz',
@@ -67,7 +136,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.create('qaz', method='PUT')
         self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
-    def test_delete(self):
+    def test_baseapi_delete(self):
         self.requests_mock.register_uri(
             'DELETE',
             self.BASE_URL + '/qaz',
@@ -76,9 +145,17 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.delete('qaz')
         self.assertEqual(204, ret.status_code)
 
-    # find tests
 
-    def test_find_attr_by_id(self):
+class TestBaseAPIFind(api_fakes.TestSession):
+
+    def setUp(self):
+        super(TestBaseAPIFind, self).setUp()
+        self.api = api.BaseAPI(
+            session=self.sess,
+            endpoint=self.BASE_URL,
+        )
+
+    def test_baseapi_find_attr_by_id(self):
 
         # All first requests (by name) will fail in this test
         self.requests_mock.register_uri(
@@ -128,7 +205,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.find_attr('qaz', value='UP', attr='status')
         self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
-    def test_find_attr_by_name(self):
+    def test_baseapi_find_attr_by_name(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz?name=alpha',
@@ -170,7 +247,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.find_attr('qaz', value='UP', attr='status')
         self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
-    def test_find_attr_path_resource(self):
+    def test_baseapi_find_attr_path_resource(self):
 
         # Test resource different than path
         self.requests_mock.register_uri(
@@ -188,7 +265,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.find_attr('wsx', '1', resource='qaz')
         self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
-    def test_find_bulk_none(self):
+    def test_baseapi_find_bulk_none(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
@@ -198,7 +275,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.find_bulk('qaz')
         self.assertEqual(api_fakes.LIST_RESP, ret)
 
-    def test_find_bulk_one(self):
+    def test_baseapi_find_bulk_one(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
@@ -217,7 +294,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.find_bulk('qaz', error='bogus')
         self.assertEqual([], ret)
 
-    def test_find_bulk_two(self):
+    def test_baseapi_find_bulk_two(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
@@ -233,7 +310,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.find_bulk('qaz', id='1', error='beta')
         self.assertEqual([], ret)
 
-    def test_find_bulk_dict(self):
+    def test_baseapi_find_bulk_dict(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
@@ -243,28 +320,27 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.find_bulk('qaz', id='1')
         self.assertEqual([api_fakes.LIST_RESP[0]], ret)
 
-    # list tests
 
-    def test_list_no_body(self):
-        self.requests_mock.register_uri(
-            'GET',
-            self.BASE_URL,
-            json=api_fakes.LIST_RESP,
-            status_code=200,
+class TestBaseAPIList(api_fakes.TestSession):
+
+    def setUp(self):
+        super(TestBaseAPIList, self).setUp()
+        self.api = api.BaseAPI(
+            session=self.sess,
+            endpoint=self.BASE_URL,
         )
-        ret = self.api.list('')
-        self.assertEqual(api_fakes.LIST_RESP, ret)
 
+    def test_baseapi_list_no_args(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz',
             json=api_fakes.LIST_RESP,
-            status_code=200,
+            status_code=204,
         )
-        ret = self.api.list('qaz')
+        ret = self.api.list('/qaz')
         self.assertEqual(api_fakes.LIST_RESP, ret)
 
-    def test_list_params(self):
+    def test_baseapi_list_params(self):
         params = {'format': 'json'}
         self.requests_mock.register_uri(
             'GET',
@@ -284,7 +360,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.list('qaz', **params)
         self.assertEqual(api_fakes.LIST_RESP, ret)
 
-    def test_list_body(self):
+    def test_baseapi_list_body(self):
         self.requests_mock.register_uri(
             'POST',
             self.BASE_URL + '/qaz',
@@ -294,7 +370,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.list('qaz', body=api_fakes.LIST_BODY)
         self.assertEqual(api_fakes.LIST_RESP, ret)
 
-    def test_list_detailed(self):
+    def test_baseapi_list_detailed(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz/details',
@@ -304,7 +380,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.list('qaz', detailed=True)
         self.assertEqual(api_fakes.LIST_RESP, ret)
 
-    def test_list_filtered(self):
+    def test_baseapi_list_filtered(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz?attr=value',
@@ -314,7 +390,7 @@ class TestBaseAPI(api_fakes.TestSession):
         ret = self.api.list('qaz', attr='value')
         self.assertEqual(api_fakes.LIST_RESP, ret)
 
-    def test_list_wrapped(self):
+    def test_baseapi_list_wrapped(self):
         self.requests_mock.register_uri(
             'GET',
             self.BASE_URL + '/qaz?attr=value',
