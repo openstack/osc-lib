@@ -135,7 +135,7 @@ class TestClientManager(utils.TestCase):
             client_manager.region_name,
         )
         self.assertTrue(client_manager.verify)
-        self.assertTrue(client_manager.is_network_endpoint_enabled())
+        self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password(self):
 
@@ -184,9 +184,9 @@ class TestClientManager(utils.TestCase):
             dir(SERVICE_CATALOG),
             dir(client_manager.auth_ref.service_catalog),
         )
-        self.assertTrue(client_manager.is_network_endpoint_enabled())
+        self.assertTrue(client_manager.is_service_available('network'))
 
-    def test_client_manager_network_endpoint_disabled(self):
+    def test_client_manager_endpoint_disabled(self):
 
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(
@@ -204,7 +204,7 @@ class TestClientManager(utils.TestCase):
         client_manager.auth_ref
 
         # v3 fake doesn't have network endpoint.
-        self.assertFalse(client_manager.is_network_endpoint_enabled())
+        self.assertFalse(client_manager.is_service_available('network'))
 
     def stub_auth(self, json=None, url=None, verb=None, **kwargs):
         subject_token = fakes.AUTH_TOKEN
@@ -243,7 +243,7 @@ class TestClientManager(utils.TestCase):
 
         self.assertTrue(client_manager.verify)
         self.assertEqual(None, client_manager.cacert)
-        self.assertTrue(client_manager.is_network_endpoint_enabled())
+        self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_verify_ca(self):
 
@@ -268,7 +268,7 @@ class TestClientManager(utils.TestCase):
         self.assertTrue(client_manager.verify)
         self.assertEqual('cafile', client_manager.verify)
         self.assertEqual('cafile', client_manager.cacert)
-        self.assertTrue(client_manager.is_network_endpoint_enabled())
+        self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_verify_insecure(self):
 
@@ -290,7 +290,7 @@ class TestClientManager(utils.TestCase):
 
         self.assertFalse(client_manager.verify)
         self.assertEqual(None, client_manager.cacert)
-        self.assertTrue(client_manager.is_network_endpoint_enabled())
+        self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_verify_insecure_ca(self):
 
@@ -314,7 +314,7 @@ class TestClientManager(utils.TestCase):
         # insecure overrides cacert
         self.assertFalse(client_manager.verify)
         self.assertEqual(None, client_manager.cacert)
-        self.assertTrue(client_manager.is_network_endpoint_enabled())
+        self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_no_cert(self):
         client_manager = clientmanager.ClientManager(
