@@ -35,9 +35,8 @@ class KeyValueAction(argparse.Action):
         if '=' in values:
             getattr(namespace, self.dest, {}).update([values.split('=', 1)])
         else:
-            msg = _("Expected 'key=value' type, "
-                    "but got: %s") % (str(values))
-            raise argparse.ArgumentTypeError(msg)
+            msg = _("Expected 'key=value' type, but got: %s")
+            raise argparse.ArgumentTypeError(msg % str(values))
 
 
 class MultiKeyValueAction(argparse.Action):
@@ -62,20 +61,22 @@ class MultiKeyValueAction(argparse.Action):
         :param optional_keys: a list of optional keys
         """
         if nargs:
-            raise ValueError("Parameter 'nargs' is not allowed, but got %s"
-                             % nargs)
+            msg = _("Parameter 'nargs' is not allowed, but got %s")
+            raise ValueError(msg % nargs)
 
         super(MultiKeyValueAction, self).__init__(option_strings,
                                                   dest, **kwargs)
 
         # required_keys: A list of keys that is required. None by default.
         if required_keys and not isinstance(required_keys, list):
-            raise TypeError("'required_keys' must be a list")
+            msg = _("'required_keys' must be a list")
+            raise TypeError(msg)
         self.required_keys = set(required_keys or [])
 
         # optional_keys: A list of keys that is optional. None by default.
         if optional_keys and not isinstance(optional_keys, list):
-            raise TypeError("'optional_keys' must be a list")
+            msg = _("'optional_keys' must be a list")
+            raise TypeError(msg)
         self.optional_keys = set(optional_keys or [])
 
     def __call__(self, parser, namespace, values, metavar=None):
@@ -89,31 +90,36 @@ class MultiKeyValueAction(argparse.Action):
             if '=' in kv:
                 params.update([kv.split('=', 1)])
             else:
-                msg = ("Expected key=value pairs separated by comma, "
-                       "but got: %s" % (str(kv)))
-                raise argparse.ArgumentTypeError(msg)
+                msg = _(
+                    "Expected comma separated 'key=value' pairs, but got: %s"
+                )
+                raise argparse.ArgumentTypeError(msg % str(kv))
 
         # Check key validation
         valid_keys = self.required_keys | self.optional_keys
         if valid_keys:
             invalid_keys = [k for k in params if k not in valid_keys]
             if invalid_keys:
-                msg = _("Invalid keys %(invalid_keys)s specified.\n"
-                        "Valid keys are: %(valid_keys)s.")
-                raise argparse.ArgumentTypeError(
-                    msg % {'invalid_keys': ', '.join(invalid_keys),
-                           'valid_keys': ', '.join(valid_keys)}
+                msg = _(
+                    "Invalid keys %(invalid_keys)s specified.\n"
+                    "Valid keys are: %(valid_keys)s"
                 )
+                raise argparse.ArgumentTypeError(msg % {
+                    'invalid_keys': ', '.join(invalid_keys),
+                    'valid_keys': ', '.join(valid_keys),
+                })
 
         if self.required_keys:
             missing_keys = [k for k in self.required_keys if k not in params]
             if missing_keys:
-                msg = _("Missing required keys %(missing_keys)s.\n"
-                        "Required keys are: %(required_keys)s.")
-                raise argparse.ArgumentTypeError(
-                    msg % {'missing_keys': ', '.join(missing_keys),
-                           'required_keys': ', '.join(self.required_keys)}
+                msg = _(
+                    "Missing required keys %(missing_keys)s.\n"
+                    "Required keys are: %(required_keys)s"
                 )
+                raise argparse.ArgumentTypeError(msg % {
+                    'missing_keys': ', '.join(missing_keys),
+                    'required_keys': ', '.join(self.required_keys),
+                })
 
         # Update the dest dict
         getattr(namespace, self.dest, []).append(params)
@@ -141,12 +147,14 @@ class RangeAction(argparse.Action):
             if int(range[0]) <= int(range[1]):
                 setattr(namespace, self.dest, (int(range[0]), int(range[1])))
             else:
-                msg = "Invalid range, %s is not less than %s" % \
-                    (range[0], range[1])
-                raise argparse.ArgumentError(self, msg)
+                msg = _("Invalid range, %(min)s is not less than %(max)s")
+                raise argparse.ArgumentError(self, msg % {
+                    'min': range[0],
+                    'max': range[1],
+                })
         else:
             # Too many values
-            msg = "Invalid range, too many values"
+            msg = _("Invalid range, too many values")
             raise argparse.ArgumentError(self, msg)
 
 
@@ -160,5 +168,5 @@ class NonNegativeAction(argparse.Action):
         if int(values) >= 0:
             setattr(namespace, self.dest, values)
         else:
-            msg = "%s expected a non-negative integer" % (str(option_string))
-            raise argparse.ArgumentTypeError(msg)
+            msg = _("%s expected a non-negative integer")
+            raise argparse.ArgumentTypeError(msg % str(option_string))
