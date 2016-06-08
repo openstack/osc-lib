@@ -265,6 +265,11 @@ class OpenStackShell(app.App):
             action='store_true',
             help="Print API call timing info",
         )
+        parser.add_argument(
+            '--os-beta-command',
+            action='store_true',
+            help="Enable beta commands which are subject to change",
+        )
 
         # osprofiler HMAC key argument
         if osprofiler_profiler:

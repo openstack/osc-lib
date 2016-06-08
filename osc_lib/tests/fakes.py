@@ -110,6 +110,11 @@ class FakeApp(object):
         self.log = _log
 
 
+class FakeOptions(object):
+    def __init__(self, **kwargs):
+        self.os_beta_command = False
+
+
 class FakeClient(object):
 
     def __init__(self, **kwargs):
