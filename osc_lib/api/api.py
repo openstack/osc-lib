@@ -19,6 +19,7 @@ from keystoneauth1 import exceptions as ks_exceptions
 from keystoneauth1 import session as ks_session
 
 from osc_lib import exceptions
+from osc_lib.i18n import _
 
 
 class BaseAPI(object):
@@ -248,9 +249,11 @@ class BaseAPI(object):
         if len(data) == 1:
             return data[0]
         if len(data) > 1:
-            msg = "Multiple %s exist with %s='%s'"
+            msg = _("Multiple %(resource)s exist with %(attr)s='%(value)s'")
             raise exceptions.CommandError(
-                msg % (resource, attr, value),
+                msg % {'resource': resource,
+                       'attr': attr,
+                       'value': value}
             )
 
         # Search by id
@@ -258,8 +261,12 @@ class BaseAPI(object):
         data = getlist(kwargs)
         if len(data) == 1:
             return data[0]
-        msg = "No %s with a %s or ID of '%s' found"
-        raise exceptions.CommandError(msg % (resource, attr, value))
+        msg = _("No %(resource)s with a %(attr)s or ID of '%(value)s' found")
+        raise exceptions.CommandError(
+            msg % {'resource': resource,
+                   'attr': attr,
+                   'value': value}
+        )
 
     def find_bulk(
         self,
@@ -307,10 +314,10 @@ class BaseAPI(object):
         bulk_list = self.find_bulk(path, **kwargs)
         num_bulk = len(bulk_list)
         if num_bulk == 0:
-            msg = "none found"
+            msg = _("none found")
             raise exceptions.NotFound(msg)
         elif num_bulk > 1:
-            msg = "many found"
+            msg = _("many found")
             raise RuntimeError(msg)
         return bulk_list[0]
 
@@ -337,7 +344,7 @@ class BaseAPI(object):
             try:
                 ret = self.find_one("/%s/detail" % (path), **kwargs)
             except ks_exceptions.NotFound:
-                msg = "%s not found" % value
+                msg = _("%s not found") % value
                 raise exceptions.NotFound(msg)
 
         return ret

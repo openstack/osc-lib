@@ -34,6 +34,7 @@ from osc_lib import clientmanager
 from osc_lib.command import commandmanager
 from osc_lib.command import timing
 from osc_lib import exceptions as exc
+from osc_lib.i18n import _
 from osc_lib import logs
 from osc_lib import utils
 
@@ -63,9 +64,9 @@ def prompt_for_password(prompt=None):
             pass
     # No password because we did't have a tty or nothing was entered
     if not pw:
-        raise exc.CommandError(
-            "No password entered, or found via --os-password or OS_PASSWORD",
-        )
+        raise exc.CommandError(_("No password entered, or found via"
+                                 " --os-password or OS_PASSWORD"),)
+
     return pw
 
 
@@ -200,7 +201,7 @@ class OpenStackShell(app.App):
             metavar='<cloud-config-name>',
             dest='cloud',
             default=utils.env('OS_CLOUD'),
-            help='Cloud name in clouds.yaml (Env: OS_CLOUD)',
+            help=_('Cloud name in clouds.yaml (Env: OS_CLOUD)'),
         )
         # Global arguments
         parser.add_argument(
@@ -208,37 +209,41 @@ class OpenStackShell(app.App):
             metavar='<auth-region-name>',
             dest='region_name',
             default=utils.env('OS_REGION_NAME'),
-            help='Authentication region name (Env: OS_REGION_NAME)')
+            help=_('Authentication region name (Env: OS_REGION_NAME)'),
+        )
         parser.add_argument(
             '--os-cacert',
             metavar='<ca-bundle-file>',
             dest='cacert',
             default=utils.env('OS_CACERT', default=None),
-            help='CA certificate bundle file (Env: OS_CACERT)')
+            help=_('CA certificate bundle file (Env: OS_CACERT)'),
+        )
         parser.add_argument(
             '--os-cert',
             metavar='<certificate-file>',
             dest='cert',
             default=utils.env('OS_CERT'),
-            help='Client certificate bundle file (Env: OS_CERT)')
+            help=_('Client certificate bundle file (Env: OS_CERT)'),
+        )
         parser.add_argument(
             '--os-key',
             metavar='<key-file>',
             dest='key',
             default=utils.env('OS_KEY'),
-            help='Client certificate key file (Env: OS_KEY)')
+            help=_('Client certificate key file (Env: OS_KEY)'),
+        )
         verify_group = parser.add_mutually_exclusive_group()
         verify_group.add_argument(
             '--verify',
             action='store_true',
             default=None,
-            help='Verify server certificate (default)',
+            help=_('Verify server certificate (default)'),
         )
         verify_group.add_argument(
             '--insecure',
             action='store_true',
             default=None,
-            help='Disable server certificate verification',
+            help=_('Disable server certificate verification'),
         )
         parser.add_argument(
             '--os-default-domain',
@@ -247,28 +252,29 @@ class OpenStackShell(app.App):
             default=utils.env(
                 'OS_DEFAULT_DOMAIN',
                 default=DEFAULT_DOMAIN),
-            help='Default domain ID, default=' +
-                 DEFAULT_DOMAIN +
-                 ' (Env: OS_DEFAULT_DOMAIN)')
+            help=_('Default domain ID, default=%s. '
+                   '(Env: OS_DEFAULT_DOMAIN)') % DEFAULT_DOMAIN,
+        )
         parser.add_argument(
             '--os-interface',
             metavar='<interface>',
             dest='interface',
             choices=['admin', 'public', 'internal'],
             default=utils.env('OS_INTERFACE'),
-            help='Select an interface type.'
-                 ' Valid interface types: [admin, public, internal].'
-                 ' (Env: OS_INTERFACE)')
+            help=_('Select an interface type.'
+                   ' Valid interface types: [admin, public, internal].'
+                   ' (Env: OS_INTERFACE)'),
+        )
         parser.add_argument(
             '--timing',
             default=False,
             action='store_true',
-            help="Print API call timing info",
+            help=_("Print API call timing info"),
         )
         parser.add_argument(
             '--os-beta-command',
             action='store_true',
-            help="Enable beta commands which are subject to change",
+            help=_("Enable beta commands which are subject to change"),
         )
 
         # osprofiler HMAC key argument
@@ -277,7 +283,7 @@ class OpenStackShell(app.App):
                 '--os-profile',
                 metavar='hmac-key',
                 dest='profile',
-                help='HMAC key for encrypting profiling context data',
+                help=_('HMAC key for encrypting profiling context data'),
             )
             # NOTE(dtroyer): This global option should have been named
             #                --os-profile as --profile interferes with at
