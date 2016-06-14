@@ -42,12 +42,72 @@ class FakeOddballResource(fakes.FakeResource):
 
 class TestUtils(test_utils.TestCase):
 
-    def get_test_items(self):
+    def _get_test_items(self):
         item1 = {'a': 1, 'b': 2}
         item2 = {'a': 1, 'b': 3}
         item3 = {'a': 2, 'b': 2}
         item4 = {'a': 2, 'b': 1}
         return [item1, item2, item3, item4]
+
+    def test_find_min_match_no_sort(self):
+        items = self._get_test_items()
+        sort_str = None
+        flair = {}
+        expect_items = items
+        self.assertEqual(
+            expect_items,
+            list(utils.find_min_match(items, sort_str, **flair)),
+        )
+
+    def test_find_min_match_no_flair(self):
+        items = self._get_test_items()
+        sort_str = 'b'
+        flair = {}
+        expect_items = [items[3], items[0], items[2], items[1]]
+        self.assertEqual(
+            expect_items,
+            utils.find_min_match(items, sort_str, **flair),
+        )
+
+    def test_find_min_match_a2(self):
+        items = self._get_test_items()
+        sort_str = 'b'
+        flair = {'a': 2}
+        expect_items = [items[3], items[2]]
+        self.assertEqual(
+            expect_items,
+            utils.find_min_match(items, sort_str, **flair),
+        )
+
+    def test_find_min_match_b2(self):
+        items = self._get_test_items()
+        sort_str = 'b'
+        flair = {'b': 2}
+        expect_items = [items[0], items[2], items[1]]
+        self.assertEqual(
+            expect_items,
+            utils.find_min_match(items, sort_str, **flair),
+        )
+
+    def test_find_min_match_b5(self):
+        items = self._get_test_items()
+        sort_str = 'b'
+        flair = {'b': 5}
+        expect_items = []
+        self.assertEqual(
+            expect_items,
+            utils.find_min_match(items, sort_str, **flair),
+        )
+
+    def test_find_min_match_a2_b2(self):
+        items = self._get_test_items()
+        sort_str = 'b'
+        flair = {'a': 2, 'b': 2}
+        expect_items = [items[2]]
+        self.assertEqual(
+            expect_items,
+            utils.find_min_match(items, sort_str, **flair),
+        )
 
     def test_get_password_good(self):
         with mock.patch("getpass.getpass", return_value=PASSWORD):
@@ -82,25 +142,25 @@ class TestUtils(test_utils.TestCase):
                               mock_stdin)
 
     def test_sort_items_with_one_key(self):
-        items = self.get_test_items()
+        items = self._get_test_items()
         sort_str = 'b'
         expect_items = [items[3], items[0], items[2], items[1]]
         self.assertEqual(expect_items, utils.sort_items(items, sort_str))
 
     def test_sort_items_with_multiple_keys(self):
-        items = self.get_test_items()
+        items = self._get_test_items()
         sort_str = 'a,b'
         expect_items = [items[0], items[1], items[3], items[2]]
         self.assertEqual(expect_items, utils.sort_items(items, sort_str))
 
     def test_sort_items_all_with_direction(self):
-        items = self.get_test_items()
+        items = self._get_test_items()
         sort_str = 'a:desc,b:desc'
         expect_items = [items[2], items[3], items[1], items[0]]
         self.assertEqual(expect_items, utils.sort_items(items, sort_str))
 
     def test_sort_items_some_with_direction(self):
-        items = self.get_test_items()
+        items = self._get_test_items()
         sort_str = 'a,b:desc'
         expect_items = [items[1], items[0], items[2], items[3]]
         self.assertEqual(expect_items, utils.sort_items(items, sort_str))
@@ -116,21 +176,21 @@ class TestUtils(test_utils.TestCase):
         self.assertEqual(expect_items, utils.sort_items(items, sort_str))
 
     def test_sort_items_with_empty_key(self):
-        items = self.get_test_items()
+        items = self._get_test_items()
         sort_srt = ''
         self.assertEqual(items, utils.sort_items(items, sort_srt))
         sort_srt = None
         self.assertEqual(items, utils.sort_items(items, sort_srt))
 
     def test_sort_items_with_invalid_key(self):
-        items = self.get_test_items()
+        items = self._get_test_items()
         sort_str = 'c'
         self.assertRaises(exceptions.CommandError,
                           utils.sort_items,
                           items, sort_str)
 
     def test_sort_items_with_invalid_direction(self):
-        items = self.get_test_items()
+        items = self._get_test_items()
         sort_str = 'a:bad_dir'
         self.assertRaises(exceptions.CommandError,
                           utils.sort_items,
@@ -204,7 +264,7 @@ class TestUtils(test_utils.TestCase):
         mock_sleep.assert_not_called()
 
     @mock.patch.object(time, 'sleep')
-    def test_wait_for_status_ok__with_overrides(self, mock_sleep):
+    def test_wait_for_status_ok_with_overrides(self, mock_sleep):
         # Tests the normal flow that the resource is status=complete
         resource = mock.MagicMock(my_status='COMPLETE')
         status_f = mock.Mock(return_value=resource)
