@@ -27,6 +27,27 @@ from osc_lib import exceptions
 from osc_lib.i18n import _
 
 
+def build_kwargs_dict(arg_name, value):
+    """Return a dictionary containing `arg_name` if `value` is set."""
+    kwargs = {}
+    if value:
+        kwargs[arg_name] = value
+    return kwargs
+
+
+def env(*vars, **kwargs):
+    """Search for the first defined of possibly many env vars
+
+    Returns the first environment variable defined in vars, or
+    returns the default defined in kwargs.
+    """
+    for v in vars:
+        value = os.environ.get(v, None)
+        if value:
+            return value
+    return kwargs.get('default', '')
+
+
 def find_resource(manager, name_or_id, **kwargs):
     """Helper for the _find_* methods.
 
@@ -154,6 +175,72 @@ def format_list_of_dicts(data):
     return '\n'.join(format_dict(i) for i in data)
 
 
+def get_client_class(api_name, version, version_map):
+    """Returns the client class for the requested API version
+
+    :param api_name: the name of the API, e.g. 'compute', 'image', etc
+    :param version: the requested API version
+    :param version_map: a dict of client classes keyed by version
+    :rtype: a client class for the requested API version
+    """
+    try:
+        client_path = version_map[str(version)]
+    except (KeyError, ValueError):
+        msg = _(
+            "Invalid %(api_name)s client version '%(version)s'. "
+            "must be one of: %(version_map)s"
+        )
+        raise exceptions.UnsupportedVersion(msg % {
+            'api_name': api_name,
+            'version': version,
+            'version_map': ', '.join(list(version_map.keys())),
+        })
+
+    return importutils.import_class(client_path)
+
+
+def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
+    """Return a tuple containing the item properties.
+
+    :param item: a single dict resource
+    :param fields: tuple of strings with the desired field names
+    :param mixed_case_fields: tuple of field names to preserve case
+    :param formatters: dictionary mapping field names to callables
+       to format the values
+    """
+    if mixed_case_fields is None:
+        mixed_case_fields = []
+    if formatters is None:
+        formatters = {}
+
+    row = []
+
+    for field in fields:
+        if field in mixed_case_fields:
+            field_name = field.replace(' ', '_')
+        else:
+            field_name = field.lower().replace(' ', '_')
+        data = item[field_name] if field_name in item else ''
+        if field in formatters:
+            row.append(formatters[field](data))
+        else:
+            row.append(data)
+    return tuple(row)
+
+
+def get_effective_log_level():
+    """Returns the lowest logging level considered by logging handlers
+
+    Retrieve and return the smallest log level set among the root
+    logger's handlers (in case of multiple handlers).
+    """
+    root_log = logging.getLogger()
+    min_log_lvl = logging.CRITICAL
+    for handler in root_log.handlers:
+        min_log_lvl = min(min_log_lvl, handler.level)
+    return min_log_lvl
+
+
 def get_field(item, field):
     try:
         if isinstance(item, dict):
@@ -194,33 +281,42 @@ def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
     return tuple(row)
 
 
-def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
-    """Return a tuple containing the item properties.
+def get_password(stdin, prompt=None, confirm=True):
+    message = prompt or "User Password:"
+    if hasattr(stdin, 'isatty') and stdin.isatty():
+        try:
+            while True:
+                first_pass = getpass.getpass(message)
+                if not confirm:
+                    return first_pass
+                second_pass = getpass.getpass("Repeat " + message)
+                if first_pass == second_pass:
+                    return first_pass
+                msg = _("The passwords entered were not the same")
+                print(msg)
+        except EOFError:  # Ctl-D
+            msg = _("Error reading password")
+            raise exceptions.CommandError(msg)
+    msg = _("No terminal detected attempting to read password")
+    raise exceptions.CommandError(msg)
 
-    :param item: a single dict resource
-    :param fields: tuple of strings with the desired field names
-    :param mixed_case_fields: tuple of field names to preserve case
-    :param formatters: dictionary mapping field names to callables
-       to format the values
-    """
-    if mixed_case_fields is None:
-        mixed_case_fields = []
-    if formatters is None:
-        formatters = {}
 
-    row = []
+def is_ascii(string):
+    try:
+        string.decode('ascii')
+        return True
+    except UnicodeDecodeError:
+        return False
 
-    for field in fields:
-        if field in mixed_case_fields:
-            field_name = field.replace(' ', '_')
-        else:
-            field_name = field.lower().replace(' ', '_')
-        data = item[field_name] if field_name in item else ''
-        if field in formatters:
-            row.append(formatters[field](data))
-        else:
-            row.append(data)
-    return tuple(row)
+
+def read_blob_file_contents(blob_file):
+    try:
+        with open(blob_file) as file:
+            blob = file.read().strip()
+        return blob
+    except IOError:
+        msg = _("Error occurred trying to read from file %s")
+        raise exceptions.CommandError(msg % blob_file)
 
 
 def sort_items(items, sort_str):
@@ -261,77 +357,6 @@ def sort_items(items, sort_str):
         items.sort(key=lambda item: get_field(item, sort_key),
                    reverse=reverse)
     return items
-
-
-def env(*vars, **kwargs):
-    """Search for the first defined of possibly many env vars
-
-    Returns the first environment variable defined in vars, or
-    returns the default defined in kwargs.
-    """
-    for v in vars:
-        value = os.environ.get(v, None)
-        if value:
-            return value
-    return kwargs.get('default', '')
-
-
-def get_client_class(api_name, version, version_map):
-    """Returns the client class for the requested API version
-
-    :param api_name: the name of the API, e.g. 'compute', 'image', etc
-    :param version: the requested API version
-    :param version_map: a dict of client classes keyed by version
-    :rtype: a client class for the requested API version
-    """
-    try:
-        client_path = version_map[str(version)]
-    except (KeyError, ValueError):
-        msg = _(
-            "Invalid %(api_name)s client version '%(version)s'. "
-            "must be one of: %(version_map)s"
-        )
-        raise exceptions.UnsupportedVersion(msg % {
-            'api_name': api_name,
-            'version': version,
-            'version_map': ', '.join(list(version_map.keys())),
-        })
-
-    return importutils.import_class(client_path)
-
-
-def wait_for_status(status_f,
-                    res_id,
-                    status_field='status',
-                    success_status=['active'],
-                    error_status=['error'],
-                    sleep_time=5,
-                    callback=None):
-    """Wait for status change on a resource during a long-running operation
-
-    :param status_f: a status function that takes a single id argument
-    :param res_id: the resource id to watch
-    :param status_field: the status attribute in the returned resource object
-    :param success_status: a list of status strings for successful completion
-    :param error_status: a list of status strings for error
-    :param sleep_time: wait this long (seconds)
-    :param callback: called per sleep cycle, useful to display progress
-    :rtype: True on success
-    """
-    while True:
-        res = status_f(res_id)
-        status = getattr(res, status_field, '').lower()
-        if status in success_status:
-            retval = True
-            break
-        elif status in error_status:
-            retval = False
-            break
-        if callback:
-            progress = getattr(res, 'progress', None) or 0
-            callback(progress)
-        time.sleep(sleep_time)
-    return retval
 
 
 def wait_for_delete(manager,
@@ -385,60 +410,35 @@ def wait_for_delete(manager,
     return False
 
 
-def get_effective_log_level():
-    """Returns the lowest logging level considered by logging handlers
+def wait_for_status(status_f,
+                    res_id,
+                    status_field='status',
+                    success_status=['active'],
+                    error_status=['error'],
+                    sleep_time=5,
+                    callback=None):
+    """Wait for status change on a resource during a long-running operation
 
-    Retrieve and return the smallest log level set among the root
-    logger's handlers (in case of multiple handlers).
+    :param status_f: a status function that takes a single id argument
+    :param res_id: the resource id to watch
+    :param status_field: the status attribute in the returned resource object
+    :param success_status: a list of status strings for successful completion
+    :param error_status: a list of status strings for error
+    :param sleep_time: wait this long (seconds)
+    :param callback: called per sleep cycle, useful to display progress
+    :rtype: True on success
     """
-    root_log = logging.getLogger()
-    min_log_lvl = logging.CRITICAL
-    for handler in root_log.handlers:
-        min_log_lvl = min(min_log_lvl, handler.level)
-    return min_log_lvl
-
-
-def get_password(stdin, prompt=None, confirm=True):
-    message = prompt or "User Password:"
-    if hasattr(stdin, 'isatty') and stdin.isatty():
-        try:
-            while True:
-                first_pass = getpass.getpass(message)
-                if not confirm:
-                    return first_pass
-                second_pass = getpass.getpass("Repeat " + message)
-                if first_pass == second_pass:
-                    return first_pass
-                msg = _("The passwords entered were not the same")
-                print(msg)
-        except EOFError:  # Ctl-D
-            msg = _("Error reading password")
-            raise exceptions.CommandError(msg)
-    msg = _("No terminal detected attempting to read password")
-    raise exceptions.CommandError(msg)
-
-
-def read_blob_file_contents(blob_file):
-    try:
-        with open(blob_file) as file:
-            blob = file.read().strip()
-        return blob
-    except IOError:
-        msg = _("Error occurred trying to read from file %s")
-        raise exceptions.CommandError(msg % blob_file)
-
-
-def build_kwargs_dict(arg_name, value):
-    """Return a dictionary containing `arg_name` if `value` is set."""
-    kwargs = {}
-    if value:
-        kwargs[arg_name] = value
-    return kwargs
-
-
-def is_ascii(string):
-    try:
-        string.decode('ascii')
-        return True
-    except UnicodeDecodeError:
-        return False
+    while True:
+        res = status_f(res_id)
+        status = getattr(res, status_field, '').lower()
+        if status in success_status:
+            retval = True
+            break
+        elif status in error_status:
+            retval = False
+            break
+        if callback:
+            progress = getattr(res, 'progress', None) or 0
+            callback(progress)
+        time.sleep(sleep_time)
+    return retval
