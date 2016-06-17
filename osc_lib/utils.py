@@ -151,14 +151,22 @@ def find_resource(manager, name_or_id, **kwargs):
         else:
             pass
 
+    # for client with no find function
+    count = 0
     for resource in manager.list():
-        # short circuit and return the first match
         if (resource.get('id') == name_or_id or
                 resource.get('name') == name_or_id):
-            return resource
-    else:
+            count += 1
+            _resource = resource
+    if count == 0:
         # we found no match, report back this error:
         msg = _("Could not find resource %s")
+        raise exceptions.CommandError(msg % name_or_id)
+    elif count == 1:
+        return _resource
+    else:
+        # we found multiple matches, report back this error
+        msg = _("More than one resource exists with the name or ID '%s'.")
         raise exceptions.CommandError(msg % name_or_id)
 
 
