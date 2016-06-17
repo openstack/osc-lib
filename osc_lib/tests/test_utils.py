@@ -304,6 +304,12 @@ class TestUtils(test_utils.TestCase):
     def test_build_kwargs_dict_value_empty_str(self):
         self.assertEqual({}, utils.build_kwargs_dict('arg_bla', ''))
 
+    def test_is_ascii_bytes(self):
+        self.assertFalse(utils.is_ascii(b'\xe2'))
+
+    def test_is_ascii_string(self):
+        self.assertFalse(utils.is_ascii(u'\u2665'))
+
 
 class NoUniqueMatch(Exception):
     pass
