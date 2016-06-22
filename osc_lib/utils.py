@@ -333,9 +333,10 @@ def get_password(stdin, prompt=None, confirm=True):
 
 def is_ascii(string):
     try:
-        string.decode('ascii')
+        (string.decode('ascii') if isinstance(string, bytes)
+            else string.encode('ascii'))
         return True
-    except UnicodeDecodeError:
+    except (UnicodeEncodeError, UnicodeDecodeError):
         return False
 
 
