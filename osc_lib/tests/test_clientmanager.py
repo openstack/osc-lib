@@ -18,9 +18,9 @@ import mock
 
 from keystoneauth1.access import service_catalog
 from keystoneauth1.identity import v2 as auth_v2
-from openstackclient.api import auth
 from requests_mock.contrib import fixture
 
+from osc_lib.api import auth
 from osc_lib import clientmanager
 from osc_lib import exceptions as exc
 from osc_lib.tests import fakes
@@ -388,7 +388,7 @@ class TestClientManager(utils.TestCase):
             client_manager.setup_auth,
         )
 
-    @mock.patch('openstackclient.api.auth.check_valid_auth_options')
+    @mock.patch('osc_lib.api.auth.check_valid_auth_options')
     def test_client_manager_auth_setup_once(self, check_auth_options_func):
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(

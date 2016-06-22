@@ -19,11 +19,11 @@ import copy
 import logging
 import sys
 
-from openstackclient.api import auth
 from oslo_utils import strutils
 import requests
 import six
 
+from osc_lib.api import auth
 from osc_lib import exceptions
 from osc_lib import session as osc_session
 

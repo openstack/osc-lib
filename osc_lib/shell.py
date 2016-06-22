@@ -29,7 +29,6 @@ from cliff import help
 from oslo_utils import importutils
 from oslo_utils import strutils
 
-# import openstackclient
 from osc_lib import clientmanager
 from osc_lib.command import commandmanager
 from osc_lib.command import timing
