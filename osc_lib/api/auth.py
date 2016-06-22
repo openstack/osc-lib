@@ -130,8 +130,25 @@ def build_auth_params(auth_plugin_name, cmd_options):
     return (auth_plugin_loader, auth_params)
 
 
-def check_valid_auth_options(options, auth_plugin_name, required_scope=True):
-    """Perform basic option checking, provide helpful error messages.
+def check_valid_authorization_options(options, auth_plugin_name):
+    """Validate authorization options, and provide helpful error messages."""
+    if (options.auth.get('project_id') and not
+            options.auth.get('domain_id') and not
+            options.auth.get('domain_name') and not
+            options.auth.get('project_name') and not
+            options.auth.get('tenant_id') and not
+            options.auth.get('tenant_name')):
+        raise exc.CommandError(_(
+            'Missing parameter(s): '
+            'Set either a project or a domain scope, but not both. Set a '
+            'project scope with --os-project-name, OS_PROJECT_NAME, or '
+            'auth.project_name. Alternatively, set a domain scope with '
+            '--os-domain-name, OS_DOMAIN_NAME or auth.domain_name.'
+        ))
+
+
+def check_valid_authentication_options(options, auth_plugin_name):
+    """Validate authentication options, and provide helpful error messages
 
     :param required_scope: indicate whether a scoped token is required
 
@@ -148,18 +165,6 @@ def check_valid_auth_options(options, auth_plugin_name, required_scope=True):
             msgs.append(_(
                 'Set an authentication URL, with --os-auth-url,'
                 ' OS_AUTH_URL or auth.auth_url'
-            ))
-        if (required_scope and not
-                options.auth.get('project_id') and not
-                options.auth.get('domain_id') and not
-                options.auth.get('domain_name') and not
-                options.auth.get('project_name') and not
-                options.auth.get('tenant_id') and not
-                options.auth.get('tenant_name')):
-            msgs.append(_(
-                'Set a project scope with --os-project-name, OS_PROJECT_NAME '
-                'or auth.project_name, or set a domain scope with '
-                '--os-domain-name, OS_DOMAIN_NAME or auth.domain_name'
             ))
     elif auth_plugin_name.endswith('token'):
         if not options.auth.get('token'):
