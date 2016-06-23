@@ -47,10 +47,14 @@ This library was extracted from the main OSC repo after the OSC 2.4.0 release.
 The following are the changes to imports that will cover the majority of
 transition to using osc-lib:
 
-* openstackclient.common.parseractions -> osc_lib.cli.parseractions
+* openstackclient.api.api -> osc_lib.api.api
+* openstackclient.api.auth -> osc_lib.api.auth
+* openstackclient.api.utils -> osc_lib.api.utils
 * openstackclient.common.command -> osc_lib.command.command
+* openstackclient.common.commandmanager -> osc_lib.command.commandmanager
 * openstackclient.common.exceptions -> osc_lib.exceptions
 * openstackclient.common.logs -> osc_lib.logs
+* openstackclient.common.parseractions -> osc_lib.cli.parseractions
 * openstackclient.common.session -> osc_lib.session
 * openstackclient.common.utils -> osc_lib.utils
 * openstackclient.i18n -> osc_lib.i18n
