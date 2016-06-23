@@ -9,8 +9,8 @@ has been done internally to better align modules.
 
 The complete list of public module name changes:
 
-* ``openstackclient.i18n`` -> ``osc_lib.i18n``
 * ``openstackclient.api.api`` -> ``osc_lib.api.api``
+* ``openstackclient.api.auth`` -> ``osc_lib.api.auth``
 * ``openstackclient.api.utils`` -> ``osc_lib.api.utils``
 * ``openstackclient.common.command`` -> ``osc_lib.command.command``
 * ``openstackclient.common.commandmanager`` -> ``osc_lib.command.commandmanager``
