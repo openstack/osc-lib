@@ -101,42 +101,6 @@ class TestClientManager(utils.TestCase):
                        url=fakes.AUTH_URL,
                        verb='GET')
 
-    def test_client_manager_token(self):
-
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(
-                auth=dict(
-                    token=fakes.AUTH_TOKEN,
-                    auth_url=fakes.AUTH_URL,
-                ),
-                auth_type='v2token',
-                interface=fakes.INTERFACE,
-                region_name=fakes.REGION_NAME,
-            ),
-            api_version=API_VERSION,
-        )
-        client_manager.setup_auth()
-        client_manager.auth_ref
-
-        self.assertEqual(
-            fakes.AUTH_URL,
-            client_manager._auth_url,
-        )
-        self.assertIsInstance(
-            client_manager.auth,
-            auth_v2.Token,
-        )
-        self.assertEqual(
-            fakes.INTERFACE,
-            client_manager.interface,
-        )
-        self.assertEqual(
-            fakes.REGION_NAME,
-            client_manager.region_name,
-        )
-        self.assertTrue(client_manager.verify)
-        self.assertTrue(client_manager.is_service_available('network'))
-
     def test_client_manager_password(self):
 
         client_manager = clientmanager.ClientManager(
@@ -334,6 +298,7 @@ class TestClientManager(utils.TestCase):
     def _select_auth_plugin(self, auth_params, api_version, auth_plugin_name):
         auth_params['auth_type'] = auth_plugin_name
         auth_params['identity_api_version'] = api_version
+
         client_manager = clientmanager.ClientManager(
             cli_options=FakeOptions(**auth_params),
             api_version={"identity": api_version},
