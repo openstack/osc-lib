@@ -95,6 +95,9 @@ class TestClientManager(utils.TestCase):
                        url='/'.join([fakes.AUTH_URL, 'v2.0/tokens']))
         # fake v3password token retrieval
         self.stub_auth(json=fakes.TEST_RESPONSE_DICT_V3,
+                       url='/'.join([fakes.AUTH_URL, 'v3/auth/tokens']))
+        # fake password token retrieval
+        self.stub_auth(json=fakes.TEST_RESPONSE_DICT_V3,
                        url='/'.join([fakes.AUTH_URL, 'auth/tokens']))
         # fake password version endpoint discovery
         self.stub_auth(json=fakes.TEST_VERSIONS,
@@ -157,8 +160,10 @@ class TestClientManager(utils.TestCase):
                 auth=dict(
                     auth_url=fakes.AUTH_URL,
                     username=fakes.USERNAME,
+                    user_domain_name='default',
                     password=fakes.PASSWORD,
                     project_name=fakes.PROJECT_NAME,
+                    project_domain_name='default',
                 ),
                 auth_type='v3password',
             ),
@@ -340,6 +345,16 @@ class TestClientManager(utils.TestCase):
             ),
         )
         self._select_auth_plugin(params, '2.0', 'v2password')
+        params = dict(
+            auth=dict(
+                auth_url=fakes.AUTH_URL,
+                username=fakes.USERNAME,
+                user_domain_name='default',
+                password=fakes.PASSWORD,
+                project_name=fakes.PROJECT_NAME,
+                project_domain_name='default',
+            ),
+        )
         self._select_auth_plugin(params, '3', 'v3password')
         self._select_auth_plugin(params, 'XXX', 'password')
 
