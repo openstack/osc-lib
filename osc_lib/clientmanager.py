@@ -87,7 +87,6 @@ class ClientManager(object):
         self._cli_options = cli_options
         self._api_version = api_version
         self._pw_callback = pw_func
-        self._url = self._cli_options.auth.get('url')
         self.region_name = self._cli_options.region_name
         self.interface = self._cli_options.interface
 
@@ -197,9 +196,8 @@ class ClientManager(object):
         if self._auth_setup_completed:
             return
 
-        # If no auth type is named by the user, select one based on
-        # the supplied options
-        self.auth_plugin_name = auth.select_auth_plugin(self._cli_options)
+        # Stash the selected auth type
+        self.auth_plugin_name = self._cli_options.config['auth_type']
 
         # Basic option checking to avoid unhelpful error messages
         auth.check_valid_authentication_options(
@@ -213,23 +211,16 @@ class ClientManager(object):
                 not self._cli_options.auth.get('password')):
             self._cli_options.auth['password'] = self._pw_callback()
 
-        (auth_plugin, self._auth_params) = auth.build_auth_params(
-            self.auth_plugin_name,
-            self._cli_options,
-        )
-
-        self._set_default_scope_options()
-
         # For compatibility until all clients can be updated
-        if 'project_name' in self._auth_params:
-            self._project_name = self._auth_params['project_name']
-        elif 'tenant_name' in self._auth_params:
-            self._project_name = self._auth_params['tenant_name']
+        if 'project_name' in self._cli_options.auth:
+            self._project_name = self._cli_options.auth['project_name']
+        elif 'tenant_name' in self._cli_options.auth:
+            self._project_name = self._cli_options.auth['tenant_name']
 
         LOG.info('Using auth plugin: %s', self.auth_plugin_name)
         LOG.debug('Using parameters %s',
-                  strutils.mask_password(self._auth_params))
-        self.auth = auth_plugin.load_from_options(**self._auth_params)
+                  strutils.mask_password(self._cli_options.auth))
+        self.auth = self._cli_options.get_auth()
         # needed by SAML authentication
         request_session = requests.session()
         self.session = osc_session.TimingSession(
