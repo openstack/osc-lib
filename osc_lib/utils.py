@@ -91,7 +91,24 @@ def find_resource(manager, name_or_id, **kwargs):
 
     """
 
-    # Try to get entity as integer id
+    # Case 1: name_or_id is an ID, we need to call get() directly
+    # for example: /projects/454ad1c743e24edcad846d1118837cac
+    # For some projects, the name only will work. For keystone, this is not
+    # enough information, and domain information is necessary.
+    try:
+        return manager.get(name_or_id)
+    except Exception:
+        pass
+
+    # Case 2: name_or_id is a name, but we have query args in kwargs
+    # for example: /projects/demo&domain_id=30524568d64447fbb3fa8b7891c10dd6
+    try:
+        return manager.get(name_or_id, **kwargs)
+    except Exception:
+        pass
+
+    # Case 3: Try to get entity as integer id. Keystone does not have integer
+    # IDs, they are UUIDs, but some things in nova do, like flavors.
     try:
         if isinstance(name_or_id, int) or name_or_id.isdigit():
             return manager.get(int(name_or_id), **kwargs)
@@ -106,12 +123,8 @@ def find_resource(manager, name_or_id, **kwargs):
         else:
             raise
 
-    # Try directly using the passed value
-    try:
-        return manager.get(name_or_id, **kwargs)
-    except Exception:
-        pass
-
+    # Case 4: Try to use find.
+    # Reset the kwargs here for find
     if len(kwargs) == 0:
         kwargs = {}
 
@@ -152,7 +165,8 @@ def find_resource(manager, name_or_id, **kwargs):
         else:
             pass
 
-    # for client with no find function
+    # Case 5: For client with no find function, list all resources and hope
+    # to find a matching name or ID.
     count = 0
     for resource in manager.list():
         if (resource.get('id') == name_or_id or

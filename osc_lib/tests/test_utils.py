@@ -335,7 +335,20 @@ class TestFindResource(test_utils.TestCase):
         self.manager.get = mock.Mock(return_value=self.expected)
         result = utils.find_resource(self.manager, "2")
         self.assertEqual(self.expected, result)
-        self.manager.get.assert_called_with(2)
+        self.manager.get.assert_called_with("2")
+
+    def test_find_resource_get_name_and_domain(self):
+        name = 'admin'
+        domain_id = '30524568d64447fbb3fa8b7891c10dd6'
+        # NOTE(stevemar): we need an iterable side-effect because the same
+        # function (manager.get()) is used twice, the first time an exception
+        # will happen, then the result will be found, but only after using
+        # the domain ID as a query arg
+        side_effect = [Exception('Boom!'), self.expected]
+        self.manager.get = mock.Mock(side_effect=side_effect)
+        result = utils.find_resource(self.manager, name, domain_id=domain_id)
+        self.assertEqual(self.expected, result)
+        self.manager.get.assert_called_with(name, domain_id=domain_id)
 
     def test_find_resource_get_uuid(self):
         uuid = '9a0dc2a0-ad0d-11e3-a5e2-0800200c9a66'
