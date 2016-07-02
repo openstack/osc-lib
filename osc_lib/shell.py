@@ -29,6 +29,7 @@ from cliff import help
 from oslo_utils import importutils
 from oslo_utils import strutils
 
+from osc_lib.cli import client_config as cloud_config
 from osc_lib import clientmanager
 from osc_lib.command import commandmanager
 from osc_lib.command import timing
@@ -36,8 +37,6 @@ from osc_lib import exceptions as exc
 from osc_lib.i18n import _
 from osc_lib import logs
 from osc_lib import utils
-
-from os_client_config import config as cloud_config
 
 osprofiler_profiler = importutils.try_import("osprofiler.profiler")
 
@@ -102,7 +101,7 @@ class OpenStackShell(app.App):
         if not command_manager:
             cm = commandmanager.CommandManager('openstack.cli')
         else:
-            command_manager
+            cm = command_manager
 
         super(OpenStackShell, self).__init__(
             description=__doc__.strip(),
@@ -374,7 +373,7 @@ class OpenStackShell(app.App):
         # Ignore the default value of interface. Only if it is set later
         # will it be used.
         try:
-            cc = cloud_config.OpenStackConfig(
+            cc = cloud_config.OSC_Config(
                 override_defaults={
                     'interface': None,
                     'auth_type': self._auth_type,

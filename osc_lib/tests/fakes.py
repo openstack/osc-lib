@@ -134,7 +134,6 @@ class FakeClientManager(object):
         self.session = None
         self.auth_ref = None
         self.auth_plugin_name = None
-        self.network_endpoint_enabled = True
 
     def get_configuration(self):
         return {
@@ -146,9 +145,6 @@ class FakeClientManager(object):
             'region': REGION_NAME,
             'identity_api_version': VERSION,
         }
-
-    def is_network_endpoint_enabled(self):
-        return self.network_endpoint_enabled
 
 
 class FakeModule(object):

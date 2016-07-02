@@ -13,20 +13,20 @@
 #   under the License.
 #
 
-import json as jsonutils
+import copy
 import mock
 
 from keystoneauth1.access import service_catalog
-from keystoneauth1.identity import v2 as auth_v2
-from requests_mock.contrib import fixture
+from keystoneauth1 import exceptions as ksa_exceptions
+from keystoneauth1.identity import generic as generic_plugin
+from keystoneauth1 import loading
+from os_client_config import cloud_config
 
 from osc_lib.api import auth
 from osc_lib import clientmanager
 from osc_lib import exceptions as exc
 from osc_lib.tests import fakes
 from osc_lib.tests import utils
-
-API_VERSION = {"identity": "2.0"}
 
 AUTH_REF = {'version': 'v2.0'}
 AUTH_REF.update(fakes.TEST_RESPONSE_DICT['access'])
@@ -45,27 +45,6 @@ class Container(object):
         pass
 
 
-class FakeOptions(object):
-
-    def __init__(self, **kwargs):
-        for option in auth.OPTIONS_LIST:
-            setattr(self, option.replace('-', '_'), None)
-        self.auth_type = None
-        self.verify = True
-        self.cacert = None
-        self.insecure = None
-        self.identity_api_version = '2.0'
-        self.timing = None
-        self.region_name = None
-        self.interface = None
-        self.url = None
-        self.auth = {}
-        self.cert = None
-        self.key = None
-        self.default_domain = 'default'
-        self.__dict__.update(kwargs)
-
-
 class TestClientCache(utils.TestCase):
 
     def test_singleton(self):
@@ -82,61 +61,29 @@ class TestClientCache(utils.TestCase):
         self.assertEqual("'Container' object has no attribute 'foo'", str(err))
 
 
-class TestClientManager(utils.TestCase):
-
-    def setUp(self):
-        super(TestClientManager, self).setUp()
-        self.mock = mock.Mock()
-        self.requests = self.useFixture(fixture.Fixture())
-        # fake v2password token retrieval
-        self.stub_auth(json=fakes.TEST_RESPONSE_DICT)
-        # fake token and token_endpoint retrieval
-        self.stub_auth(json=fakes.TEST_RESPONSE_DICT,
-                       url='/'.join([fakes.AUTH_URL, 'v2.0/tokens']))
-        # fake v3password token retrieval
-        self.stub_auth(json=fakes.TEST_RESPONSE_DICT_V3,
-                       url='/'.join([fakes.AUTH_URL, 'v3/auth/tokens']))
-        # fake password token retrieval
-        self.stub_auth(json=fakes.TEST_RESPONSE_DICT_V3,
-                       url='/'.join([fakes.AUTH_URL, 'auth/tokens']))
-        # fake password version endpoint discovery
-        self.stub_auth(json=fakes.TEST_VERSIONS,
-                       url=fakes.AUTH_URL,
-                       verb='GET')
+class TestClientManager(utils.TestClientManager):
 
     def test_client_manager_password(self):
-
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(
-                auth=dict(
-                    auth_url=fakes.AUTH_URL,
-                    username=fakes.USERNAME,
-                    password=fakes.PASSWORD,
-                    project_name=fakes.PROJECT_NAME,
-                ),
-            ),
-            api_version=API_VERSION,
-        )
-        client_manager.setup_auth()
-        client_manager.auth_ref
+        client_manager = self._make_clientmanager()
 
         self.assertEqual(
             fakes.AUTH_URL,
-            client_manager._auth_url,
+            client_manager._cli_options.config['auth']['auth_url'],
         )
         self.assertEqual(
             fakes.USERNAME,
-            client_manager._username,
+            client_manager._cli_options.config['auth']['username'],
         )
         self.assertEqual(
             fakes.PASSWORD,
-            client_manager._password,
+            client_manager._cli_options.config['auth']['password'],
         )
         self.assertIsInstance(
             client_manager.auth,
-            auth_v2.Password,
+            generic_plugin.Password,
         )
         self.assertTrue(client_manager.verify)
+        self.assertIsNone(client_manager.cert)
 
         # These need to stick around until the old-style clients are gone
         self.assertEqual(
@@ -153,84 +100,20 @@ class TestClientManager(utils.TestCase):
         )
         self.assertTrue(client_manager.is_service_available('network'))
 
-    def test_client_manager_endpoint_disabled(self):
-
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(
-                auth=dict(
-                    auth_url=fakes.AUTH_URL,
-                    username=fakes.USERNAME,
-                    user_domain_name='default',
-                    password=fakes.PASSWORD,
-                    project_name=fakes.PROJECT_NAME,
-                    project_domain_name='default',
-                ),
-                auth_type='v3password',
-            ),
-            api_version={"identity": "3"},
-        )
-        client_manager.setup_auth()
-        client_manager.auth_ref
-
-        # v3 fake doesn't have network endpoint.
-        self.assertFalse(client_manager.is_service_available('network'))
-
-    def stub_auth(self, json=None, url=None, verb=None, **kwargs):
-        subject_token = fakes.AUTH_TOKEN
-        base_url = fakes.AUTH_URL
-        if json:
-            text = jsonutils.dumps(json)
-            headers = {'X-Subject-Token': subject_token,
-                       'Content-Type': 'application/json'}
-        if not url:
-            url = '/'.join([base_url, 'tokens'])
-        url = url.replace("/?", "?")
-        if not verb:
-            verb = 'POST'
-        self.requests.register_uri(verb,
-                                   url,
-                                   headers=headers,
-                                   text=text)
-
     def test_client_manager_password_verify(self):
-
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(
-                auth=dict(
-                    auth_url=fakes.AUTH_URL,
-                    username=fakes.USERNAME,
-                    password=fakes.PASSWORD,
-                    project_name=fakes.PROJECT_NAME,
-                ),
-                auth_type='v2password',
-                verify=True,
-            ),
-            api_version=API_VERSION,
-        )
-        client_manager.setup_auth()
-        client_manager.auth_ref
+        client_manager = self._make_clientmanager()
 
         self.assertTrue(client_manager.verify)
         self.assertEqual(None, client_manager.cacert)
         self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_verify_ca(self):
-
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(
-                auth=dict(
-                    auth_url=fakes.AUTH_URL,
-                    username=fakes.USERNAME,
-                    password=fakes.PASSWORD,
-                    project_name=fakes.PROJECT_NAME,
-                ),
-                auth_type='v2password',
-                cacert='cafile',
-            ),
-            api_version=API_VERSION,
+        config_args = {
+            'cacert': 'cafile',
+        }
+        client_manager = self._make_clientmanager(
+            config_args=config_args,
         )
-        client_manager.setup_auth()
-        client_manager.auth_ref
 
         # Test that client_manager.verify is Requests-compatible,
         # i.e. it contains the value of cafile here
@@ -240,146 +123,151 @@ class TestClientManager(utils.TestCase):
         self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_verify_insecure(self):
-
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(
-                auth=dict(
-                    auth_url=fakes.AUTH_URL,
-                    username=fakes.USERNAME,
-                    password=fakes.PASSWORD,
-                    project_name=fakes.PROJECT_NAME,
-                ),
-                auth_type='v2password',
-                insecure=True,
-            ),
-            api_version=API_VERSION,
+        config_args = {
+            'insecure': True,
+        }
+        client_manager = self._make_clientmanager(
+            config_args=config_args,
         )
-        client_manager.setup_auth()
-        client_manager.auth_ref
 
         self.assertFalse(client_manager.verify)
         self.assertEqual(None, client_manager.cacert)
         self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_verify_insecure_ca(self):
-
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(
-                auth=dict(
-                    auth_url=fakes.AUTH_URL,
-                    username=fakes.USERNAME,
-                    password=fakes.PASSWORD,
-                    project_name=fakes.PROJECT_NAME,
-                ),
-                auth_type='v2password',
-                insecure=True,
-                cacert='cafile',
-            ),
-            api_version=API_VERSION,
+        config_args = {
+            'insecure': True,
+            'cacert': 'cafile',
+        }
+        client_manager = self._make_clientmanager(
+            config_args=config_args,
         )
-        client_manager.setup_auth()
-        client_manager.auth_ref
 
         # insecure overrides cacert
         self.assertFalse(client_manager.verify)
         self.assertEqual(None, client_manager.cacert)
         self.assertTrue(client_manager.is_service_available('network'))
 
-    def test_client_manager_password_no_cert(self):
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions())
-        self.assertIsNone(client_manager.cert)
-
     def test_client_manager_password_client_cert(self):
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(cert='cert'))
+        config_args = {
+            'cert': 'cert',
+        }
+        client_manager = self._make_clientmanager(
+            config_args=config_args,
+        )
+
         self.assertEqual('cert', client_manager.cert)
 
-    def test_client_manager_password_client_cert_and_key(self):
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(cert='cert', key='key'))
+    def test_client_manager_password_client_key(self):
+        config_args = {
+            'cert': 'cert',
+            'key': 'key',
+        }
+        client_manager = self._make_clientmanager(
+            config_args=config_args,
+        )
+
         self.assertEqual(('cert', 'key'), client_manager.cert)
 
-    def _select_auth_plugin(self, auth_params, api_version, auth_plugin_name):
-        auth_params['auth_type'] = auth_plugin_name
-        auth_params['identity_api_version'] = api_version
-
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(**auth_params),
-            api_version={"identity": api_version},
-        )
-        client_manager.setup_auth()
-        client_manager.auth_ref
-
-        self.assertEqual(
-            auth_plugin_name,
-            client_manager.auth_plugin_name,
-        )
-
-    def test_client_manager_select_auth_plugin(self):
-        # test token auth
-        params = dict(
-            auth=dict(
-                auth_url=fakes.AUTH_URL,
-                token=fakes.AUTH_TOKEN,
-            ),
-        )
-        self._select_auth_plugin(params, '2.0', 'v2token')
-        self._select_auth_plugin(params, '3', 'v3token')
-        self._select_auth_plugin(params, 'XXX', 'token')
-        # test token/endpoint auth
-        params = dict(
-            auth_plugin='token_endpoint',
-            auth=dict(
-                url='test',
-                token=fakes.AUTH_TOKEN,
-            ),
-        )
+    def test_client_manager_select_auth_plugin_password(self):
         # test password auth
-        params = dict(
-            auth=dict(
-                auth_url=fakes.AUTH_URL,
-                username=fakes.USERNAME,
-                password=fakes.PASSWORD,
-                project_name=fakes.PROJECT_NAME,
-            ),
+        auth_args = {
+            'auth_url': fakes.AUTH_URL,
+            'username': fakes.USERNAME,
+            'password': fakes.PASSWORD,
+            'tenant_name': fakes.PROJECT_NAME,
+        }
+        self._make_clientmanager(
+            auth_args=auth_args,
+            identity_api_version='2.0',
+            auth_plugin_name='v2password',
         )
-        self._select_auth_plugin(params, '2.0', 'v2password')
-        params = dict(
-            auth=dict(
-                auth_url=fakes.AUTH_URL,
-                username=fakes.USERNAME,
-                user_domain_name='default',
-                password=fakes.PASSWORD,
-                project_name=fakes.PROJECT_NAME,
-                project_domain_name='default',
-            ),
+
+        auth_args = copy.deepcopy(self.default_password_auth)
+        auth_args.update({
+            'user_domain_name': 'default',
+            'project_domain_name': 'default',
+        })
+        self._make_clientmanager(
+            auth_args=auth_args,
+            identity_api_version='3',
+            auth_plugin_name='v3password',
         )
-        self._select_auth_plugin(params, '3', 'v3password')
-        self._select_auth_plugin(params, 'XXX', 'password')
+
+        # Use v2.0 auth args
+        auth_args = {
+            'auth_url': fakes.AUTH_URL,
+            'username': fakes.USERNAME,
+            'password': fakes.PASSWORD,
+            'tenant_name': fakes.PROJECT_NAME,
+        }
+        self._make_clientmanager(
+            auth_args=auth_args,
+            identity_api_version='2.0',
+        )
+
+        # Use v3 auth args
+        auth_args = copy.deepcopy(self.default_password_auth)
+        auth_args.update({
+            'user_domain_name': 'default',
+            'project_domain_name': 'default',
+        })
+        self._make_clientmanager(
+            auth_args=auth_args,
+            identity_api_version='3',
+        )
+
+    def test_client_manager_select_auth_plugin_token(self):
+        # test token auth
+        self._make_clientmanager(
+            # auth_args=auth_args,
+            identity_api_version='2.0',
+            auth_plugin_name='v2token',
+        )
+        self._make_clientmanager(
+            # auth_args=auth_args,
+            identity_api_version='3',
+            auth_plugin_name='v3token',
+        )
+        self._make_clientmanager(
+            # auth_args=auth_args,
+            identity_api_version='x',
+            auth_plugin_name='token',
+        )
 
     def test_client_manager_select_auth_plugin_failure(self):
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(os_auth_plugin=''),
-            api_version=API_VERSION,
-        )
         self.assertRaises(
-            exc.CommandError,
-            client_manager.setup_auth,
+            ksa_exceptions.NoMatchingPlugin,
+            self._make_clientmanager,
+            identity_api_version='3',
+            auth_plugin_name='bad_plugin',
         )
 
     @mock.patch('osc_lib.api.auth.check_valid_authentication_options')
     def test_client_manager_auth_setup_once(self, check_authn_options_func):
-        client_manager = clientmanager.ClientManager(
-            cli_options=FakeOptions(
-                auth=dict(
-                    auth_url=fakes.AUTH_URL,
-                    username=fakes.USERNAME,
-                    password=fakes.PASSWORD,
-                    project_name=fakes.PROJECT_NAME,
+        auth_dict = {
+            'auth_url': fakes.AUTH_URL,
+            'username': fakes.USERNAME,
+            'password': fakes.PASSWORD,
+            'project_name': fakes.PROJECT_NAME,
+        }
+        loader = loading.get_plugin_loader('password')
+        auth_plugin = loader.load_from_options(**auth_dict)
+        client_manager = self._clientmanager_class()(
+            cli_options=cloud_config.CloudConfig(
+                name='t1',
+                region='1',
+                config=dict(
+                    auth_type='password',
+                    auth=auth_dict,
+                    interface=fakes.INTERFACE,
+                    region_name=fakes.REGION_NAME,
                 ),
+                auth_plugin=auth_plugin,
             ),
-            api_version=API_VERSION,
+            api_version={
+                'identity': '2.0',
+            },
         )
         self.assertFalse(client_manager._auth_setup_completed)
         client_manager.setup_auth()
@@ -391,3 +279,18 @@ class TestClientManager(utils.TestCase):
         check_authn_options_func.reset_mock()
         client_manager.auth_ref
         check_authn_options_func.assert_not_called()
+
+    def test_client_manager_endpoint_disabled(self):
+        auth_args = copy.deepcopy(self.default_password_auth)
+        auth_args.update({
+            'user_domain_name': 'default',
+            'project_domain_name': 'default',
+        })
+        # v3 fake doesn't have network endpoint
+        client_manager = self._make_clientmanager(
+            auth_args=auth_args,
+            identity_api_version='3',
+            auth_plugin_name='v3password',
+        )
+
+        self.assertFalse(client_manager.is_service_available('network'))

@@ -14,12 +14,67 @@
 #   under the License.
 #
 
+import copy
+import json as jsonutils
+import mock
 import os
 
 import fixtures
+from keystoneauth1 import loading
+from os_client_config import cloud_config
+from requests_mock.contrib import fixture
 import testtools
 
+from osc_lib import clientmanager
+from osc_lib import shell
 from osc_lib.tests import fakes
+
+
+def fake_execute(shell, cmd):
+    """Pretend to execute shell commands."""
+    return shell.run(cmd.split())
+
+
+def make_shell(shell_class=None):
+    """Create a new command shell and mock out some bits."""
+    if shell_class is None:
+        shell_class = shell.OpenStackShell
+    _shell = shell_class()
+    _shell.command_manager = mock.Mock()
+    # _shell.cloud = mock.Mock()
+
+    return _shell
+
+
+def opt2attr(opt):
+    if opt.startswith('--os-'):
+        attr = opt[5:]
+    elif opt.startswith('--'):
+        attr = opt[2:]
+    else:
+        attr = opt
+    return attr.lower().replace('-', '_')
+
+
+def opt2env(opt):
+    return opt[2:].upper().replace('-', '_')
+
+
+class EnvFixture(fixtures.Fixture):
+    """Environment Fixture.
+
+    This fixture replaces os.environ with provided env or an empty env.
+    """
+
+    def __init__(self, env=None):
+        self.new_env = env or {}
+
+    def _setUp(self):
+        self.orig_env, os.environ = os.environ, self.new_env
+        self.addCleanup(self.revert)
+
+    def revert(self):
+        os.environ = self.orig_env
 
 
 class ParserException(Exception):
@@ -73,3 +128,263 @@ class TestCommand(TestCase):
                 self.assertIn(attr, parsed_args)
                 self.assertEqual(value, getattr(parsed_args, attr))
         return parsed_args
+
+
+class TestClientManager(TestCase):
+    """ClientManager class test framework"""
+
+    default_password_auth = {
+        'auth_url': fakes.AUTH_URL,
+        'username': fakes.USERNAME,
+        'password': fakes.PASSWORD,
+        'project_name': fakes.PROJECT_NAME,
+    }
+    default_token_auth = {
+        'auth_url': fakes.AUTH_URL,
+        'token': fakes.AUTH_TOKEN,
+    }
+
+    def setUp(self):
+        super(TestClientManager, self).setUp()
+        self.mock = mock.Mock()
+        self.requests = self.useFixture(fixture.Fixture())
+        # fake v2password token retrieval
+        self.stub_auth(json=fakes.TEST_RESPONSE_DICT)
+        # fake token and token_endpoint retrieval
+        self.stub_auth(json=fakes.TEST_RESPONSE_DICT,
+                       url='/'.join([fakes.AUTH_URL, 'v2.0/tokens']))
+        # fake v3password token retrieval
+        self.stub_auth(json=fakes.TEST_RESPONSE_DICT_V3,
+                       url='/'.join([fakes.AUTH_URL, 'v3/auth/tokens']))
+        # fake password token retrieval
+        self.stub_auth(json=fakes.TEST_RESPONSE_DICT_V3,
+                       url='/'.join([fakes.AUTH_URL, 'auth/tokens']))
+        # fake password version endpoint discovery
+        self.stub_auth(json=fakes.TEST_VERSIONS,
+                       url=fakes.AUTH_URL,
+                       verb='GET')
+
+        # Mock the auth plugin
+        self.auth_mock = mock.Mock()
+
+    def stub_auth(self, json=None, url=None, verb=None, **kwargs):
+        subject_token = fakes.AUTH_TOKEN
+        base_url = fakes.AUTH_URL
+        if json:
+            text = jsonutils.dumps(json)
+            headers = {
+                'X-Subject-Token': subject_token,
+                'Content-Type': 'application/json',
+            }
+        if not url:
+            url = '/'.join([base_url, 'tokens'])
+        url = url.replace("/?", "?")
+        if not verb:
+            verb = 'POST'
+        self.requests.register_uri(
+            verb,
+            url,
+            headers=headers,
+            text=text,
+        )
+
+    def _clientmanager_class(self):
+        """Allow subclasses to override the ClientManager class"""
+        return clientmanager.ClientManager
+
+    def _make_clientmanager(
+        self,
+        auth_args=None,
+        config_args=None,
+        identity_api_version=None,
+        auth_plugin_name=None,
+    ):
+
+        if identity_api_version is None:
+            identity_api_version = '2.0'
+        if auth_plugin_name is None:
+            auth_plugin_name = 'password'
+
+        if auth_plugin_name.endswith('password'):
+            auth_dict = copy.deepcopy(self.default_password_auth)
+        elif auth_plugin_name.endswith('token'):
+            auth_dict = copy.deepcopy(self.default_token_auth)
+        else:
+            auth_dict = {}
+
+        if auth_args is not None:
+            auth_dict = auth_args
+
+        cli_options = {
+            'auth_type': auth_plugin_name,
+            'auth': auth_dict,
+            'interface': fakes.INTERFACE,
+            'region_name': fakes.REGION_NAME,
+        }
+        if config_args is not None:
+            cli_options.update(config_args)
+
+        loader = loading.get_plugin_loader(auth_plugin_name)
+        auth_plugin = loader.load_from_options(**auth_dict)
+        client_manager = self._clientmanager_class()(
+            cli_options=cloud_config.CloudConfig(
+                name='t1',
+                region='1',
+                config=cli_options,
+                auth_plugin=auth_plugin,
+            ),
+            api_version={
+                'identity': identity_api_version,
+            },
+        )
+        client_manager.setup_auth()
+        client_manager.auth_ref
+
+        self.assertEqual(
+            auth_plugin_name,
+            client_manager.auth_plugin_name,
+        )
+        return client_manager
+
+
+class TestShell(TestCase):
+
+    # cliff.app.App subclass
+    app_patch = "osc_lib.shell.OpenStackShell"
+
+    def setUp(self):
+        super(TestShell, self).setUp()
+        self.cmd_patch = mock.patch(self.app_patch + ".run_subcommand")
+        self.cmd_save = self.cmd_patch.start()
+        self.addCleanup(self.cmd_patch.stop)
+        self.app = mock.Mock("Test Shell")
+
+    def _assert_initialize_app_arg(self, cmd_options, default_args):
+        """Check the args passed to initialize_app()
+
+        The argv argument to initialize_app() is the remainder from parsing
+        global options declared in both cliff.app and
+        osc_lib.OpenStackShell build_option_parser().  Any global
+        options passed on the command line should not be in argv but in
+        _shell.options.
+        """
+
+        with mock.patch(
+                self.app_patch + ".initialize_app",
+                self.app,
+        ):
+            _shell, _cmd = make_shell(), cmd_options + " module list"
+            fake_execute(_shell, _cmd)
+
+            self.app.assert_called_with(["module", "list"])
+            for k in default_args.keys():
+                self.assertEqual(
+                    default_args[k],
+                    vars(_shell.options)[k],
+                    "%s does not match" % k,
+                )
+
+    def _assert_cloud_config_arg(self, cmd_options, default_args):
+        """Check the args passed to cloud_config.get_one_cloud()
+
+        The argparse argument to get_one_cloud() is an argparse.Namespace
+        object that contains all of the options processed to this point in
+        initialize_app().
+        """
+
+        cloud = mock.Mock(name="cloudy")
+        cloud.config = {}
+        self.occ_get_one = mock.Mock(return_value=cloud)
+        with mock.patch(
+                "os_client_config.config.OpenStackConfig.get_one_cloud",
+                self.occ_get_one,
+        ):
+            _shell, _cmd = make_shell(), cmd_options + " module list"
+            fake_execute(_shell, _cmd)
+
+            self.app.assert_called_with(["module", "list"])
+            opts = self.occ_get_one.call_args[1]['argparse']
+            for k in default_args.keys():
+                self.assertEqual(
+                    default_args[k],
+                    vars(opts)[k],
+                    "%s does not match" % k,
+                )
+
+    def _assert_token_auth(self, cmd_options, default_args):
+        with mock.patch(self.app_patch + ".initialize_app",
+                        self.app):
+            _shell, _cmd = make_shell(), cmd_options + " list role"
+            fake_execute(_shell, _cmd)
+
+            self.app.assert_called_with(["list", "role"])
+            self.assertEqual(
+                default_args.get("token", ''),
+                _shell.options.token,
+                "token"
+            )
+            self.assertEqual(
+                default_args.get("auth_url", ''),
+                _shell.options.auth_url,
+                "auth_url"
+            )
+
+    def _test_options_init_app(self, test_opts):
+        """Test options on the command line"""
+        for opt in test_opts.keys():
+            if not test_opts[opt][1]:
+                continue
+            key = opt2attr(opt)
+            if isinstance(test_opts[opt][0], str):
+                cmd = opt + " " + test_opts[opt][0]
+            else:
+                cmd = opt
+            kwargs = {
+                key: test_opts[opt][0],
+            }
+            self._assert_initialize_app_arg(cmd, kwargs)
+
+    def _test_env_init_app(self, test_opts):
+        """Test options in the environment"""
+        for opt in test_opts.keys():
+            if not test_opts[opt][2]:
+                continue
+            key = opt2attr(opt)
+            kwargs = {
+                key: test_opts[opt][0],
+            }
+            env = {
+                opt2env(opt): test_opts[opt][0],
+            }
+            os.environ = env.copy()
+            self._assert_initialize_app_arg("", kwargs)
+
+    def _test_options_get_one_cloud(self, test_opts):
+        """Test options sent "to os_client_config"""
+        for opt in test_opts.keys():
+            if not test_opts[opt][1]:
+                continue
+            key = opt2attr(opt)
+            if isinstance(test_opts[opt][0], str):
+                cmd = opt + " " + test_opts[opt][0]
+            else:
+                cmd = opt
+            kwargs = {
+                key: test_opts[opt][0],
+            }
+            self._assert_cloud_config_arg(cmd, kwargs)
+
+    def _test_env_get_one_cloud(self, test_opts):
+        """Test environment options sent "to os_client_config"""
+        for opt in test_opts.keys():
+            if not test_opts[opt][2]:
+                continue
+            key = opt2attr(opt)
+            kwargs = {
+                key: test_opts[opt][0],
+            }
+            env = {
+                opt2env(opt): test_opts[opt][0],
+            }
+            os.environ = env.copy()
+            self._assert_cloud_config_arg("", kwargs)
