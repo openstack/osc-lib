@@ -13,13 +13,11 @@
 #   under the License.
 #
 
-import json
 import mock
 import six
 import sys
 
 from keystoneauth1 import fixture
-import requests
 
 
 AUTH_TOKEN = "foobar"
@@ -115,13 +113,6 @@ class FakeOptions(object):
         self.os_beta_command = False
 
 
-class FakeClient(object):
-
-    def __init__(self, **kwargs):
-        self.endpoint = kwargs['endpoint']
-        self.token = kwargs['token']
-
-
 class FakeClientManager(object):
 
     def __init__(self):
@@ -145,13 +136,6 @@ class FakeClientManager(object):
             'region': REGION_NAME,
             'identity_api_version': VERSION,
         }
-
-
-class FakeModule(object):
-
-    def __init__(self, name, version):
-        self.name = name
-        self.__version__ = version
 
 
 class FakeResource(object):
@@ -202,28 +186,3 @@ class FakeResource(object):
 
     def keys(self):
         return self._info.keys()
-
-
-class FakeResponse(requests.Response):
-
-    def __init__(self, headers=None, status_code=200,
-                 data=None, encoding=None):
-        super(FakeResponse, self).__init__()
-
-        headers = headers or {}
-
-        self.status_code = status_code
-
-        self.headers.update(headers)
-        self._content = json.dumps(data)
-        if not isinstance(self._content, six.binary_type):
-            self._content = self._content.encode()
-
-
-class FakeModel(dict):
-
-    def __getattr__(self, key):
-        try:
-            return self[key]
-        except KeyError:
-            raise AttributeError(key)
