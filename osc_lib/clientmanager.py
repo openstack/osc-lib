@@ -211,12 +211,6 @@ class ClientManager(object):
                 not self._cli_options.auth.get('password')):
             self._cli_options.auth['password'] = self._pw_callback()
 
-        # For compatibility until all clients can be updated
-        if 'project_name' in self._cli_options.auth:
-            self._project_name = self._cli_options.auth['project_name']
-        elif 'tenant_name' in self._cli_options.auth:
-            self._project_name = self._cli_options.auth['tenant_name']
-
         LOG.info('Using auth plugin: %s', self.auth_plugin_name)
         LOG.debug('Using parameters %s',
                   strutils.mask_password(self._cli_options.auth))
