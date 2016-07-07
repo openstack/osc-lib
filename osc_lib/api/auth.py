@@ -52,7 +52,7 @@ def get_options_list():
         for plugin_name in get_plugin_list():
             plugin_options = base.get_plugin_options(plugin_name)
             for o in plugin_options:
-                os_name = o.dest.lower().replace('_', '-')
+                os_name = o.name.lower().replace('_', '-')
                 os_env_name = 'OS_' + os_name.upper().replace('-', '_')
                 OPTIONS_LIST.setdefault(
                     os_name, {'env': os_env_name, 'help': ''},
