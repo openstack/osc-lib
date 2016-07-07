@@ -20,7 +20,6 @@ import logging
 import sys
 
 from oslo_utils import strutils
-import requests
 import six
 
 from osc_lib.api import auth
@@ -221,11 +220,8 @@ class ClientManager(object):
         LOG.debug('Using parameters %s',
                   strutils.mask_password(self._cli_options.auth))
         self.auth = self._cli_options.get_auth()
-        # needed by SAML authentication
-        request_session = requests.session()
         self.session = osc_session.TimingSession(
             auth=self.auth,
-            session=request_session,
             verify=self.verify,
             cert=self.cert,
             user_agent=USER_AGENT,
