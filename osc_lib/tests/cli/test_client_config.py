@@ -85,70 +85,101 @@ class TestOSCConfig(utils.TestCase):
         config = {
             'identity_api_version': '2',
             'auth_type': 'v2password',
-            'username': 'fred',
+            'auth': {
+                'username': 'fred',
+            },
         }
         ret_config = self.cloud._auth_v2_arguments(config)
-        self.assertEqual('fred', ret_config['username'])
-        self.assertFalse('tenant_id' in ret_config)
-        self.assertFalse('tenant_name' in ret_config)
+        self.assertEqual('fred', ret_config['auth']['username'])
+        self.assertFalse('tenant_id' in ret_config['auth'])
+        self.assertFalse('tenant_name' in ret_config['auth'])
 
         config = {
             'identity_api_version': '3',
             'auth_type': 'v3password',
-            'username': 'fred',
-            'project_id': 'id',
+            'auth': {
+                'username': 'fred',
+                'project_id': 'id',
+            },
         }
         ret_config = self.cloud._auth_v2_arguments(config)
-        self.assertEqual('fred', ret_config['username'])
-        self.assertFalse('tenant_id' in ret_config)
-        self.assertFalse('tenant_name' in ret_config)
+        self.assertEqual('fred', ret_config['auth']['username'])
+        self.assertFalse('tenant_id' in ret_config['auth'])
+        self.assertFalse('tenant_name' in ret_config['auth'])
 
         config = {
             'identity_api_version': '2',
             'auth_type': 'v2password',
-            'username': 'fred',
-            'project_id': 'id',
+            'auth': {
+                'username': 'fred',
+                'project_id': 'id',
+            },
         }
         ret_config = self.cloud._auth_v2_arguments(config)
-        self.assertEqual('id', ret_config['tenant_id'])
-        self.assertFalse('tenant_name' in ret_config)
+        self.assertEqual('id', ret_config['auth']['tenant_id'])
+        self.assertFalse('tenant_name' in ret_config['auth'])
 
         config = {
             'identity_api_version': '2',
             'auth_type': 'v2password',
-            'username': 'fred',
-            'project_name': 'name',
+            'auth': {
+                'username': 'fred',
+                'project_name': 'name',
+            },
         }
         ret_config = self.cloud._auth_v2_arguments(config)
-        self.assertFalse('tenant_id' in ret_config)
-        self.assertEqual('name', ret_config['tenant_name'])
+        self.assertFalse('tenant_id' in ret_config['auth'])
+        self.assertEqual('name', ret_config['auth']['tenant_name'])
 
     def test_auth_v2_ignore_v3(self):
         config = {
             'identity_api_version': '2',
             'auth_type': 'v2password',
-            'username': 'fred',
-            'project_id': 'id',
-            'project_domain_id': 'bad',
+            'auth': {
+                'username': 'fred',
+                'project_id': 'id',
+                'project_domain_id': 'bad',
+            },
         }
         ret_config = self.cloud._auth_v2_ignore_v3(config)
-        self.assertEqual('fred', ret_config['username'])
-        self.assertFalse('project_domain_id' in ret_config)
+        self.assertEqual('fred', ret_config['auth']['username'])
+        self.assertFalse('project_domain_id' in ret_config['auth'])
 
-    def test_auth_config_hook_default_domain(self):
+    def test_auth_default_domain_use_default(self):
         config = {
             'identity_api_version': '3',
-            'auth_type': 'admin_token',
+            'auth_type': 'v3password',
             'default_domain': 'default',
-            'username': 'fred',
-            'project_id': 'id',
-            'project_domain_id': None,
+            'auth': {
+                'username': 'fred',
+                'project_id': 'id',
+            },
         }
-        ret_config = self.cloud.auth_config_hook(config)
-        self.assertEqual('admin_token', ret_config['auth_type'])
+        ret_config = self.cloud._auth_default_domain(config)
+        self.assertEqual('v3password', ret_config['auth_type'])
         self.assertEqual('default', ret_config['default_domain'])
-        self.assertEqual('fred', ret_config['username'])
-        self.assertEqual('default', ret_config['project_domain_id'])
+        self.assertEqual('fred', ret_config['auth']['username'])
+        self.assertEqual('default', ret_config['auth']['project_domain_id'])
+        self.assertEqual('default', ret_config['auth']['user_domain_id'])
+
+    def test_auth_default_domain_use_given(self):
+        config = {
+            'identity_api_version': '3',
+            'auth_type': 'v3password',
+            'default_domain': 'default',
+            'auth': {
+                'username': 'fred',
+                'project_id': 'id',
+                'project_domain_id': 'proj',
+                'user_domain_id': 'use'
+            },
+        }
+        ret_config = self.cloud._auth_default_domain(config)
+        self.assertEqual('v3password', ret_config['auth_type'])
+        self.assertEqual('default', ret_config['default_domain'])
+        self.assertEqual('fred', ret_config['auth']['username'])
+        self.assertEqual('proj', ret_config['auth']['project_domain_id'])
+        self.assertEqual('use', ret_config['auth']['user_domain_id'])
 
     def test_auth_config_hook_default(self):
         config = {}

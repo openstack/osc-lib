@@ -65,10 +65,10 @@ class OSC_Config(OpenStackConfig):
         """
 
         if ('auth_type' in config and config['auth_type'].startswith("v2")):
-            if 'project_id' in config:
-                config['tenant_id'] = config['project_id']
-            if 'project_name' in config:
-                config['tenant_name'] = config['project_name']
+            if 'project_id' in config['auth']:
+                config['auth']['tenant_id'] = config['auth']['project_id']
+            if 'project_name' in config['auth']:
+                config['auth']['tenant_name'] = config['auth']['project_name']
         return config
 
     def _auth_v2_ignore_v3(self, config):
@@ -89,7 +89,7 @@ class OSC_Config(OpenStackConfig):
                 'user_domain_name',
             ]
             for prop in domain_props:
-                if config.pop(prop, None) is not None:
+                if config['auth'].pop(prop, None) is not None:
                     LOG.warning("Ignoring domain related config " +
                                 prop + " because identity API version is 2.0")
         return config
@@ -113,18 +113,20 @@ class OSC_Config(OpenStackConfig):
             # NOTE(stevemar): If PROJECT_DOMAIN_ID or PROJECT_DOMAIN_NAME is
             # present, then do not change the behaviour. Otherwise, set the
             # PROJECT_DOMAIN_ID to 'OS_DEFAULT_DOMAIN' for better usability.
-            if ('project_domain_id' in config and
-                    not config.get('project_domain_id') and
-                    not config.get('project_domain_name')):
-                config['project_domain_id'] = default_domain
+            if (
+                    not config['auth'].get('project_domain_id') and
+                    not config['auth'].get('project_domain_name')
+            ):
+                config['auth']['project_domain_id'] = default_domain
 
             # NOTE(stevemar): If USER_DOMAIN_ID or USER_DOMAIN_NAME is present,
             # then do not change the behaviour. Otherwise, set the
             # USER_DOMAIN_ID to 'OS_DEFAULT_DOMAIN' for better usability.
-            if ('user_domain_id' in config and
-                    not config.get('user_domain_id') and
-                    not config.get('user_domain_name')):
-                config['user_domain_id'] = default_domain
+            if (
+                    not config['auth'].get('user_domain_id') and
+                    not config['auth'].get('user_domain_name')
+            ):
+                config['auth']['user_domain_id'] = default_domain
         return config
 
     def auth_config_hook(self, config):
