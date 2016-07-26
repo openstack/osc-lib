@@ -22,6 +22,7 @@ import os
 import fixtures
 from keystoneauth1 import loading
 from os_client_config import cloud_config
+from oslo_utils import importutils
 from requests_mock.contrib import fixture
 import testtools
 
@@ -249,12 +250,13 @@ class TestClientManager(TestCase):
 
 class TestShell(TestCase):
 
-    # cliff.app.App subclass
-    app_patch = "osc_lib.shell.OpenStackShell"
+    # Full name of the OpenStackShell class to test (cliff.app.App subclass)
+    shell_class_name = "osc_lib.shell.OpenStackShell"
 
     def setUp(self):
         super(TestShell, self).setUp()
-        self.cmd_patch = mock.patch(self.app_patch + ".run_subcommand")
+        self.shell_class = importutils.import_class(self.shell_class_name)
+        self.cmd_patch = mock.patch(self.shell_class_name + ".run_subcommand")
         self.cmd_save = self.cmd_patch.start()
         self.addCleanup(self.cmd_patch.stop)
         self.app = mock.Mock("Test Shell")
@@ -270,10 +272,11 @@ class TestShell(TestCase):
         """
 
         with mock.patch(
-                self.app_patch + ".initialize_app",
+                self.shell_class_name + ".initialize_app",
                 self.app,
         ):
-            _shell, _cmd = make_shell(), cmd_options + " module list"
+            _shell = make_shell(shell_class=self.shell_class)
+            _cmd = cmd_options + " module list"
             fake_execute(_shell, _cmd)
 
             self.app.assert_called_with(["module", "list"])
@@ -299,7 +302,8 @@ class TestShell(TestCase):
                 "os_client_config.config.OpenStackConfig.get_one_cloud",
                 self.occ_get_one,
         ):
-            _shell, _cmd = make_shell(), cmd_options + " module list"
+            _shell = make_shell(shell_class=self.shell_class)
+            _cmd = cmd_options + " module list"
             fake_execute(_shell, _cmd)
 
             self.app.assert_called_with(["module", "list"])
@@ -310,24 +314,6 @@ class TestShell(TestCase):
                     vars(opts)[k],
                     "%s does not match" % k,
                 )
-
-    def _assert_token_auth(self, cmd_options, default_args):
-        with mock.patch(self.app_patch + ".initialize_app",
-                        self.app):
-            _shell, _cmd = make_shell(), cmd_options + " list role"
-            fake_execute(_shell, _cmd)
-
-            self.app.assert_called_with(["list", "role"])
-            self.assertEqual(
-                default_args.get("token", ''),
-                _shell.options.token,
-                "token"
-            )
-            self.assertEqual(
-                default_args.get("auth_url", ''),
-                _shell.options.auth_url,
-                "auth_url"
-            )
 
     def _test_options_init_app(self, test_opts):
         """Test options on the command line"""
