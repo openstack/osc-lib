@@ -1,0 +1,53 @@
+---
+prelude: >
+    ``osc-lib`` was extracted from the main OpenStackClient
+    repo after the OSC 2.4.0 release.  A number of the lower-layer
+    modules were simply renamed into the osc_lib namespace::
+
+        * openstackclient.api.api -> osc_lib.api.api
+        * openstackclient.api.auth -> osc_lib.api.auth
+        * openstackclient.api.utils -> osc_lib.api.utils
+        * openstackclient.common.command -> osc_lib.command.command
+        * openstackclient.common.exceptions -> osc_lib.exceptions
+        * openstackclient.common.logs -> osc_lib.logs
+        * openstackclient.common.parseractions -> osc_lib.cli.parseractions
+        * openstackclient.common.session -> osc_lib.session
+        * openstackclient.common.utils -> osc_lib.utils
+        * openstackclient.i18n -> osc_lib.i18n
+
+    The higher-layer components, such as the OpenStackShell and ClientManager
+    objects, have had significant changes made to them to streamline interaction
+    with ``os-client-config`` and ``keystoneauth`` in addition to the rename::
+
+        * openstackclient.common.commandmanager -> osc_lib.command.commandmanager
+        * openstackclient.shell -> osc_lib.shell
+
+features:
+  - Add ``utils.find_min_match()`` function to filter a list
+    based on a set of minimum values of attributes.  For example,
+    selecting all compute flavors that have a minimum amount of
+    RAM and disk and VCPUs.
+  - Add ``cli.client_config.OSC_Config`` as a subclass of
+    ``os_client_config.config.OpenStackConfig`` to collect all of the
+    configuration option special cases in OSC into one place and insert
+    into the ``os-client-config`` handling.
+fixes:
+  - The ``parseractions.KeyValueAction`` class now raises
+    a ``argparse.ArgumentTypeError`` exception when the
+    argument is not in the form ``<key>=<value>``.
+  - Change ``utils.find_resource()`` to handle client managers
+    that lack a ``find()`` method. Raise an
+    ``exceptions.CommandError`` exception when multiple matches
+    are found.
+  - Change ``utils.find_resource()`` to handle glanceclient's
+    ``HTTPNotFound`` exception.
+  - Change ``utils.find_resource()`` to attempt lookups as
+    IDs first, falling back to ``find()`` methods when available.
+  - Refactor ``ClientManager`` class to remove OSC-specific logic and
+    move all option special-cases into ``cli.client_config.OSC_Config``.
+    Also change some private attributes to public (``region_name``,
+    ``interface``, ``cacert``, ``verify`` and remove ``_insecure``).
+  - Refactor ``OpenStackShell`` to handle only global argument 
+    processing and setting up the ClientManager with configuration
+    from ``os-client-config``.  Command and plugin loading remain in
+    OSC.

@@ -58,6 +58,7 @@ transition to using osc-lib:
 * openstackclient.common.session -> osc_lib.session
 * openstackclient.common.utils -> osc_lib.utils
 * openstackclient.i18n -> osc_lib.i18n
+* openstackclient.shell -> osc_lib.shell
 
 Also, some of the test fixtures and modules may be used:
 
