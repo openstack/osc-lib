@@ -33,7 +33,13 @@ class KeyValueAction(argparse.Action):
 
         # Add value if an assignment else remove it
         if '=' in values:
-            getattr(namespace, self.dest, {}).update([values.split('=', 1)])
+            values_list = values.split('=', 1)
+            # NOTE(qtang): Prevent null key setting in property
+            if '' == values_list[0]:
+                msg = _("Property key must be specified: %s")
+                raise argparse.ArgumentTypeError(msg % str(values))
+            else:
+                getattr(namespace, self.dest, {}).update([values_list])
         else:
             msg = _("Expected 'key=value' type, but got: %s")
             raise argparse.ArgumentTypeError(msg % str(values))
@@ -88,7 +94,13 @@ class MultiKeyValueAction(argparse.Action):
         for kv in values.split(','):
             # Add value if an assignment else raise ArgumentTypeError
             if '=' in kv:
-                params.update([kv.split('=', 1)])
+                kv_list = kv.split('=', 1)
+                # NOTE(qtang): Prevent null key setting in property
+                if '' == kv_list[0]:
+                    msg = _("Each property key must be specified: %s")
+                    raise argparse.ArgumentTypeError(msg % str(kv))
+                else:
+                    params.update([kv_list])
             else:
                 msg = _(
                     "Expected comma separated 'key=value' pairs, but got: %s"

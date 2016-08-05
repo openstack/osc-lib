@@ -49,13 +49,14 @@ class TestKeyValueAction(utils.TestCase):
         self.assertEqual(expect, actual)
 
     def test_error_values(self):
-        self.assertRaises(
-            argparse.ArgumentTypeError,
-            self.parser.parse_args,
-            [
-                '--property', 'red',
-            ]
-        )
+        data_list = [
+            ['--property', 'red', ],
+            ['--property', '=', ],
+            ['--property', '=red', ]
+        ]
+        for data in data_list:
+            self.assertRaises(argparse.ArgumentTypeError,
+                              self.parser.parse_args, data)
 
 
 class TestMultiKeyValueAction(utils.TestCase):
@@ -115,13 +116,14 @@ class TestMultiKeyValueAction(utils.TestCase):
         self.assertItemsEqual(expect, actual)
 
     def test_error_values_with_comma(self):
-        self.assertRaises(
-            argparse.ArgumentTypeError,
-            self.parser.parse_args,
-            [
-                '--test', 'mmm,nnn=zzz',
-            ]
-        )
+        data_list = [
+            ['--test', 'mmm,nnn=zzz', ],
+            ['--test', 'nnn=zzz,=', ],
+            ['--test', 'nnn=zzz,=zzz', ]
+        ]
+        for data in data_list:
+            self.assertRaises(argparse.ArgumentTypeError,
+                              self.parser.parse_args, data)
 
     def test_error_values_without_comma(self):
         self.assertRaises(

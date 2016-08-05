@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Prevent null key setting for key-value pairs in the ``KeyValueAction``
+    and ``MultiKeyValueAction`` parser actions.
+    [Bug `1558690 <https://bugs.launchpad.net/bugs/1558690>`_]
