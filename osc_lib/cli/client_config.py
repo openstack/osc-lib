@@ -122,7 +122,11 @@ class OSC_Config(OpenStackConfig):
             # NOTE(stevemar): If USER_DOMAIN_ID or USER_DOMAIN_NAME is present,
             # then do not change the behaviour. Otherwise, set the
             # USER_DOMAIN_ID to 'OS_DEFAULT_DOMAIN' for better usability.
+            # NOTE(aloga): this should only be set if there is a username.
+            # TODO(dtroyer): Move this to os-client-config after the plugin has
+            # been loaded so we can check directly if the options are accepted.
             if (
+                    auth_type in ("password", "v3password", "v3totp") and
                     not config['auth'].get('user_domain_id') and
                     not config['auth'].get('user_domain_name')
             ):
