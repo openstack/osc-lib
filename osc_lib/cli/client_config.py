@@ -147,3 +147,53 @@ class OSC_Config(OpenStackConfig):
 
         LOG.debug("auth_config_hook(): %s" % config)
         return config
+
+    def _validate_auth_ksc(self, config, cloud, fixed_argparse=None):
+        """Old compatibility hack for OSC, no longer needed/wanted"""
+        return config
+
+    def _validate_auth(self, config, loader, fixed_argparse=None):
+        """Validate auth plugin arguments"""
+        # May throw a keystoneauth1.exceptions.NoMatchingPlugin
+
+        plugin_options = loader.get_options()
+
+        for p_opt in plugin_options:
+            # if it's in argparse, it was passed on the command line and wins
+            # if it's in config.auth, win, kill it from config dict
+            # if it's in config and not in config.auth, move it
+            # deprecated loses to current
+            # provided beats default, deprecated or not
+            winning_value = self._find_winning_auth_value(
+                p_opt, fixed_argparse)
+            if winning_value:
+                found_in_argparse = True
+            else:
+                found_in_argparse = False
+                winning_value = self._find_winning_auth_value(
+                    p_opt, config['auth'])
+                if not winning_value:
+                    winning_value = self._find_winning_auth_value(
+                        p_opt, config)
+
+            # Clean up after ourselves
+            for opt in [p_opt.name] + [o.name for o in p_opt.deprecated]:
+                opt = opt.replace('-', '_')
+                # don't do this if the value came from argparse, because we
+                # don't (yet) know if the value in not-auth came from argparse
+                # overlay or from someone passing in a dict to kwargs
+                # TODO(mordred) Fix that data path too
+                if not found_in_argparse:
+                    config.pop(opt, None)
+                config['auth'].pop(opt, None)
+
+            if winning_value:
+                # Prefer the plugin configuration dest value if the value's key
+                # is marked as depreciated.
+                if p_opt.dest is None:
+                    config['auth'][p_opt.name.replace('-', '_')] = (
+                        winning_value)
+                else:
+                    config['auth'][p_opt.dest] = winning_value
+
+        return config
