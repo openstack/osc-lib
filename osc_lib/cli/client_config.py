@@ -148,6 +148,22 @@ class OSC_Config(OpenStackConfig):
         LOG.debug("auth_config_hook(): %s" % config)
         return config
 
+    # TODO(dtroyer): un-hackify all of the below when o-c-c 1.19.x is
+    # the minimum in global-requirements
+
+    def get_one_cloud(self, cloud=None, validate=True,
+                      argparse=None, **kwargs):
+
+        # First, save this off for later
+        self._save_argparse = self._fix_args(kwargs, argparse=argparse)
+
+        return super(OSC_Config, self).get_one_cloud(
+            cloud=cloud,
+            validate=validate,
+            argparse=argparse,
+            **kwargs
+        )
+
     def _validate_auth_ksc(self, config, cloud, fixed_argparse=None):
         """Old compatibility hack for OSC, no longer needed/wanted"""
         return config
@@ -155,6 +171,10 @@ class OSC_Config(OpenStackConfig):
     def _validate_auth(self, config, loader, fixed_argparse=None):
         """Validate auth plugin arguments"""
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
+
+        if fixed_argparse is None:
+            # This is o-c-c 1.18.x or older, fix up the original options
+            fixed_argparse = self._fix_args(None, argparse=self._save_argparse)
 
         plugin_options = loader.get_options()
 

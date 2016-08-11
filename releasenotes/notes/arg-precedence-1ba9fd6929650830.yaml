@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Add additional precedence fixes to the argument precedence problems
+    in os-client-config 1.18.0 and earlier.  This all will be removed
+    when os-client-config 1.19.x is the minimum allwed version in
+    OpenStack's global requirements.txt.
