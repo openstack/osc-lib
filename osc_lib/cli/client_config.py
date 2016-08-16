@@ -155,7 +155,7 @@ class OSC_Config(OpenStackConfig):
                       argparse=None, **kwargs):
 
         # First, save this off for later
-        self._save_argparse = self._fix_args(kwargs, argparse=argparse)
+        self._save_argparse = self._fix_args({}, argparse=argparse)
 
         return super(OSC_Config, self).get_one_cloud(
             cloud=cloud,
@@ -174,7 +174,7 @@ class OSC_Config(OpenStackConfig):
 
         if fixed_argparse is None:
             # This is o-c-c 1.18.x or older, fix up the original options
-            fixed_argparse = self._fix_args(None, argparse=self._save_argparse)
+            fixed_argparse = self._save_argparse
 
         plugin_options = loader.get_options()
 
