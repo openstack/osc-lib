@@ -122,6 +122,18 @@ class TestClientManager(utils.TestClientManager):
         self.assertEqual('cafile', client_manager.cacert)
         self.assertTrue(client_manager.is_service_available('network'))
 
+    def test_client_manager_password_verify_false(self):
+        config_args = {
+            'verify': False,
+        }
+        client_manager = self._make_clientmanager(
+            config_args=config_args,
+        )
+
+        self.assertFalse(client_manager.verify)
+        self.assertEqual(None, client_manager.cacert)
+        self.assertTrue(client_manager.is_service_available('network'))
+
     def test_client_manager_password_verify_insecure(self):
         config_args = {
             'insecure': True,
