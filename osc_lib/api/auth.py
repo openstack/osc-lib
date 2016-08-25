@@ -14,7 +14,6 @@
 """Authentication Library"""
 
 import argparse
-import logging
 
 from keystoneauth1.loading import base
 
@@ -22,8 +21,6 @@ from osc_lib import exceptions as exc
 from osc_lib.i18n import _
 from osc_lib import utils
 
-
-LOG = logging.getLogger(__name__)
 
 # Initialize the list of Authentication plugins early in order
 # to get the command-line options
