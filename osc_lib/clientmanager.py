@@ -93,6 +93,8 @@ class ClientManager(object):
         # NOTE(dtroyer): Per bug https://bugs.launchpad.net/bugs/1447784
         #                --insecure overrides any --os-cacert setting
 
+        # Set a hard default
+        self.verify = True
         if self._cli_options.insecure:
             # Handle --insecure
             self.verify = False
@@ -105,7 +107,8 @@ class ClientManager(object):
                 self.cacert = self._cli_options.cacert
             else:
                 # Fall through also gets --verify
-                self.verify = True
+                if self._cli_options.verify is not None:
+                    self.verify = self._cli_options.verify
                 self.cacert = None
 
         # Set up client certificate and key
