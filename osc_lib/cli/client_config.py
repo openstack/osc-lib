@@ -148,7 +148,7 @@ class OSC_Config(OpenStackConfig):
         LOG.debug("auth_config_hook(): %s" % config)
         return config
 
-    # TODO(dtroyer): un-hackify all of the below when o-c-c 1.19.x is
+    # TODO(dtroyer): un-hackify all of the below when o-c-c 1.21.x is
     # the minimum in global-requirements
 
     def get_one_cloud(self, cloud=None, validate=True,
@@ -215,5 +215,11 @@ class OSC_Config(OpenStackConfig):
                         winning_value)
                 else:
                     config['auth'][p_opt.dest] = winning_value
+
+            # NOTE(dtroyer): If os-client-config is 1.21.0 or newer it will
+            #                have an option_prompt() method to handle prompts
+            if 'option_prompt' in self:
+                # See if this needs a prompting
+                config = self.option_prompt(config, p_opt)
 
         return config
