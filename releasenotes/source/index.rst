@@ -5,8 +5,8 @@ osc-lib Release Notes
 .. toctree::
    :maxdepth: 1
 
-   newton
    unreleased
+   newton
 
 Indices and tables
 ==================
