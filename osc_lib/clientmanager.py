@@ -136,8 +136,6 @@ class ClientManager(object):
     def setup_auth(self):
         """Set up authentication
 
-        :param required_scope: indicate whether a scoped token is required
-
         This is deferred until authentication is actually attempted because
         it gets in the way of things that do not require auth.
         """
