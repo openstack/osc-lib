@@ -19,6 +19,7 @@ import mock
 from keystoneauth1.access import service_catalog
 from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1.identity import generic as generic_plugin
+from keystoneauth1.identity.v3 import k2k
 from keystoneauth1 import loading
 from os_client_config import cloud_config
 
@@ -31,6 +32,13 @@ from osc_lib.tests import utils
 AUTH_REF = {'version': 'v2.0'}
 AUTH_REF.update(fakes.TEST_RESPONSE_DICT['access'])
 SERVICE_CATALOG = service_catalog.ServiceCatalogV2(AUTH_REF)
+
+AUTH_DICT = {
+    'auth_url': fakes.AUTH_URL,
+    'username': fakes.USERNAME,
+    'password': fakes.PASSWORD,
+    'project_name': fakes.PROJECT_NAME
+}
 
 
 # This is deferred in api.auth but we need it here...
@@ -257,21 +265,15 @@ class TestClientManager(utils.TestClientManager):
 
     @mock.patch('osc_lib.api.auth.check_valid_authentication_options')
     def test_client_manager_auth_setup_once(self, check_authn_options_func):
-        auth_dict = {
-            'auth_url': fakes.AUTH_URL,
-            'username': fakes.USERNAME,
-            'password': fakes.PASSWORD,
-            'project_name': fakes.PROJECT_NAME,
-        }
         loader = loading.get_plugin_loader('password')
-        auth_plugin = loader.load_from_options(**auth_dict)
+        auth_plugin = loader.load_from_options(**AUTH_DICT)
         client_manager = self._clientmanager_class()(
             cli_options=cloud_config.CloudConfig(
                 name='t1',
                 region='1',
                 config=dict(
                     auth_type='password',
-                    auth=auth_dict,
+                    auth=AUTH_DICT,
                     interface=fakes.INTERFACE,
                     region_name=fakes.REGION_NAME,
                 ),
@@ -306,3 +308,34 @@ class TestClientManager(utils.TestClientManager):
         )
 
         self.assertFalse(client_manager.is_service_available('network'))
+
+    def test_client_manager_k2k_auth_setup(self):
+        loader = loading.get_plugin_loader('password')
+        auth_plugin = loader.load_from_options(**AUTH_DICT)
+        client_manager = self._clientmanager_class()(
+            cli_options=cloud_config.CloudConfig(
+                name='t1',
+                region='1',
+                config=dict(
+                    auth_type='password',
+                    auth=AUTH_DICT,
+                    interface=fakes.INTERFACE,
+                    region_name=fakes.REGION_NAME,
+                    service_provider=fakes.SERVICE_PROVIDER_ID,
+                    remote_project_id=fakes.PROJECT_ID
+                ),
+                auth_plugin=auth_plugin,
+            ),
+            api_version={
+                'identity': '3',
+            },
+        )
+
+        self.assertFalse(client_manager._auth_setup_completed)
+        client_manager.setup_auth()
+        # Note(knikolla): Make sure that the auth object is of the correct
+        # type and that the service_provider is correctly set.
+        self.assertIsInstance(client_manager.auth, k2k.Keystone2Keystone)
+        self.assertEqual(client_manager.auth._sp_id, fakes.SERVICE_PROVIDER_ID)
+        self.assertEqual(client_manager.auth.project_id, fakes.PROJECT_ID)
+        self.assertTrue(client_manager._auth_setup_completed)

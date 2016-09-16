@@ -169,6 +169,17 @@ class ClientManager(object):
         LOG.debug('Using parameters %s',
                   strutils.mask_password(self._cli_options.auth))
         self.auth = self._cli_options.get_auth()
+
+        if self._cli_options.service_provider:
+            self.auth = auth.get_keystone2keystone_auth(
+                self.auth,
+                self._cli_options.service_provider,
+                self._cli_options.remote_project_id,
+                self._cli_options.remote_project_name,
+                self._cli_options.remote_project_domain_id,
+                self._cli_options.remote_project_domain_name
+            )
+
         self.session = osc_session.TimingSession(
             auth=self.auth,
             verify=self.verify,

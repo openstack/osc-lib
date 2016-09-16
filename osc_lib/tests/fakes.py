@@ -25,9 +25,12 @@ AUTH_URL = "http://0.0.0.0"
 USERNAME = "itchy"
 PASSWORD = "scratchy"
 PROJECT_NAME = "poochie"
+PROJECT_ID = "30c3da29-61f5-4b7b-8eb2-3d18287428c7"
 REGION_NAME = "richie"
 INTERFACE = "catchy"
 VERSION = "3"
+
+SERVICE_PROVIDER_ID = "bob"
 
 TEST_RESPONSE_DICT = fixture.V2Token(token_id=AUTH_TOKEN,
                                      user_name=USERNAME)
