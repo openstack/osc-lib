@@ -98,24 +98,31 @@ def check_valid_authentication_options(options, auth_plugin_name):
     # plugin if the option is not defined, so the error will simply be:
     # "NoMatchingPlugin: The plugin foobar could not be found"
     msgs = []
-    if 'password' in plugin_opts and not options.auth.get('username'):
+
+    # when no auth params are passed in, user advised to use os-cloud
+    if not options.auth:
         msgs.append(_(
-            'Set a username with --os-username, OS_USERNAME,'
-            ' or auth.username'
+            'Set a cloud-name with --os-cloud or OS_CLOUD'
         ))
-    if 'auth_url' in plugin_opts and not options.auth.get('auth_url'):
-        msgs.append(_(
-            'Set an authentication URL, with --os-auth-url,'
-            ' OS_AUTH_URL or auth.auth_url'
-        ))
-    if 'url' in plugin_opts and not options.auth.get('url'):
-        msgs.append(_(
-            'Set a service URL, with --os-url, OS_URL or auth.url'
-        ))
-    if 'token' in plugin_opts and not options.auth.get('token'):
-        msgs.append(_(
-            'Set a token with --os-token, OS_TOKEN or auth.token'
-        ))
+    else:
+        if 'password' in plugin_opts and not options.auth.get('username'):
+            msgs.append(_(
+                'Set a username with --os-username, OS_USERNAME,'
+                ' or auth.username'
+            ))
+        if 'auth_url' in plugin_opts and not options.auth.get('auth_url'):
+            msgs.append(_(
+                'Set an authentication URL, with --os-auth-url,'
+                ' OS_AUTH_URL or auth.auth_url'
+            ))
+        if 'url' in plugin_opts and not options.auth.get('url'):
+            msgs.append(_(
+                'Set a service URL, with --os-url, OS_URL or auth.url'
+            ))
+        if 'token' in plugin_opts and not options.auth.get('token'):
+            msgs.append(_(
+                'Set a token with --os-token, OS_TOKEN or auth.token'
+            ))
 
     if msgs:
         raise exc.CommandError(
