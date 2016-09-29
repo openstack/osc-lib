@@ -80,7 +80,7 @@ about global configuration.
 
 * A number of other ``ClientManager`` attributes have also been made public to
   encourage their direct use rather than reaching in to the global options passed
-  in the the ``ClientManager`` constructor:
+  in the ``ClientManager`` constructor:
 
   * ``_verify`` -> ``verify``
   * ``_cacert`` -> ``cacert``
