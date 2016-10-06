@@ -16,6 +16,8 @@
 import logging
 
 from os_client_config.config import OpenStackConfig
+from oslo_utils import strutils
+import six
 
 
 LOG = logging.getLogger(__name__)
@@ -145,7 +147,9 @@ class OSC_Config(OpenStackConfig):
         config = self._auth_v2_ignore_v3(config)
         config = self._auth_default_domain(config)
 
-        LOG.debug("auth_config_hook(): %s" % config)
+        if LOG.isEnabledFor(logging.DEBUG):
+            LOG.debug("auth_config_hook(): %s",
+                      strutils.mask_password(six.text_type(config)))
         return config
 
     # TODO(dtroyer): un-hackify all of the below when o-c-c 1.19.x is
