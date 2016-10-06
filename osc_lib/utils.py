@@ -230,6 +230,8 @@ def get_client_class(api_name, version, version_map):
     try:
         client_path = version_map[str(version)]
     except (KeyError, ValueError):
+        sorted_versions = sorted(version_map.keys(),
+                                 key=lambda s: list(map(int, s.split('.'))))
         msg = _(
             "Invalid %(api_name)s client version '%(version)s'. "
             "must be one of: %(version_map)s"
@@ -237,7 +239,7 @@ def get_client_class(api_name, version, version_map):
         raise exceptions.UnsupportedVersion(msg % {
             'api_name': api_name,
             'version': version,
-            'version_map': ', '.join(list(version_map.keys())),
+            'version_map': ', '.join(sorted_versions),
         })
 
     return importutils.import_class(client_path)
