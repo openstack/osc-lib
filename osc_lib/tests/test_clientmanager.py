@@ -104,7 +104,7 @@ class TestClientManager(utils.TestClientManager):
         client_manager = self._make_clientmanager()
 
         self.assertTrue(client_manager.verify)
-        self.assertEqual(None, client_manager.cacert)
+        self.assertIsNone(client_manager.cacert)
         self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_verify_ca(self):
@@ -131,7 +131,7 @@ class TestClientManager(utils.TestClientManager):
         )
 
         self.assertFalse(client_manager.verify)
-        self.assertEqual(None, client_manager.cacert)
+        self.assertIsNone(client_manager.cacert)
         self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_verify_insecure(self):
@@ -143,7 +143,7 @@ class TestClientManager(utils.TestClientManager):
         )
 
         self.assertFalse(client_manager.verify)
-        self.assertEqual(None, client_manager.cacert)
+        self.assertIsNone(client_manager.cacert)
         self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_verify_insecure_ca(self):
@@ -157,7 +157,7 @@ class TestClientManager(utils.TestClientManager):
 
         # insecure overrides cacert
         self.assertFalse(client_manager.verify)
-        self.assertEqual(None, client_manager.cacert)
+        self.assertIsNone(client_manager.cacert)
         self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_client_cert(self):
