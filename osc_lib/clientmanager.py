@@ -25,13 +25,12 @@ import six
 from osc_lib.api import auth
 from osc_lib import exceptions
 from osc_lib import session as osc_session
+from osc_lib import version
 
 
 LOG = logging.getLogger(__name__)
 
 PLUGIN_MODULES = []
-
-USER_AGENT = 'osc-lib'
 
 
 class ClientCache(object):
@@ -62,6 +61,8 @@ class ClientManager(object):
         cli_options=None,
         api_version=None,
         pw_func=None,
+        app_name=None,
+        app_version=None,
     ):
         """Set up a ClientManager
 
@@ -73,11 +74,17 @@ class ClientManager(object):
             Callback function for asking the user for a password.  The function
             takes an optional string for the prompt ('Password: ' on None) and
             returns a string containing the password
+        :param app_name:
+            The name of the application for passing through to the useragent
+        :param app_version:
+            The version of the application for passing through to the useragent
         """
 
         self._cli_options = cli_options
         self._api_version = api_version
         self._pw_callback = pw_func
+        self._app_name = app_name
+        self._app_version = app_version
         self.region_name = self._cli_options.region_name
         self.interface = self._cli_options.interface
 
@@ -166,9 +173,10 @@ class ClientManager(object):
             auth=self.auth,
             verify=self.verify,
             cert=self.cert,
-            user_agent=USER_AGENT,
+            app_name=self._app_name,
+            app_version=self._app_version,
+            additional_user_agent=[('osc-lib', version.version_string)],
         )
-
         self._auth_setup_completed = True
 
     def validate_scope(self):

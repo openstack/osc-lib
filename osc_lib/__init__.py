@@ -11,12 +11,9 @@
 #   under the License.
 #
 
+from osc_lib import version as _version
+
 __all__ = ['__version__']
 
-import pbr.version
 
-version_info = pbr.version.VersionInfo('osc-lib')
-try:
-    __version__ = version_info.version_string()
-except AttributeError:
-    __version__ = None
+__version__ = _version.version_string
