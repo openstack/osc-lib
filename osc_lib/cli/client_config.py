@@ -33,7 +33,7 @@ class OSC_Config(config.OpenStackConfig):
         Migrated from auth.select_auth_plugin()
         """
 
-        identity_version = config.get('identity_api_version', '')
+        identity_version = str(config.get('identity_api_version', ''))
 
         if config.get('username', None) and not config.get('auth_type', None):
             if identity_version == '3':
@@ -82,8 +82,8 @@ class OSC_Config(config.OpenStackConfig):
         # NOTE(hieulq): If USER_DOMAIN_NAME, USER_DOMAIN_ID, PROJECT_DOMAIN_ID
         # or PROJECT_DOMAIN_NAME is present and API_VERSION is 2.0, then
         # ignore all domain related configs.
-        if (config.get('identity_api_version', '').startswith('2') and
-                config.get('auth_type', None).endswith('password')):
+        if (str(config.get('identity_api_version', '')).startswith('2') and
+                config.get('auth_type').endswith('password')):
             domain_props = [
                 'project_domain_id',
                 'project_domain_name',
@@ -102,7 +102,7 @@ class OSC_Config(config.OpenStackConfig):
         Migrated from clientmanager.setup_auth()
         """
 
-        identity_version = config.get('identity_api_version', '')
+        identity_version = str(config.get('identity_api_version', ''))
         auth_type = config.get('auth_type', None)
 
         # TODO(mordred): This is a usability improvement that's broadly useful
