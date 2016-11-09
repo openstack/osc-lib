@@ -89,7 +89,7 @@ copyright = u'2016, osc-lib Developers'
 # built documents.
 #
 # The short X.Y version.
-from osc_lib import version_info as osc_lib_version
+from osc_lib.version import version_info as osc_lib_version
 # The full version, including alpha/beta/rc tags.
 release = osc_lib_version.version_string_with_vcs()
 # The short X.Y version.
