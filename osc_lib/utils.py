@@ -489,3 +489,33 @@ def wait_for_status(status_f,
             callback(progress)
         time.sleep(sleep_time)
     return retval
+
+
+def format_size(size):
+    """Display size of a resource in a human readable format
+
+    :param string size:
+        The size of the resource in bytes.
+
+    :returns:
+        Returns the size in human-friendly format
+    :rtype string:
+
+    This function converts the size (provided in bytes) of a resource
+    into a human-friendly format such as K, M, G, T, P, E, Z
+    """
+
+    suffix = ['', 'K', 'M', 'G', 'T', 'P', 'E', 'Z']
+    base = 1000.0
+    index = 0
+
+    if size is None:
+        size = 0
+    while size >= base:
+        index = index + 1
+        size = size / base
+
+    padded = '%.1f' % size
+    stripped = padded.rstrip('0').rstrip('.')
+
+    return '%s%s' % (stripped, suffix[index])
