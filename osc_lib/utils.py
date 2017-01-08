@@ -267,7 +267,7 @@ def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
         else:
             field_name = field.lower().replace(' ', '_')
         data = item[field_name] if field_name in item else ''
-        if field in formatters:
+        if field in formatters and data is not None:
             row.append(formatters[field](data))
         else:
             row.append(data)
@@ -320,7 +320,7 @@ def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
         else:
             field_name = field.lower().replace(' ', '_')
         data = getattr(item, field_name, '')
-        if field in formatters:
+        if field in formatters and data is not None:
             row.append(formatters[field](data))
         else:
             row.append(data)
