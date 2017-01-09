@@ -390,9 +390,13 @@ class OpenStackShell(app.App):
         # can be set to None.
         if not self.options.debug:
             self.options.debug = None
+
+        # NOTE(dtroyer): Need to do this with validate=False to defer the
+        #                auth plugin handling to ClientManager.setup_auth()
         self.cloud = cc.get_one_cloud(
             cloud=self.options.cloud,
             argparse=self.options,
+            validate=False,
         )
 
         self.log_configurator.configure(self.cloud)
@@ -425,6 +429,25 @@ class OpenStackShell(app.App):
             cmd.__class__.__module__,
             cmd.__class__.__name__,
         )
+
+        kwargs = {}
+        if not cmd.auth_required:
+            # Build fake token creds to keep ksa and o-c-c hushed
+            kwargs['auth_type'] = 'token_endpoint'
+            kwargs['auth'] = {}
+            kwargs['auth']['token'] = 'x'
+            kwargs['auth']['url'] = 'x'
+
+        # Validate auth options
+        self.cloud = self.cloud_config.get_one_cloud(
+            cloud=self.options.cloud,
+            argparse=self.options,
+            validate=True,
+            **kwargs
+        )
+        # Push the updated args into ClientManager
+        self.client_manager._cli_options = self.cloud
+
         if cmd.auth_required:
             self.client_manager.setup_auth()
             if hasattr(cmd, 'required_scope') and cmd.required_scope:
