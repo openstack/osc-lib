@@ -177,7 +177,7 @@ class TestOSCConfig(utils.TestCase):
         self.assertEqual('v3oidcpassword', ret_config['auth_type'])
         self.assertEqual('default', ret_config['default_domain'])
         self.assertEqual('fred', ret_config['auth']['username'])
-        self.assertEqual('default', ret_config['auth']['project_domain_id'])
+        self.assertNotIn('project_domain_id', ret_config['auth'])
         self.assertNotIn('user_domain_id', ret_config['auth'])
 
     def test_auth_default_domain_use_default(self):
