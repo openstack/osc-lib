@@ -1,0 +1,6 @@
+---
+feature:
+  - |
+    Add ``MultiKeyValueCommaAction`` as a ``MultiKeyValueAction`` sublass
+    that allows values to include a comma.  For example:
+    ``--property key1=value1,value2,key2=value3,value4,value5``.

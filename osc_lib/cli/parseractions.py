@@ -137,6 +137,77 @@ class MultiKeyValueAction(argparse.Action):
         getattr(namespace, self.dest, []).append(params)
 
 
+class MultiKeyValueCommaAction(MultiKeyValueAction):
+    """Custom action to parse arguments from a set of key=value pair
+
+    Ensures that ``dest`` is a dict.
+    Parses dict by separating comma separated string into individual values
+    Ex. key1=val1,val2,key2=val3 => {"key1": "val1,val2", "key2": "val3"}
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        """Overwrite the __call__ function of MultiKeyValueAction
+
+        This is done to handle scenarios where we may have comma seperated
+        data as a single value.
+        """
+        # Make sure we have an empty list rather than None
+        if getattr(namespace, self.dest, None) is None:
+            setattr(namespace, self.dest, [])
+
+        params = {}
+        key = ''
+        for kv in values.split(','):
+            # Add value if an assignment else raise ArgumentTypeError
+            if '=' in kv:
+                kv_list = kv.split('=', 1)
+                # NOTE(qtang): Prevent null key setting in property
+                if '' == kv_list[0]:
+                    msg = _("A key must be specified before '=': %s")
+                    raise argparse.ArgumentTypeError(msg % str(kv))
+                else:
+                    params.update([kv_list])
+                key = kv_list[0]
+            else:
+                # If the ',' split does not have key=value pair, then it
+                # means the current value is a part of the previous
+                # key=value pair, so append it.
+                try:
+                    params[key] = "%s,%s" % (params[key], kv)
+                except KeyError:
+                    msg = _("A key=value pair is required: %s")
+                    raise argparse.ArgumentTypeError(msg % str(kv))
+
+        # Check key validation
+        valid_keys = self.required_keys | self.optional_keys
+        if valid_keys:
+            invalid_keys = [k for k in params if k not in valid_keys]
+            if invalid_keys:
+                msg = _(
+                    "Invalid keys %(invalid_keys)s specified.\n"
+                    "Valid keys are: %(valid_keys)s"
+                )
+                raise argparse.ArgumentTypeError(msg % {
+                    'invalid_keys': ', '.join(invalid_keys),
+                    'valid_keys': ', '.join(valid_keys),
+                })
+
+        if self.required_keys:
+            missing_keys = [k for k in self.required_keys if k not in params]
+            if missing_keys:
+                msg = _(
+                    "Missing required keys %(missing_keys)s.\n"
+                    "Required keys are: %(required_keys)s"
+                )
+                raise argparse.ArgumentTypeError(msg % {
+                    'missing_keys': ', '.join(missing_keys),
+                    'required_keys': ', '.join(self.required_keys),
+                })
+
+        # Update the dest dict
+        getattr(namespace, self.dest, []).append(params)
+
+
 class RangeAction(argparse.Action):
     """A custom action to parse a single value or a range of values
 
