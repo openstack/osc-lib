@@ -192,6 +192,9 @@ def format_dict(data):
     :rtype: a string formatted to key='value'
     """
 
+    if data is None:
+        return None
+
     output = ""
     for s in sorted(data):
         output = output + s + "='" + six.text_type(data[s]) + "', "
@@ -205,6 +208,8 @@ def format_list(data, separator=', '):
     :param separator: the separator to use between strings (default: ', ')
     :rtype: a string formatted based on separator
     """
+    if data is None:
+        return None
 
     return separator.join(sorted(data))
 
@@ -215,6 +220,8 @@ def format_list_of_dicts(data):
     :param data: a list of dicts
     :rtype: a string formatted to key='value' with dicts separated by new line
     """
+    if data is None:
+        return None
 
     return '\n'.join(format_dict(i) for i in data)
 
