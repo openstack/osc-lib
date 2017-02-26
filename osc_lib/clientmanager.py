@@ -127,6 +127,22 @@ class ClientManager(object):
         if self.cert and self._cli_options.key:
             self.cert = self.cert, self._cli_options.key
 
+        # TODO(mordred) The logic above to set all of these is duplicated in
+        # os-client-config but needs more effort to tease apart and ensure that
+        # values are being passed in. For now, let osc_lib do it and just set
+        # the values in occ.config
+        self._cli_options.config['verify'] = self.verify
+        self._cli_options.config['cacert'] = self.cacert
+        # Attack of the killer passthrough values
+        self._cli_options.config['cert'] = self._cli_options.cert
+        self._cli_options.config['key'] = self._cli_options.key
+
+        # TODO(mordred) We also don't have any support for setting or passing
+        # in api_timeout, which is set in occ defaults but we skip occ defaults
+        # so set it here by hand and later we should potentially expose this
+        # directly to osc
+        self._cli_options.config['api_timeout'] = None
+
         # Get logging from root logger
         root_logger = logging.getLogger('')
         LOG.setLevel(root_logger.getEffectiveLevel())
