@@ -498,11 +498,13 @@ class TestFindResource(test_utils.TestCase):
                          utils.format_dict({'a': 'b', 'c': 'd', 'e': 'f'}))
         self.assertEqual(expected,
                          utils.format_dict({'e': 'f', 'c': 'd', 'a': 'b'}))
+        self.assertEqual(None, utils.format_dict(None))
 
     def test_format_list(self):
         expected = 'a, b, c'
         self.assertEqual(expected, utils.format_list(['a', 'b', 'c']))
         self.assertEqual(expected, utils.format_list(['c', 'b', 'a']))
+        self.assertEqual(None, utils.format_list(None))
 
     def test_format_list_of_dicts(self):
         expected = "a='b', c='d'\ne='f'"
@@ -512,6 +514,7 @@ class TestFindResource(test_utils.TestCase):
         self.assertEqual(expected, utils.format_list_of_dicts(unsorted_data))
         self.assertEqual('', utils.format_list_of_dicts([]))
         self.assertEqual('', utils.format_list_of_dicts([{}]))
+        self.assertEqual(None, utils.format_list_of_dicts(None))
 
     def test_format_list_separator(self):
         expected = 'a\nb\nc'
