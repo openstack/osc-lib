@@ -1,7 +1,7 @@
 # The order of packages is significant, because pip processes them in the order
 # of appearance. Changing the order has an impact on the overall integration
 # process, which may cause wedges in the gate later.
-pbr>=1.8 # Apache-2.0
+pbr>=2.0.0 # Apache-2.0
 six>=1.9.0 # MIT
 
 Babel>=2.3.4 # BSD
@@ -11,4 +11,4 @@ os-client-config>=1.22.0 # Apache-2.0
 oslo.i18n>=2.1.0 # Apache-2.0
 oslo.utils>=3.20.0 # Apache-2.0
 simplejson>=2.2.0 # MIT
-stevedore>=1.17.1 # Apache-2.0
+stevedore>=1.20.0 # Apache-2.0
