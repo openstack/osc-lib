@@ -569,6 +569,43 @@ class TestFindResource(test_utils.TestCase):
                          utils.format_dict({'e': 'f', 'c': 'd', 'a': 'b'}))
         self.assertIsNone(utils.format_dict(None))
 
+    def test_format_dict_of_list(self):
+        expected = "a=a1, a2; b=b1, b2; c=c1, c2; e="
+        self.assertEqual(expected,
+                         utils.format_dict_of_list({'a': ['a2', 'a1'],
+                                                    'b': ['b2', 'b1'],
+                                                    'c': ['c1', 'c2'],
+                                                    'd': None,
+                                                    'e': []})
+                         )
+        self.assertEqual(expected,
+                         utils.format_dict_of_list({'c': ['c1', 'c2'],
+                                                    'a': ['a2', 'a1'],
+                                                    'b': ['b2', 'b1'],
+                                                    'e': []})
+                         )
+        self.assertIsNone(utils.format_dict_of_list(None))
+
+    def test_format_dict_of_list_with_separator(self):
+        expected = "a=a1, a2\nb=b1, b2\nc=c1, c2\ne="
+        self.assertEqual(expected,
+                         utils.format_dict_of_list({'a': ['a2', 'a1'],
+                                                    'b': ['b2', 'b1'],
+                                                    'c': ['c1', 'c2'],
+                                                    'd': None,
+                                                    'e': []},
+                                                   separator='\n')
+                         )
+        self.assertEqual(expected,
+                         utils.format_dict_of_list({'c': ['c1', 'c2'],
+                                                    'a': ['a2', 'a1'],
+                                                    'b': ['b2', 'b1'],
+                                                    'e': []},
+                                                   separator='\n')
+                         )
+        self.assertIsNone(utils.format_dict_of_list(None,
+                                                    separator='\n'))
+
     def test_format_list(self):
         expected = 'a, b, c'
         self.assertEqual(expected, utils.format_list(['a', 'b', 'c']))
