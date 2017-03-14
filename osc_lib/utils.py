@@ -118,7 +118,8 @@ def find_resource(manager, name_or_id, **kwargs):
     #                 of client exceptions.
     except Exception as ex:
         if (type(ex).__name__ == 'NotFound' or
-                type(ex).__name__ == 'HTTPNotFound'):
+                type(ex).__name__ == 'HTTPNotFound' or
+                type(ex).__name__ == 'TypeError'):
             pass
         else:
             raise
