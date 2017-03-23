@@ -322,6 +322,75 @@ class TestUtils(test_utils.TestCase):
         )
         self.assertEqual("0", utils.format_size(None))
 
+    def test_backward_compat_col_lister(self):
+        fake_col_headers = ['ID', 'Name', 'Size']
+        columns = ['Display Name']
+        column_map = {'Display Name': 'Name'}
+        results = utils.backward_compat_col_lister(fake_col_headers,
+                                                   columns,
+                                                   column_map)
+        self.assertIsInstance(results, list)
+        self.assertIn('Display Name', results)
+        self.assertNotIn('Name', results)
+        self.assertIn('ID', results)
+        self.assertIn('Size', results)
+
+    def test_backward_compat_col_lister_no_specify_column(self):
+        fake_col_headers = ['ID', 'Name', 'Size']
+        columns = []
+        column_map = {'Display Name': 'Name'}
+        results = utils.backward_compat_col_lister(fake_col_headers,
+                                                   columns,
+                                                   column_map)
+        self.assertIsInstance(results, list)
+        self.assertNotIn('Display Name', results)
+        self.assertIn('Name', results)
+        self.assertIn('ID', results)
+        self.assertIn('Size', results)
+
+    def test_backward_compat_col_lister_with_tuple_headers(self):
+        fake_col_headers = ('ID', 'Name', 'Size')
+        columns = ['Display Name']
+        column_map = {'Display Name': 'Name'}
+        results = utils.backward_compat_col_lister(fake_col_headers,
+                                                   columns,
+                                                   column_map)
+        self.assertIsInstance(results, list)
+        self.assertIn('Display Name', results)
+        self.assertNotIn('Name', results)
+        self.assertIn('ID', results)
+        self.assertIn('Size', results)
+
+    def test_backward_compat_col_showone(self):
+        fake_object = {'id': 'fake-id',
+                       'name': 'fake-name',
+                       'size': 'fake-size'}
+        columns = ['display_name']
+        column_map = {'display_name': 'name'}
+        results = utils.backward_compat_col_showone(fake_object,
+                                                    columns,
+                                                    column_map)
+        self.assertIsInstance(results, dict)
+        self.assertIn('display_name', results)
+        self.assertIn('id', results)
+        self.assertNotIn('name', results)
+        self.assertIn('size', results)
+
+    def test_backward_compat_col_showone_no_specify_column(self):
+        fake_object = {'id': 'fake-id',
+                       'name': 'fake-name',
+                       'size': 'fake-size'}
+        columns = []
+        column_map = {'display_name': 'name'}
+        results = utils.backward_compat_col_showone(fake_object,
+                                                    columns,
+                                                    column_map)
+        self.assertIsInstance(results, dict)
+        self.assertNotIn('display_name', results)
+        self.assertIn('id', results)
+        self.assertIn('name', results)
+        self.assertIn('size', results)
+
 
 class NoUniqueMatch(Exception):
     pass
