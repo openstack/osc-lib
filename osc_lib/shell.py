@@ -430,20 +430,15 @@ class OpenStackShell(app.App):
             cmd.__class__.__name__,
         )
 
-        kwargs = {}
-        if not cmd.auth_required:
-            # Build fake token creds to keep ksa and o-c-c hushed
-            kwargs['auth_type'] = 'token_endpoint'
-            kwargs['auth'] = {}
-            kwargs['auth']['token'] = 'x'
-            kwargs['auth']['url'] = 'x'
+        # NOTE(dtroyer): If auth is not required for a command, skip
+        #                get_one_Cloud()'s validation to avoid loading plugins
+        validate = cmd.auth_required
 
         # Validate auth options
         self.cloud = self.cloud_config.get_one_cloud(
             cloud=self.options.cloud,
             argparse=self.options,
-            validate=True,
-            **kwargs
+            validate=validate,
         )
         # Push the updated args into ClientManager
         self.client_manager._cli_options = self.cloud
