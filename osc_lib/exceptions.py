@@ -46,6 +46,11 @@ class UnsupportedVersion(Exception):
     pass
 
 
+class InvalidValue(Exception):
+    """An argument value is not valid: wrong type, out of range, etc"""
+    message = "Supplied value is not valid"
+
+
 class ClientException(Exception):
     """The base exception class for all exceptions this library raises."""
 
