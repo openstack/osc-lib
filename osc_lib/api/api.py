@@ -15,8 +15,8 @@
 
 import simplejson as json
 
-from keystoneauth1 import exceptions as ks_exceptions
-from keystoneauth1 import session as ks_session
+from keystoneauth1 import exceptions as ksa_exceptions
+from keystoneauth1 import session as ksa_session
 
 from osc_lib import exceptions
 from osc_lib.i18n import _
@@ -32,6 +32,12 @@ class BaseAPI(object):
       arguments swapped from the rest of the requests-using world.
     * Provide basic endpoint handling when a Service Catalog is not available.
     """
+
+    # Which service are we? Set in API-specific subclasses
+    SERVICE_TYPE = ""
+
+    # The common OpenStack microversion header
+    HEADER_NAME = "OpenStack-API-Version"
 
     def __init__(
         self,
@@ -58,7 +64,7 @@ class BaseAPI(object):
 
         # Create a keystoneauth1.session.Session if one is not supplied
         if not session:
-            self.session = ks_session.Session(**kwargs)
+            self.session = ksa_session.Session(**kwargs)
         else:
             self.session = session
 
@@ -98,6 +104,10 @@ class BaseAPI(object):
             # Pass on the lack of URL unmolested to maintain the same error
             # handling from keystoneauth: raise EndpointNotFound
             pass
+
+        # Hack out empty headers 'cause KSA can't stomach it
+        if 'headers' in kwargs and kwargs['headers'] is None:
+            kwargs.pop('headers')
 
         # Why is ksc session backwards???
         return session.request(url, method, **kwargs)
@@ -152,6 +162,7 @@ class BaseAPI(object):
         session=None,
         body=None,
         detailed=False,
+        headers=None,
         **params
     ):
         """Return a list of resources
@@ -182,6 +193,7 @@ class BaseAPI(object):
                 # service=self.service_type,
                 json=body,
                 params=params,
+                headers=headers,
             )
         else:
             ret = self._request(
@@ -189,6 +201,7 @@ class BaseAPI(object):
                 path,
                 # service=self.service_type,
                 params=params,
+                headers=headers,
             )
         try:
             return ret.json()
@@ -326,24 +339,39 @@ class BaseAPI(object):
         path,
         value=None,
         attr=None,
+        headers=None,
     ):
         """Find a single resource by name or ID
 
         :param string path:
             The API-specific portion of the URL path
         :param string value:
-            search expression
+            search expression (required, really)
         :param string attr:
             name of attribute for secondary search
         """
 
         try:
-            ret = self._request('GET', "/%s/%s" % (path, value)).json()
-        except ks_exceptions.NotFound:
+            ret = self._request(
+                'GET', "/%s/%s" % (path, value),
+                headers=headers,
+            ).json()
+            if isinstance(ret, dict):
+                # strip off the enclosing dict
+                key = list(ret.keys())[0]
+                ret = ret[key]
+        except (
+            ksa_exceptions.NotFound,
+            ksa_exceptions.BadRequest,
+        ):
             kwargs = {attr: value}
             try:
-                ret = self.find_one("/%s/detail" % (path), **kwargs)
-            except ks_exceptions.NotFound:
+                ret = self.find_one(
+                    path,
+                    headers=headers,
+                    **kwargs
+                )
+            except ksa_exceptions.NotFound:
                 msg = _("%s not found") % value
                 raise exceptions.NotFound(msg)
 
