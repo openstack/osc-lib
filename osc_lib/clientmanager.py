@@ -225,11 +225,8 @@ class ClientManager(object):
     @property
     def auth_ref(self):
         """Dereference will trigger an auth if it hasn't already"""
-        if not self._auth_ref:
-            self.setup_auth()
-            LOG.debug("Get auth_ref")
-            self._auth_ref = self.auth.get_auth_ref(self.session)
-        return self._auth_ref
+        self.setup_auth()
+        return self.auth.get_access(self.session)
 
     def is_service_available(self, service_type):
         """Check if a service type is in the current Service Catalog"""
