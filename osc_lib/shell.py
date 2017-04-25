@@ -424,15 +424,20 @@ class OpenStackShell(app.App):
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
         self.log.info(
-            'command: %s -> %s.%s',
+            'command: %s -> %s.%s (auth=%s)',
             getattr(cmd, 'cmd_name', '<none>'),
             cmd.__class__.__module__,
             cmd.__class__.__name__,
+            cmd.auth_required,
         )
 
         # NOTE(dtroyer): If auth is not required for a command, skip
         #                get_one_Cloud()'s validation to avoid loading plugins
         validate = cmd.auth_required
+
+        # NOTE(dtroyer): Save the auth required state of the _current_ command
+        #                in the ClientManager
+        self.client_manager._auth_required = cmd.auth_required
 
         # Validate auth options
         self.cloud = self.cloud_config.get_one_cloud(

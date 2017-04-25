@@ -56,6 +56,11 @@ class ClientCache(object):
 class ClientManager(object):
     """Manages access to API clients, including authentication."""
 
+    # NOTE(dtroyer): Keep around the auth required state of the _current_
+    #                command since ClientManager has no visibility to the
+    #                command itself; assume auth is not required.
+    _auth_required = False
+
     def __init__(
         self,
         cli_options=None,
@@ -225,6 +230,9 @@ class ClientManager(object):
     @property
     def auth_ref(self):
         """Dereference will trigger an auth if it hasn't already"""
+        if not self._auth_required:
+            # Forcibly skip auth if we know we do not need it
+            return None
         if not self._auth_ref:
             self.setup_auth()
             LOG.debug("Get auth_ref")

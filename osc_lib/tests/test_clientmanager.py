@@ -102,7 +102,9 @@ class TestClientManager(utils.TestClientManager):
         )
 
     def test_client_manager_password(self):
-        client_manager = self._make_clientmanager()
+        client_manager = self._make_clientmanager(
+            auth_required=True,
+        )
 
         self.assertEqual(
             fakes.AUTH_URL,
@@ -139,7 +141,9 @@ class TestClientManager(utils.TestClientManager):
         self.assertTrue(client_manager.is_service_available('network'))
 
     def test_client_manager_password_verify(self):
-        client_manager = self._make_clientmanager()
+        client_manager = self._make_clientmanager(
+            auth_required=True,
+        )
 
         self.assertTrue(client_manager.verify)
         self.assertIsNone(client_manager.cacert)
@@ -151,6 +155,7 @@ class TestClientManager(utils.TestClientManager):
         }
         client_manager = self._make_clientmanager(
             config_args=config_args,
+            auth_required=True,
         )
 
         # Test that client_manager.verify is Requests-compatible,
@@ -166,6 +171,7 @@ class TestClientManager(utils.TestClientManager):
         }
         client_manager = self._make_clientmanager(
             config_args=config_args,
+            auth_required=True,
         )
 
         self.assertFalse(client_manager.verify)
@@ -178,6 +184,7 @@ class TestClientManager(utils.TestClientManager):
         }
         client_manager = self._make_clientmanager(
             config_args=config_args,
+            auth_required=True,
         )
 
         self.assertFalse(client_manager.verify)
@@ -191,6 +198,7 @@ class TestClientManager(utils.TestClientManager):
         }
         client_manager = self._make_clientmanager(
             config_args=config_args,
+            auth_required=True,
         )
 
         # insecure overrides cacert

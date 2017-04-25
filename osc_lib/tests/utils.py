@@ -199,6 +199,7 @@ class TestClientManager(TestCase):
         config_args=None,
         identity_api_version=None,
         auth_plugin_name=None,
+        auth_required=None,
     ):
 
         if identity_api_version is None:
@@ -238,6 +239,7 @@ class TestClientManager(TestCase):
                 'identity': identity_api_version,
             },
         )
+        client_manager._auth_required = auth_required is True
         client_manager.setup_auth()
         client_manager.auth_ref
 
