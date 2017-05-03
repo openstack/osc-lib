@@ -375,7 +375,7 @@ class OpenStackShell(app.App):
         # Ignore the default value of interface. Only if it is set later
         # will it be used.
         try:
-            cc = cloud_config.OSC_Config(
+            self.cloud_config = cloud_config.OSC_Config(
                 override_defaults={
                     'interface': None,
                     'auth_type': self._auth_type,
@@ -393,7 +393,7 @@ class OpenStackShell(app.App):
 
         # NOTE(dtroyer): Need to do this with validate=False to defer the
         #                auth plugin handling to ClientManager.setup_auth()
-        self.cloud = cc.get_one_cloud(
+        self.cloud = self.cloud_config.get_one_cloud(
             cloud=self.options.cloud,
             argparse=self.options,
             validate=False,
@@ -401,7 +401,7 @@ class OpenStackShell(app.App):
 
         self.log_configurator.configure(self.cloud)
         self.dump_stack_trace = self.log_configurator.dump_trace
-        self.log.debug("defaults: %s", cc.defaults)
+        self.log.debug("defaults: %s", self.cloud_config.defaults)
         self.log.debug("cloud cfg: %s",
                        strutils.mask_password(self.cloud.config))
 
