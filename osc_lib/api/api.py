@@ -179,6 +179,8 @@ class BaseAPI(object):
             request (GET will be sent by default)
         :param bool detailed:
             Adds '/details' to path for some APIs to return extended attributes
+        :param dict headers:
+            Headers dictionary to pass to requests
         :returns:
             JSON-decoded response, could be a list or a dict-wrapped-list
         """
@@ -284,6 +286,7 @@ class BaseAPI(object):
     def find_bulk(
         self,
         path,
+        headers=None,
         **kwargs
     ):
         """Bulk load and filter locally
@@ -292,9 +295,12 @@ class BaseAPI(object):
             The API-specific portion of the URL path
         :param kwargs:
             A dict of AVPs to match - logical AND
+        :param dict headers:
+            Headers dictionary to pass to requests
         :returns: list of resource dicts
         """
 
+        print("keys: %s" % kwargs.keys())
         items = self.list(path)
         if isinstance(items, dict):
             # strip off the enclosing dict
@@ -349,6 +355,8 @@ class BaseAPI(object):
             search expression (required, really)
         :param string attr:
             name of attribute for secondary search
+        :param dict headers:
+            Headers dictionary to pass to requests
         """
 
         try:
@@ -371,7 +379,10 @@ class BaseAPI(object):
                     headers=headers,
                     **kwargs
                 )
-            except ksa_exceptions.NotFound:
+            except (
+                exceptions.NotFound,
+                ksa_exceptions.NotFound,
+            ):
                 msg = _("%s not found") % value
                 raise exceptions.NotFound(msg)
 

@@ -274,6 +274,9 @@ class TestBaseAPIFind(api_fakes.TestSession):
         )
         ret = self.api.find_bulk('qaz')
         self.assertEqual(api_fakes.LIST_RESP, ret)
+        # Verify headers arg does not interfere
+        ret = self.api.find_bulk('qaz', headers={})
+        self.assertEqual(api_fakes.LIST_RESP, ret)
 
     def test_baseapi_find_bulk_one(self):
         self.requests_mock.register_uri(
@@ -283,6 +286,9 @@ class TestBaseAPIFind(api_fakes.TestSession):
             status_code=200,
         )
         ret = self.api.find_bulk('qaz', id='1')
+        self.assertEqual([api_fakes.LIST_RESP[0]], ret)
+        # Verify headers arg does not interfere with search
+        ret = self.api.find_bulk('qaz', id='1', headers={})
         self.assertEqual([api_fakes.LIST_RESP[0]], ret)
 
         ret = self.api.find_bulk('qaz', id='0')
