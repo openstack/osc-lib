@@ -21,7 +21,9 @@ import logging
 import os
 import six
 import time
+import warnings
 
+from cliff import columns as cliff_columns
 from oslo_utils import importutils
 
 from osc_lib import exceptions
@@ -393,10 +395,19 @@ def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
         else:
             field_name = field.lower().replace(' ', '_')
         data = item[field_name] if field_name in item else ''
-        if field in formatters and data is not None:
-            row.append(formatters[field](data))
-        else:
-            row.append(data)
+        if field in formatters:
+            formatter = formatters[field]
+            if issubclass(formatter, cliff_columns.FormattableColumn):
+                data = formatter(data)
+            else:
+                warnings.warn(
+                    'The usage of formatter functions is now discouraged. '
+                    'Consider using cliff.columns.FormattableColumn instead. '
+                    'See reviews linked with bug 1687955 for more detail.',
+                    category=DeprecationWarning)
+                if data is not None:
+                    data = formatter(data)
+        row.append(data)
     return tuple(row)
 
 
@@ -446,10 +457,19 @@ def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
         else:
             field_name = field.lower().replace(' ', '_')
         data = getattr(item, field_name, '')
-        if field in formatters and data is not None:
-            row.append(formatters[field](data))
-        else:
-            row.append(data)
+        if field in formatters:
+            formatter = formatters[field]
+            if issubclass(formatter, cliff_columns.FormattableColumn):
+                data = formatter(data)
+            else:
+                warnings.warn(
+                    'The usage of formatter functions is now discouraged. '
+                    'Consider using cliff.columns.FormattableColumn instead. '
+                    'See reviews linked with bug 1687955 for more detail.',
+                    category=DeprecationWarning)
+                if data is not None:
+                    data = formatter(data)
+        row.append(data)
     return tuple(row)
 
 

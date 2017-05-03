@@ -393,6 +393,42 @@ class TestUtils(test_utils.TestCase):
         self.assertIn('name', results)
         self.assertIn('size', results)
 
+    def _test_get_item_properties_with_formatter(self, formatters):
+        names = ('id', 'attr')
+        item = fakes.FakeResource(info={'id': 'fake-id', 'attr': ['a', 'b']})
+        res_id, res_attr = utils.get_item_properties(item, names,
+                                                     formatters=formatters)
+        self.assertEqual('fake-id', res_id)
+        return res_attr
+
+    def test_get_item_properties_with_format_func(self):
+        formatters = {'attr': utils.format_list}
+        res_attr = self._test_get_item_properties_with_formatter(formatters)
+        self.assertEqual(utils.format_list(['a', 'b']), res_attr)
+
+    def test_get_item_properties_with_formattable_column(self):
+        formatters = {'attr': format_columns.ListColumn}
+        res_attr = self._test_get_item_properties_with_formatter(formatters)
+        self.assertIsInstance(res_attr, format_columns.ListColumn)
+
+    def _test_get_dict_properties_with_formatter(self, formatters):
+        names = ('id', 'attr')
+        item = {'id': 'fake-id', 'attr': ['a', 'b']}
+        res_id, res_attr = utils.get_dict_properties(item, names,
+                                                     formatters=formatters)
+        self.assertEqual('fake-id', res_id)
+        return res_attr
+
+    def test_get_dict_properties_with_format_func(self):
+        formatters = {'attr': utils.format_list}
+        res_attr = self._test_get_dict_properties_with_formatter(formatters)
+        self.assertEqual(utils.format_list(['a', 'b']), res_attr)
+
+    def test_get_dict_properties_with_formattable_column(self):
+        formatters = {'attr': format_columns.ListColumn}
+        res_attr = self._test_get_dict_properties_with_formatter(formatters)
+        self.assertIsInstance(res_attr, format_columns.ListColumn)
+
 
 class NoUniqueMatch(Exception):
     pass
