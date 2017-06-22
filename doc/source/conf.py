@@ -15,6 +15,7 @@
 import os
 import sys
 
+import openstackdocstheme
 import pbr.version
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -36,7 +37,6 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
               'sphinx.ext.todo',
-              'oslosphinx',
               ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -107,6 +107,7 @@ modindex_common_prefix = ['osc_lib.']
 # a list of builtin themes.
 #html_theme_path = ["."]
 #html_theme = '_theme'
+html_theme = 'openstackdocs'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -115,6 +116,7 @@ modindex_common_prefix = ['osc_lib.']
 
 # Add any paths that contain custom themes here, relative to this directory.
 #html_theme_path = []
+html_theme_path = [openstackdocstheme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
