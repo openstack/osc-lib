@@ -162,12 +162,13 @@ def find_resource(manager, name_or_id, **kwargs):
     except Exception:
         pass
 
-    # Case 2: name_or_id is a name, but we have query args in kwargs
-    # for example: /projects/demo&domain_id=30524568d64447fbb3fa8b7891c10dd6
-    try:
-        return manager.get(name_or_id, **kwargs)
-    except Exception:
-        pass
+    if kwargs:
+        # Case 2: name_or_id is a name, but we have query args in kwargs
+        # for example: /projects/demo&domain_id=30524568d64447fbb3fa8b7891c10dd
+        try:
+            return manager.get(name_or_id, **kwargs)
+        except Exception:
+            pass
 
     # Case 3: Try to get entity as integer id. Keystone does not have integer
     # IDs, they are UUIDs, but some things in nova do, like flavors.
