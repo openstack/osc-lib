@@ -28,10 +28,13 @@ class BaseAPI(object):
 
     Encapsulate the translation between keystoneauth1.session.Session
     and requests.Session in a single layer:
+
     * Restore some requests.session.Session compatibility;
       keystoneauth1.session.Session.request() has the method and url
       arguments swapped from the rest of the requests-using world.
-    * Provide basic endpoint handling when a Service Catalog is not available.
+    * Provide basic endpoint handling when a Service Catalog is not
+      available.
+
     """
 
     # Which service are we? Set in API-specific subclasses
