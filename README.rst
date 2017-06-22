@@ -25,13 +25,13 @@ is a package of common support modules for writing OSC plugins.
 * License: Apache 2.0
 
 .. _PyPi: https://pypi.python.org/pypi/osc-lib
-.. _Online Documentation: http://docs.openstack.org/developer/osc-lib/
+.. _Online Documentation: http://docs.openstack.org/osc-lib/latest/
 .. _Launchpad project: https://launchpad.net/python-openstackclient
 .. _Bugs: https://bugs.launchpad.net/python-openstackclient
 .. _Source: https://git.openstack.org/cgit/openstack/osc-lib
 .. _Developer: http://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _Contributing: http://docs.openstack.org/infra/manual/developers.html
-.. _Testing: http://docs.openstack.org/developer/osc-lib/developing.html#testing
+.. _Testing: http://docs.openstack.org/osc-lib/latest/contributor/#testing
 
 Getting Started
 ===============
