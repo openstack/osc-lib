@@ -37,7 +37,14 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
               'sphinx.ext.todo',
+              'openstackdocstheme',
               ]
+
+# openstackdocstheme options
+repository_name = 'openstack/osc-lib'
+bug_project = 'python-openstackclient'
+bug_tag = 'osc-lib'
+html_last_updated_fmt = '%Y-%m-%d %H:%M'
 
 # Add any paths that contain templates here, relative to this directory.
 #templates_path = ['_templates']
