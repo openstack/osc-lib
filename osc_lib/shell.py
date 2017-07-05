@@ -283,6 +283,7 @@ class OpenStackShell(app.App):
                 '--os-profile',
                 metavar='hmac-key',
                 dest='profile',
+                default=utils.env('OS_PROFILE'),
                 help=_('HMAC key for encrypting profiling context data'),
             )
             # NOTE(dtroyer): This global option should have been named
