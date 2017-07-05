@@ -16,7 +16,6 @@
 
 """Command-line interface to the OpenStack APIs"""
 
-import argparse
 import getpass
 import locale
 import logging
@@ -148,16 +147,6 @@ class OpenStackShell(app.App):
             self.log.info("END return value: %s", ret_val)
 
     def init_profile(self):
-        # NOTE(dtroyer): Remove this 'if' block when the --profile global
-        #                option is removed
-        if osprofiler_profiler and self.options.old_profile:
-            self.log.warning(
-                'The --profile option is deprecated, '
-                'please use --os-profile instead'
-            )
-            if not self.options.profile:
-                self.options.profile = self.options.old_profile
-
         self.do_profile = osprofiler_profiler and self.options.profile
         if self.do_profile:
             osprofiler_profiler.init(self.options.profile)
@@ -285,16 +274,6 @@ class OpenStackShell(app.App):
                 dest='profile',
                 default=utils.env('OS_PROFILE'),
                 help=_('HMAC key for encrypting profiling context data'),
-            )
-            # NOTE(dtroyer): This global option should have been named
-            #                --os-profile as --profile interferes with at
-            #                least one existing command option.  Deprecate
-            #                --profile and remove after Apr 2017.
-            parser.add_argument(
-                '--profile',
-                metavar='hmac-key',
-                dest='old_profile',
-                help=argparse.SUPPRESS,
             )
 
         return parser
