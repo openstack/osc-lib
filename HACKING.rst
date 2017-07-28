@@ -2,7 +2,7 @@ OpenStack Style Commandments
 ============================
 
 - Step 1: Read the OpenStack Style Commandments
-  http://docs.openstack.org/developer/hacking/
+  https://docs.openstack.org/hacking/latest/user/hacking.html
 - Step 2: Read on
 
 General
