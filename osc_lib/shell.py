@@ -333,6 +333,31 @@ class OpenStackShell(app.App):
         """
         pass
 
+    def _get_cloud_config(self):
+        """Get configuration from os-client-config"""
+        # Do configuration file handling
+        # Ignore the default value of interface. Only if it is set later
+        # will it be used.
+        try:
+            self.cloud_config = cloud_config.OSC_Config(
+                override_defaults={
+                    'interface': None,
+                    'auth_type': self._auth_type,
+                },
+            )
+        except (IOError, OSError) as e:
+            self.log.critical("Could not read clouds.yaml configuration file")
+            self.print_help_if_requested()
+            raise e
+
+    def _get_client_manager(self, pw_func=prompt_for_password):
+        """Get a ClientManager"""
+        self.client_manager = clientmanager.ClientManager(
+            cli_options=self.cloud,
+            api_version=self.api_version,
+            pw_func=pw_func,
+        )
+
     def initialize_app(self, argv):
         """Global app init bits:
 
@@ -351,25 +376,12 @@ class OpenStackShell(app.App):
         # Callout for stuff between superclass init and o-c-c
         self._final_defaults()
 
-        # Do configuration file handling
-        # Ignore the default value of interface. Only if it is set later
-        # will it be used.
-        try:
-            self.cloud_config = cloud_config.OSC_Config(
-                override_defaults={
-                    'interface': None,
-                    'auth_type': self._auth_type,
-                },
-            )
-        except (IOError, OSError) as e:
-            self.log.critical("Could not read clouds.yaml configuration file")
-            self.print_help_if_requested()
-            raise e
-
         # TODO(thowe): Change cliff so the default value for debug
         # can be set to None.
         if not self.options.debug:
             self.options.debug = None
+
+        self._get_cloud_config()
 
         # NOTE(dtroyer): Need to do this with validate=False to defer the
         #                auth plugin handling to ClientManager.setup_auth()
@@ -395,11 +407,7 @@ class OpenStackShell(app.App):
         # Handle deferred help and exit
         self.print_help_if_requested()
 
-        self.client_manager = clientmanager.ClientManager(
-            cli_options=self.cloud,
-            api_version=self.api_version,
-            pw_func=prompt_for_password,
-        )
+        self._get_client_manager()
 
     def prepare_to_run_command(self, cmd):
         """Set up auth and API versions"""
