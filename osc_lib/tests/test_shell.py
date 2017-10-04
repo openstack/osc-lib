@@ -112,9 +112,10 @@ global_options = {
     '--os-default-domain': (DEFAULT_DOMAIN_NAME, True, True),
     '--os-cacert': ('/dev/null', True, True),
     '--timing': (True, True, False),
-    '--os-profile': ('SECRET_KEY', True, True),
     '--os-interface': (DEFAULT_INTERFACE, True, True)
 }
+if shell.osprofiler_profiler:
+    global_options['--os-profile'] = ('SECRET_KEY', True, True)
 
 
 class TestShellArgV(utils.TestShell):
