@@ -247,7 +247,8 @@ class ClientManager(object):
     @property
     def auth_ref(self):
         """Dereference will trigger an auth if it hasn't already"""
-        if not self._auth_required:
+        if (not self._auth_required or
+                self._cli_options.config['auth_type'] == 'none'):
             # Forcibly skip auth if we know we do not need it
             return None
         if not self._auth_ref:

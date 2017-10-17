@@ -21,6 +21,7 @@ from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1.identity import generic as generic_plugin
 from keystoneauth1.identity.v3 import k2k
 from keystoneauth1 import loading
+from keystoneauth1 import noauth
 from keystoneauth1 import token_endpoint
 
 try:
@@ -80,6 +81,29 @@ class TestClientCache(utils.TestCase):
 
 
 class TestClientManager(utils.TestClientManager):
+
+    def test_client_manager_none(self):
+        none_auth = {
+            'endpoint': fakes.AUTH_URL,
+        }
+        client_manager = self._make_clientmanager(
+            auth_args=none_auth,
+            auth_plugin_name='none',
+        )
+
+        self.assertEqual(
+            fakes.AUTH_URL,
+            client_manager._cli_options.config['auth']['endpoint'],
+        )
+        self.assertIsInstance(
+            client_manager.auth,
+            noauth.NoAuth,
+        )
+        # Check that the endpoint option works as the override
+        self.assertEqual(
+            fakes.AUTH_URL,
+            client_manager.get_endpoint_for_service_type('baremetal'),
+        )
 
     def test_client_manager_admin_token(self):
         token_auth = {
