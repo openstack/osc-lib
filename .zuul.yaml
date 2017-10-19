@@ -1,0 +1,19 @@
+
+
+- project:
+    name: openstack/osc-lib
+    check:
+      jobs:
+        - osc-functional-devstack-tips:
+            required-projects:
+              - openstack/python-openstackclient
+        - legacy-tripleo-ci-centos-7-nonha-multinode-oooq:
+            voting: false
+            irrelevant-files:
+              - ^.*\.md$
+              - ^.*\.rst$
+              - ^doc/.*$
+              - ^etc/.*$
+              - ^metadata.json$
+              - ^releasenotes/.*$
+              - ^test-requirements.txt$
