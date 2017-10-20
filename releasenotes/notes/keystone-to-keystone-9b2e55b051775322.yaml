@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Added new options `--os-service-provider`, `--os-remote-project-name`,
+    `--os-remote-project-domain-name`, `--os-remote-project-domain-id`, and
+    `--os-remote-project-id`. These can also be loaded from their respective
+    ENV variables (ex. `OS_SERVICE_PROVIDER` and `OS_REMOTE_PROJECT_ID`) and 
+    allow issuing of commands to a federated cloud using keystone-to-keystone
+    identity federation. More information about keystone-to-keystone can be
+    found `here <https://specs.openstack.org/openstack/keystone-specs/specs/juno/keystone-to-keystone-federation.html>`_.

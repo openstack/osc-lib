@@ -255,6 +255,51 @@ class OpenStackShell(app.App):
                    ' (Env: OS_INTERFACE)'),
         )
         parser.add_argument(
+            '--os-service-provider',
+            metavar='<service_provider>',
+            dest='service_provider',
+            default=utils.env('OS_SERVICE_PROVIDER'),
+            help=_('Authenticate with and perform the command on a service'
+                   ' provider using Keystone-to-keystone federation. Must'
+                   ' also specify the remote project option.')
+        )
+        remote_project_group = parser.add_mutually_exclusive_group()
+        remote_project_group.add_argument(
+            '--os-remote-project-name',
+            metavar='<remote_project_name>',
+            dest='remote_project_name',
+            default=utils.env('OS_REMOTE_PROJECT_NAME'),
+            help=_('Project name when authenticating to a service provider'
+                   ' if using Keystone-to-Keystone federation.')
+        )
+        remote_project_group.add_argument(
+            '--os-remote-project-id',
+            metavar='<remote_project_id>',
+            dest='remote_project_id',
+            default=utils.env('OS_REMOTE_PROJECT_ID'),
+            help=_('Project ID when authenticating to a service provider'
+                   ' if using Keystone-to-Keystone federation.')
+        )
+        remote_project_domain_group = parser.add_mutually_exclusive_group()
+        remote_project_domain_group.add_argument(
+            '--os-remote-project-domain-name',
+            metavar='<remote_project_domain_name>',
+            dest='remote_project_domain_name',
+            default=utils.env('OS_REMOTE_PROJECT_DOMAIN_NAME'),
+            help=_('Domain name of the project when authenticating to a'
+                   ' service provider if using Keystone-to-Keystone'
+                   ' federation.')
+        )
+        remote_project_domain_group.add_argument(
+            '--os-remote-project-domain-id',
+            metavar='<remote_project_domain_id>',
+            dest='remote_project_domain_id',
+            default=utils.env('OS_REMOTE_PROJECT_DOMAIN_ID'),
+            help=_('Domain ID of the project when authenticating to a'
+                   ' service provider if using Keystone-to-Keystone'
+                   ' federation.')
+        )
+        parser.add_argument(
             '--timing',
             default=False,
             action='store_true',
