@@ -1,19 +1,18 @@
-
-
 - project:
     name: openstack/osc-lib
     check:
       jobs:
-        - osc-functional-devstack-tips:
+        - osc-functional-devstack:
             required-projects:
               - openstack/python-openstackclient
-        - legacy-tripleo-ci-centos-7-nonha-multinode-oooq:
-            voting: false
-            irrelevant-files:
-              - ^.*\.md$
-              - ^.*\.rst$
-              - ^doc/.*$
-              - ^etc/.*$
-              - ^metadata.json$
-              - ^releasenotes/.*$
-              - ^test-requirements.txt$
+        - osc-functional-devstack-tips:
+            # The functional-tips job only tests the latest and shouldn't be run
+            # on the stable branches
+            branches: ^(?!stable)
+            required-projects:
+              - openstack/python-openstackclient
+    gate:
+      jobs:
+        - osc-functional-devstack:
+            required-projects:
+              - openstack/python-openstackclient
