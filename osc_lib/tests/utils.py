@@ -22,7 +22,14 @@ import os
 from cliff import columns as cliff_columns
 import fixtures
 from keystoneauth1 import loading
-from os_client_config import cloud_config
+
+try:
+    from openstack.config import cloud_config
+    from openstack.config import defaults
+except ImportError:
+    from os_client_config import cloud_config
+    from os_client_config import defaults
+
 from oslo_utils import importutils
 from requests_mock.contrib import fixture
 import testtools
@@ -30,6 +37,16 @@ import testtools
 from osc_lib import clientmanager
 from osc_lib import shell
 from osc_lib.tests import fakes
+
+# NOTE(dtroyer): Attempt the import to detect if the SDK installed is new
+#                enough to contain the os_client_config code.  If so, use
+#                that path for mocks.
+CONFIG_MOCK_BASE = "openstack.config.loader"
+try:
+    from openstack.config import loader as config   # noqa
+except ImportError:
+    # Fall back to os-client-config
+    CONFIG_MOCK_BASE = "os_client_config.config"
 
 
 def fake_execute(shell, cmd):
@@ -246,12 +263,14 @@ class TestClientManager(TestCase):
         if auth_args is not None:
             auth_dict = auth_args
 
-        cli_options = {
+        cli_options = defaults.get_defaults()
+        cli_options.update({
             'auth_type': auth_plugin_name,
             'auth': auth_dict,
             'interface': fakes.INTERFACE,
             'region_name': fakes.REGION_NAME,
-        }
+            # 'workflow_api_version': '2',
+        })
         if config_args is not None:
             cli_options.update(config_args)
 
@@ -330,7 +349,7 @@ class TestShell(TestCase):
         cloud.config = {}
         self.occ_get_one = mock.Mock(return_value=cloud)
         with mock.patch(
-                "os_client_config.config.OpenStackConfig.get_one_cloud",
+                CONFIG_MOCK_BASE + ".OpenStackConfig.get_one_cloud",
                 self.occ_get_one,
         ):
             _shell = make_shell(shell_class=self.shell_class)
@@ -377,7 +396,7 @@ class TestShell(TestCase):
             self._assert_initialize_app_arg("", kwargs)
 
     def _test_options_get_one_cloud(self, test_opts):
-        """Test options sent "to os_client_config"""
+        """Test options sent "to openstack.config"""
         for opt in test_opts.keys():
             if not test_opts[opt][1]:
                 continue
@@ -392,7 +411,7 @@ class TestShell(TestCase):
             self._assert_cloud_config_arg(cmd, kwargs)
 
     def _test_env_get_one_cloud(self, test_opts):
-        """Test environment options sent "to os_client_config"""
+        """Test environment options sent "to openstack.config"""
         for opt in test_opts.keys():
             if not test_opts[opt][2]:
                 continue

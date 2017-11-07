@@ -19,6 +19,7 @@ import copy
 import logging
 import sys
 
+from openstack import connection
 from oslo_utils import strutils
 import six
 
@@ -27,6 +28,13 @@ from osc_lib import exceptions
 from osc_lib import session as osc_session
 from osc_lib import version
 
+# NOTE(dtroyer): Attempt an import to detect if the SDK installed is new
+#                enough to not use Profile.  If so, use that.
+try:
+    from openstack.config import loader as config   # noqa
+    profile = None
+except ImportError:
+    from openstack import profile
 
 LOG = logging.getLogger(__name__)
 
@@ -209,6 +217,15 @@ class ClientManager(object):
             app_version=self._app_version,
             additional_user_agent=[('osc-lib', version.version_string)],
         )
+
+        # Create a common default SDK Connection object if it is the newer
+        # non-Profile style.
+        if profile is None:
+            self.sdk_connection = connection.Connection(
+                config=self._cli_options,
+                session=self.session,
+            )
+
         self._auth_setup_completed = True
 
     def validate_scope(self):

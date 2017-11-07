@@ -22,7 +22,14 @@ from keystoneauth1.identity import generic as generic_plugin
 from keystoneauth1.identity.v3 import k2k
 from keystoneauth1 import loading
 from keystoneauth1 import token_endpoint
-from os_client_config import cloud_config
+
+try:
+    from openstack.config import cloud_config
+    _occ_in_sdk = True
+except ImportError:
+    from os_client_config import cloud_config
+    _occ_in_sdk = False
+from openstack import connection
 
 from osc_lib.api import auth
 from osc_lib import clientmanager
@@ -377,3 +384,19 @@ class TestClientManager(utils.TestClientManager):
         self.assertEqual(client_manager.auth._sp_id, fakes.SERVICE_PROVIDER_ID)
         self.assertEqual(client_manager.auth.project_id, fakes.PROJECT_ID)
         self.assertTrue(client_manager._auth_setup_completed)
+
+
+class TestClientManagerSDK(utils.TestClientManager):
+
+    def test_client_manager_connection(self):
+        client_manager = self._make_clientmanager(
+            auth_required=True,
+        )
+
+        if _occ_in_sdk:
+            self.assertIsInstance(
+                client_manager.sdk_connection,
+                connection.Connection,
+            )
+        else:
+            self.assertIsNone(getattr(client_manager, 'sdk_connection', None))

@@ -15,8 +15,16 @@
 
 import logging
 
-from os_client_config import config
-from os_client_config import exceptions as occ_exceptions
+try:
+    from openstack.config import exceptions as occ_exceptions
+except ImportError:
+    from os_client_config import exceptions as occ_exceptions
+
+try:
+    from openstack.config import loader as config
+except ImportError:
+    from os_client_config import config
+
 from oslo_utils import strutils
 import six
 
