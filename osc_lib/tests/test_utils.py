@@ -429,6 +429,45 @@ class TestUtils(test_utils.TestCase):
         res_attr = self._test_get_dict_properties_with_formatter(formatters)
         self.assertIsInstance(res_attr, format_columns.ListColumn)
 
+    def _test_calculate_header_and_attrs(self, parsed_args_columns,
+                                         expected_headers, expected_attrs):
+        column_headers = ('ID', 'Name', 'Fixed IP Addresses')
+        columns = ('id', 'name', 'fixed_ips')
+        parsed_args = mock.Mock()
+        parsed_args.columns = parsed_args_columns
+        ret_headers, ret_attrs = utils.calculate_header_and_attrs(
+            column_headers, columns, parsed_args)
+        self.assertEqual(expected_headers, ret_headers)
+        self.assertEqual(expected_attrs, ret_attrs)
+        if parsed_args_columns:
+            self.assertEqual(expected_headers, parsed_args.columns)
+        else:
+            self.assertFalse(parsed_args.columns)
+
+    def test_calculate_header_and_attrs_without_column_arg(self):
+        self._test_calculate_header_and_attrs(
+            [],
+            ('ID', 'Name', 'Fixed IP Addresses'),
+            ('id', 'name', 'fixed_ips'))
+
+    def test_calculate_header_and_attrs_with_known_columns(self):
+        self._test_calculate_header_and_attrs(
+            ['Name', 'ID'],
+            ['Name', 'ID'],
+            ['name', 'id'])
+
+    def test_calculate_header_and_attrs_with_unknown_columns(self):
+        self._test_calculate_header_and_attrs(
+            ['Name', 'ID', 'device_id'],
+            ['Name', 'ID', 'device_id'],
+            ['name', 'id', 'device_id'])
+
+    def test_calculate_header_and_attrs_with_attrname_columns(self):
+        self._test_calculate_header_and_attrs(
+            ['name', 'id', 'device_id'],
+            ['Name', 'ID', 'device_id'],
+            ['name', 'id', 'device_id'])
+
 
 class NoUniqueMatch(Exception):
     pass
