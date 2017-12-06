@@ -13,6 +13,7 @@
 #   under the License.
 #
 
+import six
 import time
 import uuid
 
@@ -198,6 +199,43 @@ class TestUtils(test_utils.TestCase):
         self.assertRaises(exceptions.CommandError,
                           utils.sort_items,
                           items, sort_str)
+
+    def test_sort_items_with_different_type_exception(self):
+        item1 = {'a': 2}
+        item2 = {'a': 3}
+        item3 = {'a': None}
+        item4 = {'a': 1}
+        items = [item1, item2, item3, item4]
+        sort_str = 'a'
+        expect_items = [item3, item4, item1, item2]
+        if six.PY2:
+            self.assertEqual(expect_items, utils.sort_items(items, sort_str))
+        else:
+            self.assertRaises(TypeError, utils.sort_items, items, sort_str)
+
+    def test_sort_items_with_different_type_int(self):
+        item1 = {'a': 2}
+        item2 = {'a': 3}
+        item3 = {'a': None}
+        item4 = {'a': 1}
+        items = [item1, item2, item3, item4]
+        sort_str = 'a'
+        sort_type = int
+        expect_items = [item3, item4, item1, item2]
+        self.assertEqual(expect_items, utils.sort_items(items, sort_str,
+                                                        sort_type))
+
+    def test_sort_items_with_different_type_str(self):
+        item1 = {'a': 'a'}
+        item2 = {'a': None}
+        item3 = {'a': '2'}
+        item4 = {'a': 'b'}
+        items = [item1, item2, item3, item4]
+        sort_str = 'a'
+        sort_type = str
+        expect_items = [item3, item2, item1, item4]
+        self.assertEqual(expect_items, utils.sort_items(items, sort_str,
+                                                        sort_type))
 
     @mock.patch.object(time, 'sleep')
     def test_wait_for_delete_ok(self, mock_sleep):
