@@ -24,6 +24,7 @@ from osc_lib import exceptions
 from osc_lib.tests import fakes
 from osc_lib.tests import utils as test_utils
 from osc_lib import utils
+from osc_lib.utils import columns as column_utils
 
 PASSWORD = "Pa$$w0rd"
 WASSPORD = "Wa$$p0rd"
@@ -705,6 +706,49 @@ class TestFindResource(test_utils.TestCase):
         actual_unsorted = utils.format_list(['c', 'b', 'a'], separator='\n')
         self.assertEqual(expected, actual_pre_sorted)
         self.assertEqual(expected, actual_unsorted)
+
+
+class TestColumnUtils(test_utils.TestCase):
+
+    def test_get_column_definitions(self):
+        attr_map = (
+            ('id', 'ID', column_utils.LIST_BOTH),
+            ('tenant_id', 'Project', column_utils.LIST_LONG_ONLY),
+            ('name', 'Name', column_utils.LIST_BOTH),
+            ('summary', 'Summary', column_utils.LIST_SHORT_ONLY),
+        )
+        headers, columns = column_utils.get_column_definitions(
+            attr_map, long_listing=False)
+        self.assertEqual(['id', 'name', 'summary'], columns)
+        self.assertEqual(['ID', 'Name', 'Summary'], headers)
+
+    def test_get_column_definitions_long(self):
+        attr_map = (
+            ('id', 'ID', column_utils.LIST_BOTH),
+            ('tenant_id', 'Project', column_utils.LIST_LONG_ONLY),
+            ('name', 'Name', column_utils.LIST_BOTH),
+            ('summary', 'Summary', column_utils.LIST_SHORT_ONLY),
+        )
+        headers, columns = column_utils.get_column_definitions(
+            attr_map, long_listing=True)
+        self.assertEqual(['id', 'tenant_id', 'name'], columns)
+        self.assertEqual(['ID', 'Project', 'Name'], headers)
+
+    def test_get_columns(self):
+        item = {
+            'id': 'test-id',
+            'tenant_id': 'test-tenant_id',
+            # 'name' is not included
+            'foo': 'bar',  # unknown attribute
+        }
+        attr_map = (
+            ('id', 'ID', column_utils.LIST_BOTH),
+            ('tenant_id', 'Project', column_utils.LIST_LONG_ONLY),
+            ('name', 'Name', column_utils.LIST_BOTH),
+        )
+        columns, display_names = column_utils.get_columns(item, attr_map)
+        self.assertEqual(tuple(['id', 'tenant_id', 'foo']), columns)
+        self.assertEqual(tuple(['ID', 'Project', 'foo']), display_names)
 
 
 class TestAssertItemEqual(test_utils.TestCommand):
