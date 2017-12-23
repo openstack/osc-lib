@@ -387,6 +387,10 @@ class BaseAPI(object):
             Headers dictionary to pass to requests
         """
 
+        def raise_not_found():
+            msg = _("%s not found") % value
+            raise exceptions.NotFound(msg)
+
         try:
             ret = self._request(
                 'GET', "/%s/%s" % (path, value),
@@ -400,18 +404,20 @@ class BaseAPI(object):
             ksa_exceptions.NotFound,
             ksa_exceptions.BadRequest,
         ):
-            kwargs = {attr: value}
-            try:
-                ret = self.find_one(
-                    path,
-                    headers=headers,
-                    **kwargs
-                )
-            except (
-                exceptions.NotFound,
-                ksa_exceptions.NotFound,
-            ):
-                msg = _("%s not found") % value
-                raise exceptions.NotFound(msg)
+            if attr:
+                kwargs = {attr: value}
+                try:
+                    ret = self.find_one(
+                        path,
+                        headers=headers,
+                        **kwargs
+                    )
+                except (
+                    exceptions.NotFound,
+                    ksa_exceptions.NotFound,
+                ):
+                    raise_not_found()
+            else:
+                raise_not_found()
 
         return ret

@@ -269,6 +269,26 @@ class TestBaseAPIFind(api_fakes.TestSession):
             endpoint=self.BASE_URL,
         )
 
+    def test_baseapi_find(self):
+        self.requests_mock.register_uri(
+            'GET',
+            self.BASE_URL + '/qaz/1',
+            json={'qaz': api_fakes.RESP_ITEM_1},
+            status_code=200,
+        )
+        ret = self.api.find('qaz', '1')
+        self.assertEqual(api_fakes.RESP_ITEM_1, ret)
+        self.requests_mock.register_uri(
+            'GET',
+            self.BASE_URL + '/qaz/1',
+            status_code=404,
+        )
+        self.assertRaises(
+            exceptions.NotFound,
+            self.api.find,
+            'qaz',
+            '1')
+
     def test_baseapi_find_attr_by_id(self):
 
         # All first requests (by name) will fail in this test
