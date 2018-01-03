@@ -506,6 +506,11 @@ class TestUtils(test_utils.TestCase):
             ['Name', 'ID', 'device_id'],
             ['name', 'id', 'device_id'])
 
+    def test_subtest(self):
+        for i in range(3):
+            with self.subTest(i=i):
+                self.assertEqual(i, i)
+
 
 class NoUniqueMatch(Exception):
     pass
