@@ -545,7 +545,7 @@ def read_blob_file_contents(blob_file):
         raise exceptions.CommandError(msg % blob_file)
 
 
-def sort_items(items, sort_str):
+def sort_items(items, sort_str, sort_type=None):
     """Sort items based on sort keys and sort directions given by sort_str.
 
     :param items: a list or generator object of items
@@ -580,8 +580,22 @@ def sort_items(items, sort_str):
                 })
             if direction == 'desc':
                 reverse = True
-        items.sort(key=lambda item: get_field(item, sort_key),
-                   reverse=reverse)
+
+        def f(x):
+            # Attempts to convert items to same 'sort_type' if provided.
+            # This is due to Python 3 throwing TypeError if you attempt to
+            # compare different types
+            item = get_field(x, sort_key)
+            if sort_type and not isinstance(item, sort_type):
+                try:
+                    item = sort_type(item)
+                except Exception:
+                    # Can't convert, so no sensible way to compare
+                    item = sort_type()
+            return item
+
+        items.sort(key=f, reverse=reverse)
+
     return items
 
 
