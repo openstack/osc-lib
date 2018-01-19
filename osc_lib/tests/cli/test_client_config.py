@@ -111,8 +111,8 @@ class TestOSCConfig(utils.TestCase):
         }
         ret_config = self.cloud._auth_v2_arguments(config)
         self.assertEqual('fred', ret_config['auth']['username'])
-        self.assertFalse('tenant_id' in ret_config['auth'])
-        self.assertFalse('tenant_name' in ret_config['auth'])
+        self.assertNotIn('tenant_id', ret_config['auth'])
+        self.assertNotIn('tenant_name', ret_config['auth'])
 
         config = {
             'identity_api_version': '3',
@@ -124,8 +124,8 @@ class TestOSCConfig(utils.TestCase):
         }
         ret_config = self.cloud._auth_v2_arguments(config)
         self.assertEqual('fred', ret_config['auth']['username'])
-        self.assertFalse('tenant_id' in ret_config['auth'])
-        self.assertFalse('tenant_name' in ret_config['auth'])
+        self.assertNotIn('tenant_id', ret_config['auth'])
+        self.assertNotIn('tenant_name', ret_config['auth'])
 
         config = {
             'identity_api_version': '2',
@@ -137,7 +137,7 @@ class TestOSCConfig(utils.TestCase):
         }
         ret_config = self.cloud._auth_v2_arguments(config)
         self.assertEqual('id', ret_config['auth']['tenant_id'])
-        self.assertFalse('tenant_name' in ret_config['auth'])
+        self.assertNotIn('tenant_name', ret_config['auth'])
 
         config = {
             'identity_api_version': '2',
@@ -148,7 +148,7 @@ class TestOSCConfig(utils.TestCase):
             },
         }
         ret_config = self.cloud._auth_v2_arguments(config)
-        self.assertFalse('tenant_id' in ret_config['auth'])
+        self.assertNotIn('tenant_id', ret_config['auth'])
         self.assertEqual('name', ret_config['auth']['tenant_name'])
 
     def test_auth_v2_ignore_v3(self):
@@ -164,7 +164,7 @@ class TestOSCConfig(utils.TestCase):
         }
         ret_config = self.cloud._auth_v2_ignore_v3(config)
         self.assertEqual('fred', ret_config['auth']['username'])
-        self.assertFalse('project_domain_id' in ret_config['auth'])
+        self.assertNotIn('project_domain_id', ret_config['auth'])
 
     def test_auth_default_domain_not_set(self):
         config = {
