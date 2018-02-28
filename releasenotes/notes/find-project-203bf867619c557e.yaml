@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    Adds ``osc_lib.cli.identity.find_project()``. This function can be
+    used to look up a project ID from command-line options like:
+
+    .. code-block:: python
+
+       find_project(self.app.client_manager.sdk_connection,
+                    parsed_args.project, parsed_args.project_domain)
+  - |
+    Adds ``osc_lib.cli.identity.add_project_owner_option_to_parser()``
+    to register project and project domain options to CLI.
