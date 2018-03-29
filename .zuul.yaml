@@ -11,8 +11,10 @@
             branches: ^(?!stable)
             required-projects:
               - openstack/python-openstackclient
+        - openstack-tox-lower-constraints
     gate:
       jobs:
         - osc-functional-devstack:
             required-projects:
               - openstack/python-openstackclient
+        - openstack-tox-lower-constraints
