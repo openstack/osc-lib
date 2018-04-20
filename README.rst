@@ -3,11 +3,11 @@ osc-lib
 =======
 
 .. image:: https://img.shields.io/pypi/v/osc-lib.svg
-    :target: https://pypi.python.org/pypi/osc-lib/
+    :target: https://pypi.org/project/osc-lib/
     :alt: Latest Version
 
 .. image:: https://img.shields.io/pypi/dm/osc-lib.svg
-    :target: https://pypi.python.org/pypi/osc-lib/
+    :target: https://pypi.org/project/osc-lib/
     :alt: Downloads
 
 OpenStackClient (aka OSC) is a command-line client for OpenStack. osc-lib
@@ -24,7 +24,7 @@ is a package of common support modules for writing OSC plugins.
 * IRC: #openstack-sdks on Freenode (irc.freenode.net)
 * License: Apache 2.0
 
-.. _PyPi: https://pypi.python.org/pypi/osc-lib
+.. _PyPi: https://pypi.org/project/osc-lib
 .. _Online Documentation: http://docs.openstack.org/osc-lib/latest/
 .. _Launchpad project: https://launchpad.net/python-openstackclient
 .. _Bugs: https://bugs.launchpad.net/python-openstackclient
