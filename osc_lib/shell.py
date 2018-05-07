@@ -153,14 +153,19 @@ class OpenStackShell(app.App):
 
     def close_profile(self):
         if self.do_profile:
-            trace_id = osprofiler_profiler.get().get_base_id()
+            profiler = osprofiler_profiler.get()
+            trace_id = profiler.get_base_id()
+            # Short ID for OpenTracing-based driver (64-bit id)
+            short_id = profiler.get_shorten_id(trace_id)
 
             # NOTE(dbelova): let's use warning log level to see these messages
             # printed. In fact we can define custom log level here with value
             # bigger than most big default one (CRITICAL) or something like
             # that (PROFILE = 60 for instance), but not sure we need it here.
             self.log.warning("Trace ID: %s" % trace_id)
-            self.log.warning("Display trace with command:\n"
+            self.log.warning("Short trace ID "
+                             "for OpenTracing-based drivers: %s" % short_id)
+            self.log.warning("Display trace data with command:\n"
                              "osprofiler trace show --html %s " % trace_id)
 
     def run_subcommand(self, argv):
