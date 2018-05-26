@@ -19,22 +19,14 @@ import copy
 import logging
 import sys
 
+from openstack.config import loader as config   # noqa
 from openstack import connection
 from oslo_utils import strutils
 import six
 
 from osc_lib.api import auth
 from osc_lib import exceptions
-from osc_lib import session as osc_session
-from osc_lib import version
 
-# NOTE(dtroyer): Attempt an import to detect if the SDK installed is new
-#                enough to not use Profile.  If so, use that.
-try:
-    from openstack.config import loader as config   # noqa
-    profile = None
-except ImportError:
-    from openstack import profile
 
 LOG = logging.getLogger(__name__)
 
@@ -209,22 +201,9 @@ class ClientManager(object):
                 self._cli_options.remote_project_domain_name
             )
 
-        self.session = osc_session.TimingSession(
-            auth=self.auth,
-            verify=self.verify,
-            cert=self.cert,
-            app_name=self._app_name,
-            app_version=self._app_version,
-            additional_user_agent=[('osc-lib', version.version_string)],
-        )
+        self.session = self._cli_options.get_session()
 
-        # Create a common default SDK Connection object if it is the newer
-        # non-Profile style.
-        if profile is None:
-            self.sdk_connection = connection.Connection(
-                config=self._cli_options,
-                session=self.session,
-            )
+        self.sdk_connection = connection.Connection(config=self._cli_options)
 
         self._auth_setup_completed = True
 

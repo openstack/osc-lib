@@ -27,13 +27,10 @@ class Timing(command.Lister):
 
         results = []
         total = 0.0
-        for url, td in self.app.timing_data:
-            # NOTE(dtroyer): Take the long way here because total_seconds()
-            #                was added in py27.
-            sec = (td.microseconds + (td.seconds + td.days *
-                                      86400) * 1e6) / 1e6
+        for td in self.app.timing_data:
+            sec = td.elapsed.total_seconds()
             total += sec
-            results.append((url, sec))
+            results.append((td.method + ' ' + td.url, sec))
         results.append(('Total', total))
         return (
             column_headers,

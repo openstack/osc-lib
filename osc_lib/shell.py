@@ -38,6 +38,7 @@ from osc_lib import exceptions as exc
 from osc_lib.i18n import _
 from osc_lib import logs
 from osc_lib import utils
+from osc_lib import version
 
 osprofiler_profiler = importutils.try_import("osprofiler.profiler")
 
@@ -336,7 +337,7 @@ class OpenStackShell(app.App):
     * super()
     * _final_defaults()
     * OpenStackConfig
-    * get_one_cloud
+    * get_one
     * _load_plugins()
     * _load_commands()
     * ClientManager
@@ -423,7 +424,7 @@ class OpenStackShell(app.App):
 
         # NOTE(dtroyer): Need to do this with validate=False to defer the
         #                auth plugin handling to ClientManager.setup_auth()
-        self.cloud = self.cloud_config.get_one_cloud(
+        self.cloud = self.cloud_config.get_one(
             cloud=self.options.cloud,
             argparse=self.options,
             validate=False,
@@ -462,7 +463,7 @@ class OpenStackShell(app.App):
         )
 
         # NOTE(dtroyer): If auth is not required for a command, skip
-        #                get_one_Cloud()'s validation to avoid loading plugins
+        #                get_one()'s validation to avoid loading plugins
         validate = cmd.auth_required
 
         # NOTE(dtroyer): Save the auth required state of the _current_ command
@@ -470,10 +471,13 @@ class OpenStackShell(app.App):
         self.client_manager._auth_required = cmd.auth_required
 
         # Validate auth options
-        self.cloud = self.cloud_config.get_one_cloud(
+        self.cloud = self.cloud_config.get_one(
             cloud=self.options.cloud,
             argparse=self.options,
             validate=validate,
+            app_name=self.client_manager._app_name,
+            app_version=self.client_manager._app_version,
+            additional_user_agent=[('osc-lib', version.version_string)],
         )
         # Push the updated args into ClientManager
         self.client_manager._cli_options = self.cloud

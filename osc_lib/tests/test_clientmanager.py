@@ -24,14 +24,8 @@ from keystoneauth1 import loading
 from keystoneauth1 import noauth
 from keystoneauth1 import token_endpoint
 
-try:
-    from openstack.config import cloud_config
-    from openstack.config import defaults
-    _occ_in_sdk = True
-except ImportError:
-    from os_client_config import cloud_config
-    from os_client_config import defaults
-    _occ_in_sdk = False
+from openstack.config import cloud_config
+from openstack.config import defaults
 from openstack import connection
 
 from osc_lib.api import auth
@@ -423,10 +417,7 @@ class TestClientManagerSDK(utils.TestClientManager):
             auth_required=True,
         )
 
-        if _occ_in_sdk:
-            self.assertIsInstance(
-                client_manager.sdk_connection,
-                connection.Connection,
-            )
-        else:
-            self.assertIsNone(getattr(client_manager, 'sdk_connection', None))
+        self.assertIsInstance(
+            client_manager.sdk_connection,
+            connection.Connection,
+        )
