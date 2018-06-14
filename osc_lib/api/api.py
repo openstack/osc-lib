@@ -328,7 +328,6 @@ class BaseAPI(object):
         :returns: list of resource dicts
         """
 
-        print("keys: %s" % kwargs.keys())
         items = self.list(path)
         if isinstance(items, dict):
             # strip off the enclosing dict
