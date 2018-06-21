@@ -101,8 +101,9 @@ class OSC_Config(config.OpenStackConfig):
             ]
             for prop in domain_props:
                 if config['auth'].pop(prop, None) is not None:
-                    LOG.warning("Ignoring domain related config " +
-                                prop + " because identity API version is 2.0")
+                    LOG.warning("Ignoring domain related config %s for %s"
+                                "because identity API version is 2.0" %
+                                (prop, config['cloud']))
         return config
 
     def _auth_default_domain(self, config):

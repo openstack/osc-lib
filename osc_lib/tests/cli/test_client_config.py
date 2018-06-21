@@ -151,6 +151,7 @@ class TestOSCConfig(utils.TestCase):
 
     def test_auth_v2_ignore_v3(self):
         config = {
+            'cloud': 'testcloud',
             'identity_api_version': '2',
             'auth_type': 'v2password',
             'auth': {
