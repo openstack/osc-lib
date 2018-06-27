@@ -32,6 +32,7 @@ is a package of common support modules for writing OSC plugins.
 .. _Developer: http://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _Contributing: http://docs.openstack.org/infra/manual/developers.html
 .. _Testing: http://docs.openstack.org/osc-lib/latest/contributor/#testing
+.. _Release Notes: https://docs.openstack.org/releasenotes/osc-lib
 
 Getting Started
 ===============
