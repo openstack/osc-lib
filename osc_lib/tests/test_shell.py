@@ -22,16 +22,7 @@ import testtools
 from osc_lib import shell
 from osc_lib.tests import utils
 
-# NOTE(dtroyer): Attempt the import to detect if the SDK installed is new
-#                enough to contain the os_client_config code.  If so, use
-#                that path for mocks.
-CONFIG_MOCK_BASE = "openstack.config.loader"
-try:
-    from openstack.config import loader as config   # noqa
-except ImportError:
-    # Fall back to os-client-config
-    CONFIG_MOCK_BASE = "os_client_config.config"
-
+from openstack.config import loader as config   # noqa
 
 DEFAULT_AUTH_URL = "http://127.0.0.1:5000/v2.0/"
 DEFAULT_PROJECT_ID = "xxxx-yyyy-zzzz"
@@ -197,12 +188,12 @@ class TestShellOptions(utils.TestShell):
     def test_empty_auth(self):
         os.environ = {}
         self._assert_initialize_app_arg("", {})
-        self._assert_cloud_config_arg("", {})
+        self._assert_cloud_region_arg("", {})
 
     def test_no_options(self):
         os.environ = {}
         self._assert_initialize_app_arg("", {})
-        self._assert_cloud_config_arg("", {})
+        self._assert_cloud_region_arg("", {})
 
     def test_global_options(self):
         self._test_options_init_app(global_options)
@@ -322,7 +313,7 @@ class TestShellCli(utils.TestShell):
         self.assertEqual('mickey', _shell.options.key)
         self.assertEqual(('mycert', 'mickey'), _shell.client_manager.cert)
 
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_config_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_config_file")
     def test_shell_args_cloud_no_vendor(self, config_mock):
         """Test cloud config options without the vendor file"""
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_1))
@@ -371,8 +362,8 @@ class TestShellCli(utils.TestShell):
         self.assertIsNone(_shell.cloud.config['key'])
         self.assertIsNone(_shell.client_manager.cert)
 
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_vendor_file")
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_config_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_vendor_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_config_file")
     def test_shell_args_cloud_public(self, config_mock, public_mock):
         """Test cloud config options with the vendor file"""
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
@@ -420,8 +411,8 @@ class TestShellCli(utils.TestShell):
         self.assertEqual('mickey', _shell.cloud.config['key'])
         self.assertEqual(('mycert', 'mickey'), _shell.client_manager.cert)
 
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_vendor_file")
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_config_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_vendor_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_config_file")
     def test_shell_args_precedence(self, config_mock, vendor_mock):
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
         vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
@@ -477,8 +468,8 @@ class TestShellCliPrecedence(utils.TestShell):
         }
         self.useFixture(utils.EnvFixture(env.copy()))
 
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_vendor_file")
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_config_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_vendor_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_config_file")
     def test_shell_args_precedence_1(self, config_mock, vendor_mock):
         """Test environment overriding occ"""
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
@@ -525,8 +516,8 @@ class TestShellCliPrecedence(utils.TestShell):
             _shell.client_manager.region_name,
         )
 
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_vendor_file")
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_config_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_vendor_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_config_file")
     def test_shell_args_precedence_2(self, config_mock, vendor_mock):
         """Test command line overriding environment and occ"""
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
@@ -573,8 +564,8 @@ class TestShellCliPrecedence(utils.TestShell):
             _shell.client_manager.region_name,
         )
 
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_vendor_file")
-    @mock.patch(CONFIG_MOCK_BASE + ".OpenStackConfig._load_config_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_vendor_file")
+    @mock.patch("openstack.config.loader.OpenStackConfig._load_config_file")
     def test_shell_args_precedence_3(self, config_mock, vendor_mock):
         """Test command line overriding environment and occ"""
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_1))

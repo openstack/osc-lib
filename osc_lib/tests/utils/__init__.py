@@ -24,12 +24,8 @@ from cliff import columns as cliff_columns
 import fixtures
 from keystoneauth1 import loading
 
-try:
-    from openstack.config import cloud_config
-    from openstack.config import defaults
-except ImportError:
-    from os_client_config import cloud_config
-    from os_client_config import defaults
+from openstack.config import cloud_region
+from openstack.config import defaults
 
 from oslo_utils import importutils
 from requests_mock.contrib import fixture
@@ -39,16 +35,6 @@ import testtools
 from osc_lib import clientmanager
 from osc_lib import shell
 from osc_lib.tests import fakes
-
-# NOTE(dtroyer): Attempt the import to detect if the SDK installed is new
-#                enough to contain the os_client_config code.  If so, use
-#                that path for mocks.
-CONFIG_MOCK_BASE = "openstack.config.loader"
-try:
-    from openstack.config import loader as config   # noqa
-except ImportError:
-    # Fall back to os-client-config
-    CONFIG_MOCK_BASE = "os_client_config.config"
 
 
 def fake_execute(shell, cmd):
@@ -301,9 +287,9 @@ class TestClientManager(TestCase):
         loader = loading.get_plugin_loader(auth_plugin_name)
         auth_plugin = loader.load_from_options(**auth_dict)
         client_manager = self._clientmanager_class()(
-            cli_options=cloud_config.CloudConfig(
+            cli_options=cloud_region.CloudRegion(
                 name='t1',
-                region='1',
+                region_name='1',
                 config=cli_options,
                 auth_plugin=auth_plugin,
             ),
@@ -361,10 +347,10 @@ class TestShell(TestCase):
                     "%s does not match" % k,
                 )
 
-    def _assert_cloud_config_arg(self, cmd_options, default_args):
-        """Check the args passed to cloud_config.get_one_cloud()
+    def _assert_cloud_region_arg(self, cmd_options, default_args):
+        """Check the args passed to OpenStackConfig.get_one()
 
-        The argparse argument to get_one_cloud() is an argparse.Namespace
+        The argparse argument to get_one() is an argparse.Namespace
         object that contains all of the options processed to this point in
         initialize_app().
         """
@@ -373,7 +359,7 @@ class TestShell(TestCase):
         cloud.config = {}
         self.occ_get_one = mock.Mock(return_value=cloud)
         with mock.patch(
-                CONFIG_MOCK_BASE + ".OpenStackConfig.get_one_cloud",
+                "openstack.config.loader.OpenStackConfig.get_one",
                 self.occ_get_one,
         ):
             _shell = make_shell(shell_class=self.shell_class)
@@ -432,7 +418,7 @@ class TestShell(TestCase):
             kwargs = {
                 key: test_opts[opt][0],
             }
-            self._assert_cloud_config_arg(cmd, kwargs)
+            self._assert_cloud_region_arg(cmd, kwargs)
 
     def _test_env_get_one_cloud(self, test_opts):
         """Test environment options sent "to openstack.config"""
@@ -447,4 +433,4 @@ class TestShell(TestCase):
                 opt2env(opt): test_opts[opt][0],
             }
             os.environ = env.copy()
-            self._assert_cloud_config_arg("", kwargs)
+            self._assert_cloud_region_arg("", kwargs)

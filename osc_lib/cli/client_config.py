@@ -15,15 +15,8 @@
 
 import logging
 
-try:
-    from openstack.config import exceptions as occ_exceptions
-except ImportError:
-    from os_client_config import exceptions as occ_exceptions
-
-try:
-    from openstack.config import loader as config
-except ImportError:
-    from os_client_config import config
+from openstack.config import exceptions as sdk_exceptions
+from openstack.config import loader as config
 
 from oslo_utils import strutils
 import six
@@ -220,7 +213,7 @@ class OSC_Config(config.OpenStackConfig):
                 prompt_options.append(p_opt)
 
         if msgs:
-            raise occ_exceptions.OpenStackConfigException('\n'.join(msgs))
+            raise sdk_exceptions.OpenStackConfigException('\n'.join(msgs))
         else:
             for p_opt in prompt_options:
                 config['auth'][p_opt.dest] = self._pw_callback(p_opt.prompt)
