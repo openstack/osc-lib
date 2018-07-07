@@ -44,7 +44,7 @@ munch==2.1.0
 netaddr==0.7.18
 netifaces==0.10.4
 openstackdocstheme==1.18.1
-openstacksdk==0.13.0
+openstacksdk==0.15.0
 os-service-types==1.2.0
 os-testr==1.0.0
 oslo.concurrency==3.25.0

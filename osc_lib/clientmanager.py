@@ -101,46 +101,12 @@ class ClientManager(object):
         # self.verify is the Requests-compatible form
         # self.cacert is the form used by the legacy client libs
         # self.insecure is not needed, use 'not self.verify'
-
-        # NOTE(dtroyer): Per bug https://bugs.launchpad.net/bugs/1447784
-        #                --insecure overrides any --os-cacert setting
-
-        # Set a hard default
-        self.verify = True
-        if self._cli_options.insecure:
-            # Handle --insecure
-            self.verify = False
-            self.cacert = None
-        else:
-            if (self._cli_options.cacert is not None
-                    and self._cli_options.cacert != ''):
-                # --cacert implies --verify here
-                self.verify = self._cli_options.cacert
-                self.cacert = self._cli_options.cacert
-            else:
-                # Fall through also gets --verify
-                if self._cli_options.verify is not None:
-                    self.verify = self._cli_options.verify
-                self.cacert = None
-
-        # Set up client certificate and key
-        # NOTE(cbrandily): This converts client certificate/key to requests
-        #                  cert argument: None (no client certificate), a path
-        #                  to client certificate or a tuple with client
-        #                  certificate/key paths.
-        self.cert = self._cli_options.cert
-        if self.cert and self._cli_options.key:
-            self.cert = self.cert, self._cli_options.key
-
-        # TODO(mordred) The logic above to set all of these is duplicated in
-        # os-client-config but needs more effort to tease apart and ensure that
-        # values are being passed in. For now, let osc_lib do it and just set
-        # the values in occ.config
-        self._cli_options.config['verify'] = self.verify
-        self._cli_options.config['cacert'] = self.cacert
-        # Attack of the killer passthrough values
-        self._cli_options.config['cert'] = self._cli_options.cert
-        self._cli_options.config['key'] = self._cli_options.key
+        self.cacert = None
+        self.verify, self.cert = self._cli_options.get_requests_verify_args()
+        # If there is a cacert and we're verifying, it'll be in the verify
+        # argument.
+        if not isinstance(self.verify, bool):
+            self.cacert = self.verify
 
         # TODO(mordred) We also don't have any support for setting or passing
         # in api_timeout, which is set in occ defaults but we skip occ defaults
