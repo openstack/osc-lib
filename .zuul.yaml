@@ -1,4 +1,6 @@
 - project:
+    templates:
+      - osc-tox-unit-tips
     check:
       jobs:
         - osc-functional-devstack:
