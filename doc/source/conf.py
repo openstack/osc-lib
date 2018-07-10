@@ -18,11 +18,6 @@ import sys
 import openstackdocstheme
 import pbr.version
 
-# If extensions (or modules to document with autodoc) are in another directory,
-# add these directories to sys.path here. If the directory is relative to the
-# documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
 # NOTE(blk-u): Path for our Sphinx extension, remove when
 # https://launchpad.net/bugs/1260495 is fixed.
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -38,6 +33,7 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.doctest',
               'sphinx.ext.todo',
               'openstackdocstheme',
+              'sphinxcontrib.apidoc',
               ]
 
 # openstackdocstheme options
@@ -265,3 +261,11 @@ texinfo_documents = [
 
 # How to display URL addresses: 'footnote', 'no', or 'inline'.
 #texinfo_show_urls = 'footnote'
+
+# -- Options for sphinxcontrib.apidoc ----------------------------------------
+
+apidoc_module_dir = '../../osc_lib'
+apidoc_excluded_paths = [
+    'tests/*',
+]
+apidoc_output_dir = 'reference/api'
