@@ -430,7 +430,7 @@ def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
         data = item[field_name] if field_name in item else ''
         if field in formatters:
             formatter = formatters[field]
-            if isinstance(formatter, cliff_columns.FormattableColumn):
+            if issubclass(formatter, cliff_columns.FormattableColumn):
                 data = formatter(data)
             else:
                 warnings.warn(
