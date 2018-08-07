@@ -6,10 +6,6 @@ osc-lib
     :target: https://pypi.org/project/osc-lib/
     :alt: Latest Version
 
-.. image:: https://img.shields.io/pypi/dm/osc-lib.svg
-    :target: https://pypi.org/project/osc-lib/
-    :alt: Downloads
-
 OpenStackClient (aka OSC) is a command-line client for OpenStack. osc-lib
 is a package of common support modules for writing OSC plugins.
 
