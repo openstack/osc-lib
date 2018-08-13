@@ -23,7 +23,7 @@ is a package of common support modules for writing OSC plugins.
 .. _PyPi: https://pypi.org/project/osc-lib
 .. _Online Documentation: http://docs.openstack.org/osc-lib/latest/
 .. _Launchpad project: https://launchpad.net/python-openstackclient
-.. _Bugs: https://bugs.launchpad.net/python-openstackclient
+.. _Bugs: https://storyboard.openstack.org/#!/project_group/80
 .. _Source: https://git.openstack.org/cgit/openstack/osc-lib
 .. _Developer: http://docs.openstack.org/project-team-guide/project-setup/python.html
 .. _Contributing: http://docs.openstack.org/infra/manual/developers.html
