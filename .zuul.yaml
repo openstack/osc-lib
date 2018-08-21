@@ -1,6 +1,13 @@
 - project:
     templates:
       - osc-tox-unit-tips
+      - check-requirements
+      - openstack-python-jobs
+      - openstack-python35-jobs
+      - openstack-pypy-jobs-nonvoting
+      - lib-forward-testing
+      - publish-openstack-sphinx-docs
+      - release-notes-jobs
     check:
       jobs:
         - osc-functional-devstack:
