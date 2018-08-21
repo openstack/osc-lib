@@ -1,4 +1,12 @@
 - project:
+    templates:
+      - check-requirements
+      - openstack-python-jobs
+      - openstack-python35-jobs
+      - openstack-pypy-jobs-nonvoting
+      - lib-forward-testing
+      - publish-openstack-sphinx-docs
+      - release-notes-jobs
     name: openstack/osc-lib
     check:
       jobs:
