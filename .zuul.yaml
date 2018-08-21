@@ -7,6 +7,7 @@
       - openstack-python36-jobs
       - openstack-pypy-jobs-nonvoting
       - lib-forward-testing
+      - lib-forward-testing-python3
       - publish-openstack-docs-pti
       - release-notes-jobs-python3
     check:
