@@ -395,7 +395,7 @@ class OpenStackShell(app.App):
         # Parent __init__ parses argv into self.options
         super(OpenStackShell, self).initialize_app(argv)
         self.log.info("START with options: %s",
-                      strutils.mask_password(self.command_options))
+                      strutils.mask_password(" ".join(self.command_options)))
         self.log.debug("options: %s",
                        strutils.mask_password(self.options))
 
