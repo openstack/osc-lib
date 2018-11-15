@@ -430,9 +430,10 @@ def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
         data = item[field_name] if field_name in item else ''
         if field in formatters:
             formatter = formatters[field]
-            if issubclass(formatter, cliff_columns.FormattableColumn):
+            if (isinstance(formatter, type) and issubclass(
+                    formatter, cliff_columns.FormattableColumn)):
                 data = formatter(data)
-            else:
+            elif callable(formatter):
                 warnings.warn(
                     'The usage of formatter functions is now discouraged. '
                     'Consider using cliff.columns.FormattableColumn instead. '
@@ -440,6 +441,10 @@ def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
                     category=DeprecationWarning)
                 if data is not None:
                     data = formatter(data)
+            else:
+                msg = "Invalid formatter provided."
+                raise exceptions.CommandError(msg)
+
         row.append(data)
     return tuple(row)
 
@@ -492,9 +497,10 @@ def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
         data = getattr(item, field_name, '')
         if field in formatters:
             formatter = formatters[field]
-            if issubclass(formatter, cliff_columns.FormattableColumn):
+            if (isinstance(formatter, type) and issubclass(
+                    formatter, cliff_columns.FormattableColumn)):
                 data = formatter(data)
-            else:
+            elif callable(formatter):
                 warnings.warn(
                     'The usage of formatter functions is now discouraged. '
                     'Consider using cliff.columns.FormattableColumn instead. '
@@ -502,6 +508,10 @@ def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
                     category=DeprecationWarning)
                 if data is not None:
                     data = formatter(data)
+            else:
+                msg = "Invalid formatter provided."
+                raise exceptions.CommandError(msg)
+
         row.append(data)
     return tuple(row)
 
