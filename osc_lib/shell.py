@@ -44,6 +44,7 @@ osprofiler_profiler = importutils.try_import("osprofiler.profiler")
 
 
 DEFAULT_DOMAIN = 'default'
+DEFAULT_INTERFACE = 'public'
 
 
 def prompt_for_password(prompt=None):
@@ -255,10 +256,12 @@ class OpenStackShell(app.App):
             metavar='<interface>',
             dest='interface',
             choices=['admin', 'public', 'internal'],
-            default=utils.env('OS_INTERFACE'),
+            default=utils.env(
+                'OS_INTERFACE',
+                default=DEFAULT_INTERFACE),
             help=_('Select an interface type.'
                    ' Valid interface types: [admin, public, internal].'
-                   ' (Env: OS_INTERFACE)'),
+                   ' default=%s, (Env: OS_INTERFACE)') % DEFAULT_INTERFACE,
         )
         parser.add_argument(
             '--os-service-provider',
@@ -403,13 +406,10 @@ class OpenStackShell(app.App):
         self._final_defaults()
 
         # Do configuration file handling
-        # Ignore the default value of interface. Only if it is set later
-        # will it be used.
         try:
             self.cloud_config = cloud_config.OSC_Config(
                 pw_func=prompt_for_password,
                 override_defaults={
-                    'interface': None,
                     'auth_type': self._auth_type,
                 },
             )
