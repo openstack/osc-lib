@@ -106,10 +106,13 @@ def check_valid_authentication_options(options, auth_plugin_name):
             'Set a cloud-name with --os-cloud or OS_CLOUD'
         ))
     else:
-        if 'password' in plugin_opts and not options.auth.get('username'):
+        if ('password' in plugin_opts and not
+                (options.auth.get('username') or options.auth.get('user_id'))):
             msgs.append(_(
                 'Set a username with --os-username, OS_USERNAME,'
                 ' or auth.username'
+                ' or set a user-id with --os-user-id, OS_USER_ID,'
+                ' or auth.user_id'
             ))
         if 'auth_url' in plugin_opts and not options.auth.get('auth_url'):
             msgs.append(_(

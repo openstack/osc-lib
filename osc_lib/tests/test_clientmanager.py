@@ -302,6 +302,16 @@ class TestClientManager(utils.TestClientManager):
             identity_api_version='3',
         )
 
+        auth_args = copy.deepcopy(self.default_password_auth)
+        auth_args.pop('username')
+        auth_args.update({
+            'user_id': fakes.USER_ID,
+        })
+        self._make_clientmanager(
+            auth_args=auth_args,
+            identity_api_version='3',
+        )
+
     def test_client_manager_select_auth_plugin_token(self):
         # test token auth
         self._make_clientmanager(

@@ -23,6 +23,7 @@ from keystoneauth1 import fixture
 AUTH_TOKEN = "foobar"
 AUTH_URL = "http://0.0.0.0"
 USERNAME = "itchy"
+USER_ID = "2354b7c1-f681-4c39-8003-4fe9d1eabb65"
 PASSWORD = "scratchy"
 PROJECT_NAME = "poochie"
 PROJECT_ID = "30c3da29-61f5-4b7b-8eb2-3d18287428c7"
