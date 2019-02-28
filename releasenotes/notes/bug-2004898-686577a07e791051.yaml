@@ -1,0 +1,6 @@
+---
+fixes:
+  - Allow using a user ID for authentication in place of a username/domain
+    combination.  This fixes the use of ``--os-user-id`` option and
+    ``OS_USER_ID`` environment variable.
+    [Bug `2004898 <https://storyboard.openstack.org/#!/story/2004898>`_]
