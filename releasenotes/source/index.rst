@@ -6,6 +6,7 @@ osc-lib Release Notes
    :maxdepth: 1
 
    unreleased
+   stein
    rocky
    queens
    pike
