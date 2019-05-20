@@ -143,6 +143,16 @@ class FakeClientManager(object):
         }
 
 
+class FakeModule(object):
+
+    def __init__(self, name, version):
+        self.name = name
+        self.__version__ = version
+        # Workaround for openstacksdk case
+        self.version = mock.Mock()
+        self.version.__version__ = version
+
+
 class FakeResource(object):
 
     def __init__(self, manager=None, info=None, loaded=False, methods=None):
