@@ -419,6 +419,31 @@ class TestClientManager(utils.TestClientManager):
         self.assertEqual(client_manager.auth.project_id, fakes.PROJECT_ID)
         self.assertTrue(client_manager._auth_setup_completed)
 
+    def test_client_manager_none_auth(self):
+        # test token auth
+        client_manager = self._make_clientmanager(
+            auth_args={},
+            auth_plugin_name='none',
+        )
+        self.assertIsNone(
+            client_manager.get_endpoint_for_service_type('compute'))
+
+    def test_client_manager_endpoint_override(self):
+        # test token auth
+        client_manager = self._make_clientmanager(
+            auth_args={},
+            config_args={'compute_endpoint_override': 'http://example.com',
+                         'foo_bar_endpoint_override': 'http://example2.com'},
+            auth_plugin_name='none',
+        )
+        self.assertEqual(
+            'http://example.com',
+            client_manager.get_endpoint_for_service_type('compute'))
+        self.assertEqual(
+            'http://example2.com',
+            client_manager.get_endpoint_for_service_type('foo-bar'))
+        self.assertTrue(client_manager.is_service_available('compute'))
+
 
 class TestClientManagerSDK(utils.TestClientManager):
 

@@ -101,7 +101,7 @@ def check_valid_authentication_options(options, auth_plugin_name):
     msgs = []
 
     # when no auth params are passed in, user advised to use os-cloud
-    if not options.auth:
+    if not options.auth and auth_plugin_name != 'none':
         msgs.append(_(
             'Set a cloud-name with --os-cloud or OS_CLOUD'
         ))
