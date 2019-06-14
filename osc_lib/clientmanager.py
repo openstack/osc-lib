@@ -202,9 +202,15 @@ class ClientManager(object):
             self._auth_ref = self.auth.get_auth_ref(self.session)
         return self._auth_ref
 
+    def _override_for(self, service_type):
+        key = '%s_endpoint_override' % service_type.replace('-', '_')
+        return self._cli_options.config.get(key)
+
     def is_service_available(self, service_type):
         """Check if a service type is in the current Service Catalog"""
-
+        # If there is an override, assume the service is available
+        if self._override_for(service_type):
+            return True
         # Trigger authentication necessary to discover endpoint
         if self.auth_ref:
             service_catalog = self.auth_ref.service_catalog
@@ -226,6 +232,11 @@ class ClientManager(object):
     def get_endpoint_for_service_type(self, service_type, region_name=None,
                                       interface='public'):
         """Return the endpoint URL for the service type."""
+        # Overrides take priority unconditionally
+        override = self._override_for(service_type)
+        if override:
+            return override
+
         if not interface:
             interface = 'public'
         # See if we are using password flow auth, i.e. we have a
