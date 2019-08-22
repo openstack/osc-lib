@@ -162,10 +162,6 @@ class OSC_Config(config.OpenStackConfig):
                       strutils.mask_password(six.text_type(config)))
         return config
 
-    def _validate_auth_ksc(self, config, cloud, fixed_argparse=None):
-        """Old compatibility hack for OSC, no longer needed/wanted"""
-        return config
-
     def _validate_auth(self, config, loader, fixed_argparse=None):
         """Validate auth plugin arguments"""
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
@@ -226,3 +222,11 @@ class OSC_Config(config.OpenStackConfig):
                 config['auth'][p_opt.dest] = self._pw_callback(p_opt.prompt)
 
         return config
+
+    def load_auth_plugin(self, config):
+        """Get auth plugin and validate args"""
+
+        loader = self._get_auth_loader(config)
+        config = self._validate_auth(config, loader)
+        auth_plugin = loader.load_from_options(**config['auth'])
+        return auth_plugin

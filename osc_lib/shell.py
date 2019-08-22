@@ -410,6 +410,7 @@ class OpenStackShell(app.App):
             self.cloud_config = cloud_config.OSC_Config(
                 pw_func=prompt_for_password,
                 override_defaults={
+                    'interface': None,
                     'auth_type': self._auth_type,
                 },
             )
