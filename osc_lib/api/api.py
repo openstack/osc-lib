@@ -361,7 +361,7 @@ class BaseAPI(object):
         num_bulk = len(bulk_list)
         if num_bulk == 0:
             msg = _("none found")
-            raise exceptions.NotFound(msg)
+            raise exceptions.NotFound(404, msg)
         elif num_bulk > 1:
             msg = _("many found")
             raise RuntimeError(msg)
@@ -388,7 +388,7 @@ class BaseAPI(object):
 
         def raise_not_found():
             msg = _("%s not found") % value
-            raise exceptions.NotFound(msg)
+            raise exceptions.NotFound(404, msg)
 
         try:
             ret = self._request(
