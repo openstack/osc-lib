@@ -1,0 +1,4 @@
+---
+fixes:
+  - Fix format_columns.format_dict() to properly re-format nested dicts.
+    [Bug `2006480 <https://storyboard.openstack.org/#!/story/2006480>`_]

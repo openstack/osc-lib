@@ -689,6 +689,50 @@ class TestFindResource(test_utils.TestCase):
                          utils.format_dict({'e': 'f', 'c': 'd', 'a': 'b'}))
         self.assertIsNone(utils.format_dict(None))
 
+    def test_format_dict_recursive(self):
+        expected = "a='b', c.1='d', c.2='e'"
+        self.assertEqual(
+            expected,
+            utils.format_dict({'a': 'b', 'c': {'1': 'd', '2': 'e'}})
+        )
+        self.assertEqual(
+            expected,
+            utils.format_dict({'c': {'1': 'd', '2': 'e'}, 'a': 'b'})
+        )
+        self.assertIsNone(utils.format_dict(None))
+
+        expected = "a1='A', a2.b1.c1='B', a2.b1.c2='C', a2.b2='D'"
+        self.assertEqual(
+            expected,
+            utils.format_dict(
+                {
+                    'a1': 'A',
+                    'a2': {
+                        'b1': {
+                            'c1': 'B',
+                            'c2': 'C',
+                        },
+                        'b2': 'D',
+                    },
+                }
+            )
+        )
+        self.assertEqual(
+            expected,
+            utils.format_dict(
+                {
+                    'a2': {
+                        'b1': {
+                            'c2': 'C',
+                            'c1': 'B',
+                        },
+                        'b2': 'D',
+                    },
+                    'a1': 'A',
+                }
+            )
+        )
+
     def test_format_dict_of_list(self):
         expected = "a=a1, a2; b=b1, b2; c=c1, c2; e="
         self.assertEqual(expected,

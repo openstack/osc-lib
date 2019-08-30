@@ -294,10 +294,11 @@ def find_resource(manager, name_or_id, **kwargs):
         raise exceptions.CommandError(msg % name_or_id)
 
 
-def format_dict(data):
+def format_dict(data, prefix=None):
     """Return a formatted string of key value pairs
 
     :param data: a dict
+    :param prefix: the current parent keys in a recursive call
     :rtype: a string formatted to key='value'
     """
 
@@ -306,7 +307,16 @@ def format_dict(data):
 
     output = ""
     for s in sorted(data):
-        output = output + s + "='" + six.text_type(data[s]) + "', "
+        if prefix:
+            key_str = ".".join([prefix, s])
+        else:
+            key_str = s
+        if isinstance(data[s], dict):
+            # NOTE(dtroyer): Only append the separator chars here, quoting
+            #                is completely handled in the terminal case.
+            output = output + format_dict(data[s], prefix=key_str) + ", "
+        else:
+            output = output + key_str + "='" + six.text_type(data[s]) + "', "
     return output[:-2]
 
 
