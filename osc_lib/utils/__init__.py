@@ -315,8 +315,10 @@ def format_dict(data, prefix=None):
             # NOTE(dtroyer): Only append the separator chars here, quoting
             #                is completely handled in the terminal case.
             output = output + format_dict(data[s], prefix=key_str) + ", "
-        else:
+        elif data[s] is not None:
             output = output + key_str + "='" + six.text_type(data[s]) + "', "
+        else:
+            output = output + key_str + "=, "
     return output[:-2]
 
 
