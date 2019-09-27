@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Add ``KeyValueAppendAction`` that allows key-value arguments to be specified
+    multiple times. For example: ``--property key1=value1 --property key1=value2``.

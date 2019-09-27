@@ -23,7 +23,7 @@ from osc_lib.i18n import _
 class KeyValueAction(argparse.Action):
     """A custom action to parse arguments as key=value pairs
 
-    Ensures that ``dest`` is a dict
+    Ensures that ``dest`` is a dict and values are strings.
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
@@ -40,6 +40,35 @@ class KeyValueAction(argparse.Action):
                 raise argparse.ArgumentTypeError(msg % str(values))
             else:
                 getattr(namespace, self.dest, {}).update([values_list])
+        else:
+            msg = _("Expected 'key=value' type, but got: %s")
+            raise argparse.ArgumentTypeError(msg % str(values))
+
+
+class KeyValueAppendAction(argparse.Action):
+    """A custom action to parse arguments as key=value pairs
+
+    Ensures that ``dest`` is a dict and values are lists of strings.
+    """
+
+    def __call__(self, parser, namespace, values, option_string=None):
+        # Make sure we have an empty dict rather than None
+        if getattr(namespace, self.dest, None) is None:
+            setattr(namespace, self.dest, {})
+
+        # Add value if an assignment else remove it
+        if '=' in values:
+            key, value = values.split('=', 1)
+            # NOTE(qtang): Prevent null key setting in property
+            if '' == key:
+                msg = _("Property key must be specified: %s")
+                raise argparse.ArgumentTypeError(msg % str(values))
+
+            dest = getattr(namespace, self.dest)
+            if key in dest:
+                dest[key].append(value)
+            else:
+                dest[key] = [value]
         else:
             msg = _("Expected 'key=value' type, but got: %s")
             raise argparse.ArgumentTypeError(msg % str(values))
