@@ -22,39 +22,49 @@ class _CommaListAction(argparse.Action):
         setattr(namespace, self.dest, values.split(','))
 
 
-def add_tag_filtering_option_to_parser(parser, resource_name):
+def add_tag_filtering_option_to_parser(
+        parser, resource_name, enhance_help=lambda _h: _h):
     """Add tag filtering options to a parser.
 
     :param parser: argparse.Argument parser object.
     :param resource_name: Description of the object being filtered.
+    :param enhance_help: A callable accepting a single parameter, the
+        (translated) help string, and returning a (translated) help string. May
+        be used by a caller wishing to add qualifying text, such as "Applies to
+        version XYZ only", to the help strings for all options produced by this
+        method.
     """
     parser.add_argument(
         '--tags',
         metavar='<tag>[,<tag>,...]',
         action=_CommaListAction,
-        help=_('List %s which have all given tag(s) '
-               '(Comma-separated list of tags)') % resource_name
+        help=enhance_help(
+            _('List %s which have all given tag(s) '
+              '(Comma-separated list of tags)') % resource_name)
     )
     parser.add_argument(
         '--any-tags',
         metavar='<tag>[,<tag>,...]',
         action=_CommaListAction,
-        help=_('List %s which have any given tag(s) '
-               '(Comma-separated list of tags)') % resource_name
+        help=enhance_help(
+            _('List %s which have any given tag(s) '
+              '(Comma-separated list of tags)') % resource_name)
     )
     parser.add_argument(
         '--not-tags',
         metavar='<tag>[,<tag>,...]',
         action=_CommaListAction,
-        help=_('Exclude %s which have all given tag(s) '
-               '(Comma-separated list of tags)') % resource_name
+        help=enhance_help(
+            _('Exclude %s which have all given tag(s) '
+              '(Comma-separated list of tags)') % resource_name)
     )
     parser.add_argument(
         '--not-any-tags',
         metavar='<tag>[,<tag>,...]',
         action=_CommaListAction,
-        help=_('Exclude %s which have any given tag(s) '
-               '(Comma-separated list of tags)') % resource_name
+        help=enhance_help(
+            _('Exclude %s which have any given tag(s) '
+              '(Comma-separated list of tags)') % resource_name)
     )
 
 
@@ -77,11 +87,17 @@ def get_tag_filtering_args(parsed_args, args):
         args['not_any_tags'] = ','.join(parsed_args.not_any_tags)
 
 
-def add_tag_option_to_parser_for_create(parser, resource_name):
+def add_tag_option_to_parser_for_create(
+        parser, resource_name, enhance_help=lambda _h: _h):
     """Add tag options to a parser for create commands.
 
     :param parser: argparse.Argument parser object.
     :param resource_name: Description of the object being filtered.
+    :param enhance_help: A callable accepting a single parameter, the
+        (translated) help string, and returning a (translated) help string. May
+        be used by a caller wishing to add qualifying text, such as "Applies to
+        version XYZ only", to the help strings for all options produced by this
+        method.
     """
     tag_group = parser.add_mutually_exclusive_group()
     tag_group.add_argument(
@@ -89,43 +105,58 @@ def add_tag_option_to_parser_for_create(parser, resource_name):
         action='append',
         dest='tags',
         metavar='<tag>',
-        help=_("Tag to be added to the %s "
-               "(repeat option to set multiple tags)") % resource_name
+        help=enhance_help(
+            _("Tag to be added to the %s "
+              "(repeat option to set multiple tags)") % resource_name)
     )
     tag_group.add_argument(
         '--no-tag',
         action='store_true',
-        help=_("No tags associated with the %s") % resource_name
+        help=enhance_help(_("No tags associated with the %s") % resource_name)
     )
 
 
-def add_tag_option_to_parser_for_set(parser, resource_name):
+def add_tag_option_to_parser_for_set(
+        parser, resource_name, enhance_help=lambda _h: _h):
     """Add tag options to a parser for set commands.
 
     :param parser: argparse.Argument parser object.
     :param resource_name: Description of the object being filtered.
+    :param enhance_help: A callable accepting a single parameter, the
+        (translated) help string, and returning a (translated) help string. May
+        be used by a caller wishing to add qualifying text, such as "Applies to
+        version XYZ only", to the help strings for all options produced by this
+        method.
     """
     parser.add_argument(
         '--tag',
         action='append',
         dest='tags',
         metavar='<tag>',
-        help=_("Tag to be added to the %s "
-               "(repeat option to set multiple tags)") % resource_name
+        help=enhance_help(
+            _("Tag to be added to the %s "
+              "(repeat option to set multiple tags)") % resource_name)
     )
     parser.add_argument(
         '--no-tag',
         action='store_true',
-        help=_("Clear tags associated with the %s. Specify both "
-               "--tag and --no-tag to overwrite current tags") % resource_name
+        help=enhance_help(
+            _("Clear tags associated with the %s. Specify both "
+              "--tag and --no-tag to overwrite current tags") % resource_name)
     )
 
 
-def add_tag_option_to_parser_for_unset(parser, resource_name):
+def add_tag_option_to_parser_for_unset(
+        parser, resource_name, enhance_help=lambda _h: _h):
     """Add tag options to a parser for set commands.
 
     :param parser: argparse.Argument parser object.
     :param resource_name: Description of the object being filtered.
+    :param enhance_help: A callable accepting a single parameter, the
+        (translated) help string, and returning a (translated) help string. May
+        be used by a caller wishing to add qualifying text, such as "Applies to
+        version XYZ only", to the help strings for all options produced by this
+        method.
     """
     tag_group = parser.add_mutually_exclusive_group()
     tag_group.add_argument(
@@ -133,12 +164,14 @@ def add_tag_option_to_parser_for_unset(parser, resource_name):
         action='append',
         dest='tags',
         metavar='<tag>',
-        help=_("Tag to be removed from the %s "
-               "(repeat option to remove multiple tags)") % resource_name)
+        help=enhance_help(
+            _("Tag to be removed from the %s "
+              "(repeat option to remove multiple tags)") % resource_name))
     tag_group.add_argument(
         '--all-tag',
         action='store_true',
-        help=_("Clear all tags associated with the %s") % resource_name)
+        help=enhance_help(
+            _("Clear all tags associated with the %s") % resource_name))
 
 
 def update_tags_for_set(client, obj, parsed_args):

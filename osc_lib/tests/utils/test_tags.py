@@ -19,6 +19,11 @@ from osc_lib.tests import utils as test_utils
 from osc_lib.utils import tags
 
 
+def help_enhancer(_h):
+    """A simple helper to validate the ``enhance_help`` kwarg."""
+    return ''.join(reversed(_h))
+
+
 class TestTags(test_utils.TestCase):
 
     def test_add_tag_filtering_option_to_parser(self):
@@ -169,3 +174,134 @@ class TestTags(test_utils.TestCase):
         tags.update_tags_for_unset(mock_client, mock_obj, mock_parsed_args)
         mock_client.set_tags.assert_called_once_with(
             mock_obj, ['tag1'])
+
+
+class TestTagHelps(test_utils.TestCase):
+
+    def _test_tag_method_help(self, meth, exp_normal, exp_enhanced):
+        """Vet the help text of the options added by the tag filtering helpers.
+
+        :param meth: One of the ``add_tag_*`` methods.
+        :param exp_normal: Expected help output without ``enhance_help``.
+        :param exp_enhanced: Expected output with ``enhance_help`` set to
+            ``help_enhancer``
+        """
+        parser = argparse.ArgumentParser()
+        meth(parser, 'test')
+        self.assertEqual(exp_normal, parser.format_help())
+
+        parser = argparse.ArgumentParser()
+        meth(parser, 'test', enhance_help=help_enhancer)
+        self.assertEqual(exp_enhanced, parser.format_help())
+
+    def test_add_tag_filtering_option_to_parser(self):
+        self._test_tag_method_help(
+            tags.add_tag_filtering_option_to_parser,
+            """\
+usage: run.py [-h] [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
+              [--not-tags <tag>[,<tag>,...]]
+              [--not-any-tags <tag>[,<tag>,...]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --tags <tag>[,<tag>,...]
+                        List test which have all given tag(s) (Comma-separated
+                        list of tags)
+  --any-tags <tag>[,<tag>,...]
+                        List test which have any given tag(s) (Comma-separated
+                        list of tags)
+  --not-tags <tag>[,<tag>,...]
+                        Exclude test which have all given tag(s) (Comma-
+                        separated list of tags)
+  --not-any-tags <tag>[,<tag>,...]
+                        Exclude test which have any given tag(s) (Comma-
+                        separated list of tags)
+""",
+            """\
+usage: run.py [-h] [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
+              [--not-tags <tag>[,<tag>,...]]
+              [--not-any-tags <tag>[,<tag>,...]]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --tags <tag>[,<tag>,...]
+                        )sgat fo tsil detarapes-ammoC( )s(gat nevig lla evah
+                        hcihw tset tsiL
+  --any-tags <tag>[,<tag>,...]
+                        )sgat fo tsil detarapes-ammoC( )s(gat nevig yna evah
+                        hcihw tset tsiL
+  --not-tags <tag>[,<tag>,...]
+                        )sgat fo tsil detarapes-ammoC( )s(gat nevig lla evah
+                        hcihw tset edulcxE
+  --not-any-tags <tag>[,<tag>,...]
+                        )sgat fo tsil detarapes-ammoC( )s(gat nevig yna evah
+                        hcihw tset edulcxE
+""")
+
+    def test_add_tag_option_to_parser_for_create(self):
+        self._test_tag_method_help(
+            tags.add_tag_option_to_parser_for_create,
+            """\
+usage: run.py [-h] [--tag <tag> | --no-tag]
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --tag <tag>  Tag to be added to the test (repeat option to set multiple
+               tags)
+  --no-tag     No tags associated with the test
+""",
+            """\
+usage: run.py [-h] [--tag <tag> | --no-tag]
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --tag <tag>  )sgat elpitlum tes ot noitpo taeper( tset eht ot dedda eb ot
+               gaT
+  --no-tag     tset eht htiw detaicossa sgat oN
+""")
+
+    def test_add_tag_option_to_parser_for_set(self):
+        self._test_tag_method_help(
+            tags.add_tag_option_to_parser_for_set,
+            """\
+usage: run.py [-h] [--tag <tag>] [--no-tag]
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --tag <tag>  Tag to be added to the test (repeat option to set multiple
+               tags)
+  --no-tag     Clear tags associated with the test. Specify both --tag and
+               --no-tag to overwrite current tags
+""",
+            """\
+usage: run.py [-h] [--tag <tag>] [--no-tag]
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --tag <tag>  )sgat elpitlum tes ot noitpo taeper( tset eht ot dedda eb ot
+               gaT
+  --no-tag     sgat tnerruc etirwrevo ot gat-on-- dna gat-- htob yficepS .tset
+               eht htiw detaicossa sgat raelC
+""")
+
+    def test_add_tag_option_to_parser_for_unset(self):
+        self._test_tag_method_help(
+            tags.add_tag_option_to_parser_for_unset,
+            """\
+usage: run.py [-h] [--tag <tag> | --all-tag]
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --tag <tag>  Tag to be removed from the test (repeat option to remove
+               multiple tags)
+  --all-tag    Clear all tags associated with the test
+""",
+            """\
+usage: run.py [-h] [--tag <tag> | --all-tag]
+
+optional arguments:
+  -h, --help   show this help message and exit
+  --tag <tag>  )sgat elpitlum evomer ot noitpo taeper( tset eht morf devomer
+               eb ot gaT
+  --all-tag    tset eht htiw detaicossa sgat lla raelC
+""")
