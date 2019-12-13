@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    Integrate get_osc_show_columns_for_sdk_resource function to ease showing
+    SDK resources.
