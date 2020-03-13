@@ -37,19 +37,19 @@ class TestTags(test_utils.TestCase):
 
         actual = getattr(parsed_args, 'tags', [])
         expected = ['tag1', 'tag2']
-        self.assertItemsEqual(expected, actual)
+        self.assertCountEqual(expected, actual)
 
         actual = getattr(parsed_args, 'any_tags', [])
         expected = ['tag4']
-        self.assertItemsEqual(expected, actual)
+        self.assertCountEqual(expected, actual)
 
         actual = getattr(parsed_args, 'not_tags', [])
         expected = ['tag5']
-        self.assertItemsEqual(expected, actual)
+        self.assertCountEqual(expected, actual)
 
         actual = getattr(parsed_args, 'not_any_tags', [])
         expected = ['tag6']
-        self.assertItemsEqual(expected, actual)
+        self.assertCountEqual(expected, actual)
 
     def test_get_tag_filtering_args(self):
         parser = argparse.ArgumentParser()
@@ -76,12 +76,12 @@ class TestTags(test_utils.TestCase):
         parsed_args = parser.parse_args(['--tag', 'tag1'])
         actual = getattr(parsed_args, 'tags', [])
         expected = ['tag1']
-        self.assertItemsEqual(expected, actual)
+        self.assertCountEqual(expected, actual)
 
         parsed_args = parser.parse_args(['--no-tag'])
         actual = getattr(parsed_args, 'no-tag', [])
         expected = []
-        self.assertItemsEqual(expected, actual)
+        self.assertCountEqual(expected, actual)
 
     def test_add_tag_option_to_parser_for_set(self):
         parser = argparse.ArgumentParser()
@@ -90,12 +90,12 @@ class TestTags(test_utils.TestCase):
         parsed_args = parser.parse_args(['--tag', 'tag1'])
         actual = getattr(parsed_args, 'tags', [])
         expected = ['tag1']
-        self.assertItemsEqual(expected, actual)
+        self.assertCountEqual(expected, actual)
 
         parsed_args = parser.parse_args(['--no-tag'])
         actual = getattr(parsed_args, 'no-tag', [])
         expected = []
-        self.assertItemsEqual(expected, actual)
+        self.assertCountEqual(expected, actual)
 
     def test_add_tag_option_to_parser_for_unset(self):
         parser = argparse.ArgumentParser()
@@ -108,12 +108,12 @@ class TestTags(test_utils.TestCase):
         parsed_args = parser.parse_args(['--tag', 'tag1'])
         actual = getattr(parsed_args, 'tags', [])
         expected = ['tag1']
-        self.assertItemsEqual(expected, actual)
+        self.assertCountEqual(expected, actual)
 
         parsed_args = parser.parse_args(['--all-tag'])
         actual = getattr(parsed_args, 'all-tag', [])
         expected = []
-        self.assertItemsEqual(expected, actual)
+        self.assertCountEqual(expected, actual)
 
     def test_update_tags_for_set(self):
         mock_client = mock.MagicMock()

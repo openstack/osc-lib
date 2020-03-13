@@ -136,7 +136,7 @@ class TestMultiKeyValueAction(utils.TestCase):
             {'req1': 'aaa', 'req2': 'bbb'},
             {'req1': '', 'req2': ''},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
     def test_empty_required_optional(self):
         self.parser.add_argument(
@@ -160,7 +160,7 @@ class TestMultiKeyValueAction(utils.TestCase):
             {'req1': 'aaa', 'req2': 'bbb'},
             {'req1': '', 'req2': ''},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
     def test_error_values_with_comma(self):
         data_list = [
@@ -254,7 +254,7 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
         expect = [
             {'req1': 'aaa,bbb'},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
         results = self.parser.parse_args([
             '--test', 'req1=',
@@ -263,7 +263,7 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
         expect = [
             {'req1': ''},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
         results = self.parser.parse_args([
             '--test', 'req1=aaa,bbb',
@@ -274,7 +274,7 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
             {'req1': 'aaa,bbb'},
             {'req1': ''},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
     def test_mkvca_optional(self):
         results = self.parser.parse_args([
@@ -284,7 +284,7 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
         expect = [
             {'req1': 'aaa,bbb'},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
         results = self.parser.parse_args([
             '--test', 'req1=aaa,bbb',
@@ -295,7 +295,7 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
             {'req1': 'aaa,bbb'},
             {'req1': '', 'opt2': 'ccc'},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
         try:
             results = self.parser.parse_args([
@@ -318,7 +318,7 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
             'req1': 'aaa,bbb',
             'opt2': 'ccc',
         }]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
     def test_mkvca_no_required_optional(self):
         self.parser.add_argument(
@@ -339,7 +339,7 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
         expect = [
             {'req1': 'aaa,bbb'},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
         results = self.parser.parse_args([
             '--test-empty', 'xyz=aaa,bbb',
@@ -349,7 +349,7 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
         expect = [
             {'xyz': 'aaa,bbb'},
         ]
-        self.assertItemsEqual(expect, actual)
+        self.assertCountEqual(expect, actual)
 
     def test_mkvca_invalid_key(self):
         try:
