@@ -28,6 +28,7 @@ class FakeCommand(object):
     def __init__(self):
         return
 
+
 FAKE_CMD_ONE = FakeCommand
 FAKE_CMD_TWO = FakeCommand
 FAKE_CMD_ALPHA = FakeCommand
