@@ -19,12 +19,12 @@ import copy
 import getpass
 import logging
 import os
-import six
 import time
 import warnings
 
 from cliff import columns as cliff_columns
 from oslo_utils import importutils
+import six
 
 from osc_lib import exceptions
 from osc_lib.i18n import _

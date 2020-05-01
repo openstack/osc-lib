@@ -11,9 +11,8 @@
 #   under the License.
 #
 
-from unittest import mock
-
 import logging
+from unittest import mock
 
 from osc_lib import logs
 from osc_lib.tests import utils

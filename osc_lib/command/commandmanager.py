@@ -15,9 +15,8 @@
 
 """Modify cliff.CommandManager"""
 
-import pkg_resources
-
 import cliff.commandmanager
+import pkg_resources
 
 
 class CommandManager(cliff.commandmanager.CommandManager):

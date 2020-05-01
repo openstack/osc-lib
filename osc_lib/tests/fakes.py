@@ -13,11 +13,11 @@
 #   under the License.
 #
 
-import six
 import sys
 from unittest import mock
 
 from keystoneauth1 import fixture
+import six
 
 
 AUTH_TOKEN = "foobar"

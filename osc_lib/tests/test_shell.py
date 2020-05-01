@@ -16,13 +16,13 @@
 import copy
 import os
 import sys
-import testtools
 from unittest import mock
+
+import testtools
 
 from osc_lib import shell
 from osc_lib.tests import utils
 
-from openstack.config import loader as config   # noqa
 
 DEFAULT_AUTH_URL = "http://127.0.0.1:5000/v2.0/"
 DEFAULT_PROJECT_ID = "xxxx-yyyy-zzzz"

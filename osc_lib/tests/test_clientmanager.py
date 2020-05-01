@@ -23,7 +23,6 @@ from keystoneauth1.identity.v3 import k2k
 from keystoneauth1 import loading
 from keystoneauth1 import noauth
 from keystoneauth1 import token_endpoint
-
 from openstack.config import cloud_config
 from openstack.config import defaults
 from openstack import connection

@@ -13,11 +13,10 @@
 
 """Base API Library"""
 
-import simplejson as json
-import six
-
 from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session as ksa_session
+import simplejson as json
+import six
 
 from osc_lib import exceptions
 from osc_lib.i18n import _

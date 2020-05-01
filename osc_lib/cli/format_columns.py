@@ -16,6 +16,7 @@
 """Formattable column for specify content type"""
 
 from cliff import columns
+
 from osc_lib import utils
 
 

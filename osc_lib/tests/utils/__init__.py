@@ -23,10 +23,8 @@ from unittest import mock
 from cliff import columns as cliff_columns
 import fixtures
 from keystoneauth1 import loading
-
 from openstack.config import cloud_region
 from openstack.config import defaults
-
 from oslo_utils import importutils
 from requests_mock.contrib import fixture
 import six

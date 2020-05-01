@@ -18,6 +18,7 @@ extras==1.0.0
 fasteners==0.7.0
 fixtures==3.0.0
 flake8==2.2.4
+flake8-import-order==0.17.1
 future==0.16.0
 futurist==1.2.0
 gitdb==0.6.4

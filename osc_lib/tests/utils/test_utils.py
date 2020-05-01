@@ -13,12 +13,12 @@
 #   under the License.
 #
 
-import six
 import time
 from unittest import mock
 import uuid
 
 from cliff import columns as cliff_columns
+import six
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
