@@ -14,10 +14,10 @@
 #
 
 import copy
-import mock
 import os
 import sys
 import testtools
+from unittest import mock
 
 from osc_lib import shell
 from osc_lib.tests import utils

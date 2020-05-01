@@ -15,10 +15,10 @@
 
 import six
 import time
+from unittest import mock
 import uuid
 
 from cliff import columns as cliff_columns
-import mock
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions

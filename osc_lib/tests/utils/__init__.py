@@ -17,8 +17,8 @@
 import contextlib
 import copy
 import json as jsonutils
-import mock
 import os
+from unittest import mock
 
 from cliff import columns as cliff_columns
 import fixtures

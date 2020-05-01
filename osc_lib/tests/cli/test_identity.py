@@ -11,8 +11,8 @@
 #   under the License.
 
 import argparse
+from unittest import mock
 
-import mock
 from openstack import exceptions
 from openstack.identity.v3 import project
 import testtools

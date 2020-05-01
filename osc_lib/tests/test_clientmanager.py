@@ -14,7 +14,7 @@
 #
 
 import copy
-import mock
+from unittest import mock
 
 from keystoneauth1.access import service_catalog
 from keystoneauth1 import exceptions as ksa_exceptions

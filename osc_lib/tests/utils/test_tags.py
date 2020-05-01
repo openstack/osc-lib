@@ -13,7 +13,7 @@
 #   under the License.
 
 import argparse
-import mock
+from unittest import mock
 
 from osc_lib.tests import utils as test_utils
 from osc_lib.utils import tags
