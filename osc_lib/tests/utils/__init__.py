@@ -27,7 +27,6 @@ from openstack.config import cloud_region
 from openstack.config import defaults
 from oslo_utils import importutils
 from requests_mock.contrib import fixture
-import six
 import testtools
 
 from osc_lib import clientmanager
@@ -121,11 +120,7 @@ class TestCase(testtools.TestCase):
             with super(TestCase, self).subTest(*args, **kwargs):
                 yield
         except TypeError:
-            # NOTE(elhararb): subTest is supported by unittest only from PY3.4
-            if six.PY2:
-                yield
-            else:
-                raise
+            raise
         except AttributeError:
             # TODO(elhararb): remove this except clause when subTest is
             #                 enabled in testtools

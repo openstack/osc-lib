@@ -17,12 +17,10 @@
 
 import copy
 import logging
-import sys
 
 from openstack.config import loader as config   # noqa
 from openstack import connection
 from oslo_utils import strutils
-import six
 
 from osc_lib.api import auth
 from osc_lib import exceptions
@@ -48,8 +46,7 @@ class ClientCache(object):
             except AttributeError as err:
                 # Make sure the failure propagates. Otherwise, the plugin just
                 # quietly isn't there.
-                new_err = exceptions.PluginAttributeError(err)
-                six.reraise(new_err.__class__, new_err, sys.exc_info()[2])
+                raise exceptions.PluginAttributeError(err) from err
         return self._handle
 
 

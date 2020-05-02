@@ -18,7 +18,6 @@ from unittest import mock
 import uuid
 
 from cliff import columns as cliff_columns
-import six
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
@@ -206,11 +205,7 @@ class TestUtils(test_utils.TestCase):
         item4 = {'a': 1}
         items = [item1, item2, item3, item4]
         sort_str = 'a'
-        expect_items = [item3, item4, item1, item2]
-        if six.PY2:
-            self.assertEqual(expect_items, utils.sort_items(items, sort_str))
-        else:
-            self.assertRaises(TypeError, utils.sort_items, items, sort_str)
+        self.assertRaises(TypeError, utils.sort_items, items, sort_str)
 
     def test_sort_items_with_different_type_int(self):
         item1 = {'a': 2}

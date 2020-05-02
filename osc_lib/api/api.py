@@ -16,7 +16,6 @@
 from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session as ksa_session
 import simplejson as json
-import six
 
 from osc_lib import exceptions
 from osc_lib.i18n import _
@@ -90,7 +89,7 @@ class BaseAPI(object):
         :return: The modified endpoint
         """
 
-        if isinstance(endpoint, six.string_types):
+        if isinstance(endpoint, str):
             return endpoint.rstrip('/')
         else:
             return endpoint

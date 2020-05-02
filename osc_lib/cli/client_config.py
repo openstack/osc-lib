@@ -18,7 +18,6 @@ import logging
 from openstack.config import exceptions as sdk_exceptions
 from openstack.config import loader as config
 from oslo_utils import strutils
-import six
 
 
 LOG = logging.getLogger(__name__)
@@ -158,7 +157,7 @@ class OSC_Config(config.OpenStackConfig):
 
         if LOG.isEnabledFor(logging.DEBUG):
             LOG.debug("auth_config_hook(): %s",
-                      strutils.mask_password(six.text_type(config)))
+                      strutils.mask_password(str(config)))
         return config
 
     def _validate_auth(self, config, loader, fixed_argparse=None):

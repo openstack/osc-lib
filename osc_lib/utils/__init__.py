@@ -24,7 +24,6 @@ import warnings
 
 from cliff import columns as cliff_columns
 from oslo_utils import importutils
-import six
 
 from osc_lib import exceptions
 from osc_lib.i18n import _
@@ -51,7 +50,7 @@ def backward_compat_col_lister(column_headers, columns, column_map):
     #                volume v1, convert it to a list in order to change
     #                the column name.
     column_headers = list(column_headers)
-    for old_col, new_col in six.iteritems(column_map):
+    for old_col, new_col in column_map.items():
         if old_col in columns:
             LOG.warning(_('The column "%(old_column)s" was deprecated, '
                           'please use "%(new_column)s" replace.') % {
@@ -79,7 +78,7 @@ def backward_compat_col_showone(show_object, columns, column_map):
         return show_object
 
     show_object = copy.deepcopy(show_object)
-    for old_col, new_col in six.iteritems(column_map):
+    for old_col, new_col in column_map.items():
         if old_col in columns:
             LOG.warning(_('The column "%(old_column)s" was deprecated, '
                           'please use "%(new_column)s" replace.') % {
@@ -316,7 +315,7 @@ def format_dict(data, prefix=None):
             #                is completely handled in the terminal case.
             output = output + format_dict(data[s], prefix=key_str) + ", "
         elif data[s] is not None:
-            output = output + key_str + "='" + six.text_type(data[s]) + "', "
+            output = output + key_str + "='" + str(data[s]) + "', "
         else:
             output = output + key_str + "=, "
     return output[:-2]
