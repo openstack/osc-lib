@@ -488,7 +488,8 @@ class OpenStackShell(app.App):
                 # let the command decide whether we need a scoped token
                 self.client_manager.validate_scope()
             # Trigger the Identity client to initialize
-            self.client_manager.auth_ref
+            self.client_manager.session.auth.auth_ref = \
+                self.client_manager.auth_ref
         return
 
     def clean_up(self, cmd, result, err):
