@@ -1,0 +1,4 @@
+---
+other:
+  - |
+    Removed ``Babel`` from requirements as it is not a runtime requirement.

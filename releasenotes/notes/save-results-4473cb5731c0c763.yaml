@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Save the results from the early authentication so
+    double authentication can be avoided.
