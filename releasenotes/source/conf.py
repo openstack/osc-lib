@@ -27,8 +27,6 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-import openstackdocstheme
-
 # sys.path.insert(0, os.path.abspath('.'))
 
 # -- General configuration ------------------------------------------------
@@ -43,6 +41,7 @@ import openstackdocstheme
 extensions = [
     'reno.sphinxext',
     'sphinx.ext.extlinks',
+    'openstackdocstheme',
 ]
 
 # Set aliases for extlinks
@@ -83,6 +82,11 @@ master_doc = 'index'
 # General information about the project.
 project = u'osc-lib Release Notes'
 copyright = u'2016, osc-lib Developers'
+
+# openstackdocstheme options
+openstackdocs_repo_name = 'openstack/osc-lib'
+openstackdocs_auto_name = False
+openstackdocs_use_storyboard = True
 
 # Release notes do not need a version in the title, they span
 # multiple versions.
@@ -132,7 +136,7 @@ exclude_patterns = []
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -151,10 +155,6 @@ html_theme = 'openstackdocs'
 # documentation.
 #
 # html_theme_options = {}
-
-# Add any paths that contain custom themes here, relative to this directory.
-# html_theme_path = []
-html_theme_path = [openstackdocstheme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -185,12 +185,6 @@ html_static_path = ['_static']
 # directly to the root of the documentation.
 #
 # html_extra_path = []
-
-# If not None, a 'Last updated on:' timestamp is inserted at every page
-# bottom, using the given strftime format.
-# The empty string is equivalent to '%b %d, %Y'.
-#
-# html_last_updated_fmt = '%b %d, %Y'
 
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
