@@ -74,7 +74,7 @@ class OSC_Config(config.OpenStackConfig):
         return config
 
     def _auth_v2_ignore_v3(self, config):
-        """Remove v3 arguemnts if present for v2 plugin
+        """Remove v3 arguments if present for v2 plugin
 
         Migrated from clientmanager.setup_auth()
         """
