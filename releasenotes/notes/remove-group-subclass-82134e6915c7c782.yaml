@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The ``osc_lib.command.commandmanager.CommandManager`` class is a
+    direct subclass of ``cliff.commandmanager.CommandManager``. The extra
+    osc_lib functionality has been shifted upstream into cliff.
