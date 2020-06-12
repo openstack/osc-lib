@@ -260,16 +260,6 @@ def find_resource(manager, name_or_id, **kwargs):
                 'resource': manager.resource_class.__name__.lower(),
                 'id': name_or_id,
             })
-
-        if type(ex).__name__ == 'Forbidden':
-            msg = _(
-                "You are not authorized to find %(resource)s with the "
-                "name '%(id)s'."
-            )
-            raise exceptions.CommandError(msg % {
-                'resource': manager.resource_class.__name__.lower(),
-                'id': name_or_id,
-            })
         else:
             pass
 
