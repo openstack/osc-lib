@@ -8,10 +8,10 @@ cmd2==0.8.0
 contextlib2==0.4.0
 coverage==4.0
 debtcollector==1.2.0
-decorator==3.4.0
+decorator==4.0.0
 deprecation==1.0
 docutils==0.11
-dogpile.cache==0.6.2
+dogpile.cache==0.8.0
 dulwich==0.15.0
 eventlet==0.18.2
 extras==1.0.0
@@ -23,7 +23,7 @@ future==0.16.0
 futurist==1.2.0
 gitdb==0.6.4
 GitPython==1.0.1
-greenlet==0.4.10
+greenlet==0.4.15
 hacking==0.10.3
 imagesize==0.7.1
 iso8601==0.1.11
@@ -34,7 +34,7 @@ jsonpointer==1.13
 keystoneauth1==3.14.0
 kombu==4.0.0
 linecache2==1.0.0
-MarkupSafe==1.0
+MarkupSafe==1.1.1
 mccabe==0.2.1
 monotonic==0.6
 mox3==0.20.0
@@ -73,7 +73,7 @@ python-dateutil==2.5.3
 python-mimeparse==1.6.0
 python-subunit==1.0.0
 pytz==2013.6
-PyYAML==3.12
+PyYAML==3.13
 repoze.lru==0.7
 requests==2.14.2
 requests-mock==1.1.0
