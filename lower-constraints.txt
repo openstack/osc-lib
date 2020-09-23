@@ -44,7 +44,6 @@ netaddr==0.7.18
 netifaces==0.10.4
 openstacksdk==0.15.0
 os-service-types==1.2.0
-os-testr==1.0.0
 oslo.concurrency==3.25.0
 oslo.config==5.2.0
 oslo.context==2.19.2
