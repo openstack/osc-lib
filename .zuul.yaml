@@ -1,8 +1,7 @@
+---
 - project:
     templates:
       - check-requirements
-      - lib-forward-testing
-      - lib-forward-testing-python3
       - openstack-lower-constraints-jobs
       - openstack-python3-ussuri-jobs
       - osc-tox-unit-tips
