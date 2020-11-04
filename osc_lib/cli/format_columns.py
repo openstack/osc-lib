@@ -26,12 +26,18 @@ class DictColumn(columns.FormattableColumn):
     def human_readable(self):
         return utils.format_dict(self._value)
 
+    def machine_readable(self):
+        return dict(self._value or {})
+
 
 class DictListColumn(columns.FormattableColumn):
     """Format column for dict, key is string, value is list"""
 
     def human_readable(self):
         return utils.format_dict_of_list(self._value)
+
+    def machine_readable(self):
+        return dict(self._value or {})
 
 
 class ListColumn(columns.FormattableColumn):

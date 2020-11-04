@@ -13,6 +13,8 @@
 #   under the License.
 #
 
+import collections
+
 from osc_lib.cli import format_columns
 from osc_lib.tests import utils
 
@@ -28,6 +30,13 @@ class TestDictColumn(utils.TestCase):
         self.assertEqual(dict_content, col.machine_readable())
         self.assertEqual("key1='value1', key2='value2'", col.human_readable())
 
+    def test_complex_object(self):
+        """Non-primitive objects should be converted to a dict."""
+        dict_content = collections.OrderedDict(
+            [('key1', 'value1'), ('key2', 'value2')])
+        col = format_columns.DictColumn(dict_content)
+        self.assertIsInstance(col._value, dict)
+
 
 class TestDictListColumn(utils.TestCase):
 
@@ -39,6 +48,13 @@ class TestDictListColumn(utils.TestCase):
         self.assertEqual('private=192.24.4.6, 2000:db7::7; '
                          'public=172.24.4.6, 2001:db8::8',
                          col.human_readable())
+
+    def test_complex_object(self):
+        """Non-primitive objects should be converted to a dict."""
+        dict_content = collections.OrderedDict(
+            [('key1', ['value1']), ('key2', ['value2'])])
+        col = format_columns.DictListColumn(dict_content)
+        self.assertIsInstance(col._value, dict)
 
 
 class TestListColumn(utils.TestCase):
