@@ -495,6 +495,10 @@ class OpenStackShell(app.App):
     def clean_up(self, cmd, result, err):
         self.log.debug('clean_up %s: %s', cmd.__class__.__name__, err or '')
 
+        # Close SDK connection if available to have proper cleanup there
+        if self.client_manager.sdk_connection:
+            self.client_manager.sdk_connection.close()
+
         # Process collected timing data
         if self.options.timing:
             # Get session data
