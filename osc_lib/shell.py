@@ -254,9 +254,10 @@ class OpenStackShell(app.App):
             metavar='<interface>',
             dest='interface',
             choices=['admin', 'public', 'internal'],
-            default=utils.env(
-                'OS_INTERFACE',
-                default=DEFAULT_INTERFACE),
+            # do not set default value inside utils.env() else user's cloud
+            # config key 'interface' will be ignored. Use OSC_Config's ctor
+            # option 'override_defaults' below instead.
+            default=utils.env('OS_INTERFACE'),
             help=_('Select an interface type.'
                    ' Valid interface types: [admin, public, internal].'
                    ' default=%s, (Env: OS_INTERFACE)') % DEFAULT_INTERFACE,
@@ -408,7 +409,7 @@ class OpenStackShell(app.App):
             self.cloud_config = cloud_config.OSC_Config(
                 pw_func=prompt_for_password,
                 override_defaults={
-                    'interface': None,
+                    'interface': DEFAULT_INTERFACE,
                     'auth_type': self._auth_type,
                 },
             )
