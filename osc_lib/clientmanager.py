@@ -168,6 +168,10 @@ class ClientManager(object):
 
         self.sdk_connection = connection.Connection(config=self._cli_options)
 
+        # We might get auth_ref from SDK cacnihg
+        if hasattr(self.auth, 'auth_ref') and self.auth.auth_ref:
+            self._auth_ref = self.auth.auth_ref
+
         self._auth_setup_completed = True
 
     def validate_scope(self):
