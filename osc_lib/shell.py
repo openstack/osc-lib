@@ -496,7 +496,7 @@ class OpenStackShell(app.App):
         self.log.debug('clean_up %s: %s', cmd.__class__.__name__, err or '')
 
         # Close SDK connection if available to have proper cleanup there
-        if self.client_manager.sdk_connection:
+        if hasattr(self.client_manager, "sdk_connection"):
             self.client_manager.sdk_connection.close()
 
         # Process collected timing data
