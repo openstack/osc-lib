@@ -499,6 +499,10 @@ class OpenStackShell(app.App):
         if hasattr(self.client_manager, "sdk_connection"):
             self.client_manager.sdk_connection.close()
 
+        # Close session if available
+        if hasattr(self.client_manager.session, "session"):
+            self.client_manager.session.session.close()
+
         # Process collected timing data
         if self.options.timing:
             # Get session data
