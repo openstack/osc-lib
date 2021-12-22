@@ -13,6 +13,7 @@
 #   under the License.
 
 import argparse
+import sys
 from unittest import mock
 
 from osc_lib.tests import utils as test_utils
@@ -186,13 +187,17 @@ class TestTagHelps(test_utils.TestCase):
         :param exp_enhanced: Expected output with ``enhance_help`` set to
             ``help_enhancer``
         """
+        if sys.version_info >= (3, 10):
+            options_name = 'options'
+        else:
+            options_name = 'optional arguments'
         parser = argparse.ArgumentParser()
         meth(parser, 'test')
-        self.assertEqual(exp_normal, parser.format_help())
+        self.assertEqual(exp_normal % options_name, parser.format_help())
 
         parser = argparse.ArgumentParser()
         meth(parser, 'test', enhance_help=help_enhancer)
-        self.assertEqual(exp_enhanced, parser.format_help())
+        self.assertEqual(exp_enhanced % options_name, parser.format_help())
 
     def test_add_tag_filtering_option_to_parser(self):
         self._test_tag_method_help(
@@ -202,7 +207,7 @@ usage: run.py [-h] [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
               [--not-tags <tag>[,<tag>,...]]
               [--not-any-tags <tag>[,<tag>,...]]
 
-optional arguments:
+%s:
   -h, --help            show this help message and exit
   --tags <tag>[,<tag>,...]
                         List test which have all given tag(s) (Comma-separated
@@ -222,7 +227,7 @@ usage: run.py [-h] [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
               [--not-tags <tag>[,<tag>,...]]
               [--not-any-tags <tag>[,<tag>,...]]
 
-optional arguments:
+%s:
   -h, --help            show this help message and exit
   --tags <tag>[,<tag>,...]
                         )sgat fo tsil detarapes-ammoC( )s(gat nevig lla evah
@@ -244,7 +249,7 @@ optional arguments:
             """\
 usage: run.py [-h] [--tag <tag> | --no-tag]
 
-optional arguments:
+%s:
   -h, --help   show this help message and exit
   --tag <tag>  Tag to be added to the test (repeat option to set multiple
                tags)
@@ -253,7 +258,7 @@ optional arguments:
             """\
 usage: run.py [-h] [--tag <tag> | --no-tag]
 
-optional arguments:
+%s:
   -h, --help   show this help message and exit
   --tag <tag>  )sgat elpitlum tes ot noitpo taeper( tset eht ot dedda eb ot
                gaT
@@ -266,7 +271,7 @@ optional arguments:
             """\
 usage: run.py [-h] [--tag <tag>] [--no-tag]
 
-optional arguments:
+%s:
   -h, --help   show this help message and exit
   --tag <tag>  Tag to be added to the test (repeat option to set multiple
                tags)
@@ -276,7 +281,7 @@ optional arguments:
             """\
 usage: run.py [-h] [--tag <tag>] [--no-tag]
 
-optional arguments:
+%s:
   -h, --help   show this help message and exit
   --tag <tag>  )sgat elpitlum tes ot noitpo taeper( tset eht ot dedda eb ot
                gaT
@@ -290,7 +295,7 @@ optional arguments:
             """\
 usage: run.py [-h] [--tag <tag> | --all-tag]
 
-optional arguments:
+%s:
   -h, --help   show this help message and exit
   --tag <tag>  Tag to be removed from the test (repeat option to remove
                multiple tags)
@@ -299,7 +304,7 @@ optional arguments:
             """\
 usage: run.py [-h] [--tag <tag> | --all-tag]
 
-optional arguments:
+%s:
   -h, --help   show this help message and exit
   --tag <tag>  )sgat elpitlum evomer ot noitpo taeper( tset eht morf devomer
                eb ot gaT
