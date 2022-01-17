@@ -723,10 +723,15 @@ def get_osc_show_columns_for_sdk_resource(
               columns
     """
 
-    if getattr(sdk_resource, 'allow_get', None) is not None:
+    if getattr(sdk_resource, 'allow_fetch', None) is not None:
+        # OSC at the moment lands here with FakeResource objects which are not
+        # 100% sdk compatible. Unless we introduce SDK test/fake resources we
+        # should check presence of the specific method
         resource_dict = sdk_resource.to_dict(
             body=True, headers=False, ignore_none=False)
     else:
+        # We might land here with not a real SDK Resource (during the
+        # transition period).
         resource_dict = sdk_resource
 
     # Build the OSC column names to display for the SDK resource.
