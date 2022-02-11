@@ -65,7 +65,7 @@ CLOUD_1 = {
             },
             'region_name': 'occ-cloud,krikkit',
             'donut': 'glazed',
-            'interface': 'public',
+            'interface': 'admin',
         }
     }
 }
@@ -329,6 +329,11 @@ class TestShellCli(utils.TestShell):
         )
 
         # These come from clouds.yaml
+        #
+        # To effectively assert values from clouds.yaml,
+        # use values which differ from the defaults,
+        # e.g. do not use public for interface because
+        # osc_lib.shell.DEFAULT_INTERFACE is public.
         self.assertEqual(
             DEFAULT_AUTH_URL,
             _shell.cloud.config['auth']['auth_url'],
@@ -354,7 +359,7 @@ class TestShellCli(utils.TestShell):
             _shell.cloud.config['donut'],
         )
         self.assertEqual(
-            'public',
+            'admin',
             _shell.cloud.config['interface'],
         )
 
