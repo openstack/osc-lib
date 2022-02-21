@@ -31,6 +31,13 @@
 
 # -- General configuration ------------------------------------------------
 
+from sphinx.util import logging
+# According to the discussion in
+# https://github.com/sphinx-doc/sphinx/issues/10112 this may be applied as a
+# dirty hack until the issue with replacing extlinks is resolved
+linklogger = logging.getLogger('sphinx.ext.extlinks')
+linklogger.setLevel(40)  # Ignore messages less severe than ERROR
+
 # If your documentation needs a minimal Sphinx version, state it here.
 #
 # needs_sphinx = '1.0'
