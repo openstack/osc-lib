@@ -37,12 +37,12 @@ class KeyValueAction(argparse.Action):
             # NOTE(qtang): Prevent null key setting in property
             if '' == values_list[0]:
                 msg = _("Property key must be specified: %s")
-                raise argparse.ArgumentTypeError(msg % str(values))
+                raise argparse.ArgumentError(self, msg % str(values))
             else:
                 getattr(namespace, self.dest, {}).update([values_list])
         else:
             msg = _("Expected 'key=value' type, but got: %s")
-            raise argparse.ArgumentTypeError(msg % str(values))
+            raise argparse.ArgumentError(self, msg % str(values))
 
 
 class KeyValueAppendAction(argparse.Action):
@@ -62,7 +62,7 @@ class KeyValueAppendAction(argparse.Action):
             # NOTE(qtang): Prevent null key setting in property
             if '' == key:
                 msg = _("Property key must be specified: %s")
-                raise argparse.ArgumentTypeError(msg % str(values))
+                raise argparse.ArgumentError(self, msg % str(values))
 
             dest = getattr(namespace, self.dest)
             if key in dest:
@@ -71,7 +71,7 @@ class KeyValueAppendAction(argparse.Action):
                 dest[key] = [value]
         else:
             msg = _("Expected 'key=value' type, but got: %s")
-            raise argparse.ArgumentTypeError(msg % str(values))
+            raise argparse.ArgumentError(self, msg % str(values))
 
 
 class MultiKeyValueAction(argparse.Action):
@@ -136,12 +136,13 @@ class MultiKeyValueAction(argparse.Action):
                     "Invalid keys %(invalid_keys)s specified.\n"
                     "Valid keys are: %(valid_keys)s"
                 )
-                raise argparse.ArgumentTypeError(
+                raise argparse.ArgumentError(
+                    self,
                     msg
                     % {
                         'invalid_keys': ', '.join(invalid_keys),
                         'valid_keys': ', '.join(valid_keys),
-                    }
+                    },
                 )
 
         if self.required_keys:
@@ -151,12 +152,13 @@ class MultiKeyValueAction(argparse.Action):
                     "Missing required keys %(missing_keys)s.\n"
                     "Required keys are: %(required_keys)s"
                 )
-                raise argparse.ArgumentTypeError(
+                raise argparse.ArgumentError(
+                    self,
                     msg
                     % {
                         'missing_keys': ', '.join(missing_keys),
                         'required_keys': ', '.join(self.required_keys),
-                    }
+                    },
                 )
 
     def __call__(self, parser, namespace, values, metavar=None):
@@ -166,20 +168,20 @@ class MultiKeyValueAction(argparse.Action):
 
         params = {}
         for kv in values.split(','):
-            # Add value if an assignment else raise ArgumentTypeError
+            # Add value if an assignment else raise ArgumentError
             if '=' in kv:
                 kv_list = kv.split('=', 1)
                 # NOTE(qtang): Prevent null key setting in property
                 if '' == kv_list[0]:
                     msg = _("Each property key must be specified: %s")
-                    raise argparse.ArgumentTypeError(msg % str(kv))
+                    raise argparse.ArgumentError(self, msg % str(kv))
                 else:
                     params.update([kv_list])
             else:
                 msg = _(
                     "Expected comma separated 'key=value' pairs, but got: %s"
                 )
-                raise argparse.ArgumentTypeError(msg % str(kv))
+                raise argparse.ArgumentError(self, msg % str(kv))
 
         # Check key validation
         self.validate_keys(list(params))
@@ -209,13 +211,13 @@ class MultiKeyValueCommaAction(MultiKeyValueAction):
         params = {}
         key = ''
         for kv in values.split(','):
-            # Add value if an assignment else raise ArgumentTypeError
+            # Add value if an assignment else raise ArgumentError
             if '=' in kv:
                 kv_list = kv.split('=', 1)
                 # NOTE(qtang): Prevent null key setting in property
                 if '' == kv_list[0]:
                     msg = _("A key must be specified before '=': %s")
-                    raise argparse.ArgumentTypeError(msg % str(kv))
+                    raise argparse.ArgumentError(self, msg % str(kv))
                 else:
                     params.update([kv_list])
                 key = kv_list[0]
@@ -227,7 +229,7 @@ class MultiKeyValueCommaAction(MultiKeyValueAction):
                     params[key] = "%s,%s" % (params[key], kv)
                 except KeyError:
                     msg = _("A key=value pair is required: %s")
-                    raise argparse.ArgumentTypeError(msg % str(kv))
+                    raise argparse.ArgumentError(self, msg % str(kv))
 
         # Check key validation
         self.validate_keys(list(params))
@@ -284,4 +286,4 @@ class NonNegativeAction(argparse.Action):
             setattr(namespace, self.dest, values)
         else:
             msg = _("%s expected a non-negative integer")
-            raise argparse.ArgumentTypeError(msg % str(option_string))
+            raise argparse.ArgumentError(self, msg % str(option_string))
