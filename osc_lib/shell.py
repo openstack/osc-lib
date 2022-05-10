@@ -144,7 +144,8 @@ class OpenStackShell(app.App):
             return ret_val
 
         finally:
-            self.log.info("END return value: %s", ret_val)
+            if 'complete' not in argv:
+                self.log.info("END return value: %s", ret_val)
 
     def init_profile(self):
         self.do_profile = osprofiler_profiler and self.options.profile
