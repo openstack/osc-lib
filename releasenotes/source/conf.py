@@ -87,8 +87,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'osc-lib Release Notes'
-copyright = u'2016, osc-lib Developers'
+project = 'osc-lib Release Notes'
+copyright = '2016, osc-lib Developers'
 
 # openstackdocstheme options
 openstackdocs_repo_name = 'openstack/osc-lib'
@@ -262,8 +262,8 @@ latex_elements = {
 latex_documents = [(
     'index',
     'OSC_LIBReleaseNotes.tex',
-    u'osc-lib Release Notes Documentation',
-    u'osc-lib Developers',
+    'osc-lib Release Notes Documentation',
+    'osc-lib Developers',
     'manual'),
 ]
 
@@ -301,8 +301,8 @@ latex_documents = [(
 man_pages = [(
     'index',
     'osc_libreleasenotes',
-    u'osc-lib Release Notes Documentation',
-    [u'osc-lib Developers'],
+    'osc-lib Release Notes Documentation',
+    ['osc-lib Developers'],
     1,
 )]
 
@@ -319,8 +319,8 @@ man_pages = [(
 texinfo_documents = [(
     'index',
     'OSC_LIBReleaseNotes',
-    u'osc-lib Release Notes Documentation',
-    u'osc-lib Developers',
+    'osc-lib Release Notes Documentation',
+    'osc-lib Developers',
     'OSC_LIBReleaseNotes',
     'Common base library for OpenStackClient plugins.',
     'Miscellaneous',
