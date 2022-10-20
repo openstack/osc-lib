@@ -109,3 +109,12 @@ class TestListDictColumn(utils.TestCase):
         self.assertEqual(type(col.machine_readable()), list)
         for x in col.machine_readable():
             self.assertEqual(type(x), dict)
+
+
+class TestSizeColumn(utils.TestCase):
+
+    def test_size_column(self):
+        content = 1576395005
+        col = format_columns.SizeColumn(content)
+        self.assertEqual(content, col.machine_readable())
+        self.assertEqual('1.6G', col.human_readable())

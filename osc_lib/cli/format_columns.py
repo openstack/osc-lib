@@ -58,3 +58,10 @@ class ListDictColumn(columns.FormattableColumn):
 
     def machine_readable(self):
         return [dict(x) for x in self._value or []]
+
+
+class SizeColumn(columns.FormattableColumn):
+    """Format column for file size content"""
+
+    def human_readable(self):
+        return utils.format_size(self._value)

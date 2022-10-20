@@ -1,0 +1,5 @@
+---
+features:
+  - |
+    A new column formatter, ``SizeFormatter``, is available. This can be used
+    to format file sizes in human readable format.
