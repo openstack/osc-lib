@@ -22,60 +22,90 @@ from osc_lib.tests import utils
 class TestDictColumn(utils.TestCase):
 
     def test_dict_column(self):
-        dict_content = {
+        data = {
             'key1': 'value1',
             'key2': 'value2',
         }
-        col = format_columns.DictColumn(dict_content)
-        self.assertEqual(dict_content, col.machine_readable())
+        col = format_columns.DictColumn(data)
+        self.assertEqual(data, col.machine_readable())
         self.assertEqual("key1='value1', key2='value2'", col.human_readable())
 
     def test_complex_object(self):
-        """Non-primitive objects should be converted to a dict."""
-        dict_content = collections.OrderedDict(
-            [('key1', 'value1'), ('key2', 'value2')])
-        col = format_columns.DictColumn(dict_content)
-        self.assertIsInstance(col._value, dict)
+        """Non-dict objects should be converted to a dict."""
+        data = collections.OrderedDict(
+            [('key1', 'value1'), ('key2', 'value2')]
+        )
+        col = format_columns.DictColumn(data)
+        # we explicitly check type rather than use isinstance since an
+        # OrderedDict is a subclass of dict and would inadvertently pass
+        self.assertEqual(type(col.machine_readable()), dict)
 
 
 class TestDictListColumn(utils.TestCase):
 
     def test_dict_list_column(self):
-        dict_list_content = {'public': ['2001:db8::8', '172.24.4.6'],
-                             'private': ['2000:db7::7', '192.24.4.6']}
-        col = format_columns.DictListColumn(dict_list_content)
-        self.assertEqual(dict_list_content, col.machine_readable())
-        self.assertEqual('private=192.24.4.6, 2000:db7::7; '
-                         'public=172.24.4.6, 2001:db8::8',
-                         col.human_readable())
+        data = {
+            'public': ['2001:db8::8', '172.24.4.6'],
+            'private': ['2000:db7::7', '192.24.4.6'],
+        }
+        col = format_columns.DictListColumn(data)
+        self.assertEqual(data, col.machine_readable())
+        self.assertEqual(
+            'private=192.24.4.6, 2000:db7::7; public=172.24.4.6, 2001:db8::8',
+            col.human_readable(),
+        )
 
     def test_complex_object(self):
-        """Non-primitive objects should be converted to a dict."""
-        dict_content = collections.OrderedDict(
-            [('key1', ['value1']), ('key2', ['value2'])])
-        col = format_columns.DictListColumn(dict_content)
-        self.assertIsInstance(col._value, dict)
+        """Non-dict-of-list objects should be converted to a dict-of-lists."""
+        data = collections.OrderedDict(
+            [('key1', ['value1']), ('key2', ['value2'])],
+        )
+        col = format_columns.DictListColumn(data)
+        # we explicitly check type rather than use isinstance since an
+        # OrderedDict is a subclass of dict and would inadvertently pass
+        self.assertEqual(type(col.machine_readable()), dict)
 
 
 class TestListColumn(utils.TestCase):
 
     def test_list_column(self):
-        list_content = [
+        data = [
             'key1',
             'key2',
         ]
-        col = format_columns.ListColumn(list_content)
-        self.assertEqual(list_content, col.machine_readable())
+        col = format_columns.ListColumn(data)
+        self.assertEqual(data, col.machine_readable())
         self.assertEqual("key1, key2", col.human_readable())
+
+    def test_complex_object(self):
+        """Non-list objects should be converted to a list."""
+        data = {'key1', 'key2'}
+        col = format_columns.ListColumn(data)
+        # we explicitly check type rather than use isinstance since an
+        # OrderedDict is a subclass of dict and would inadvertently pass
+        self.assertEqual(type(col.machine_readable()), list)
 
 
 class TestListDictColumn(utils.TestCase):
 
     def test_list_dict_column(self):
-        list_dict_content = [
+        data = [
             {'key1': 'value1'},
             {'key2': 'value2'},
         ]
-        col = format_columns.ListDictColumn(list_dict_content)
-        self.assertEqual(list_dict_content, col.machine_readable())
+        col = format_columns.ListDictColumn(data)
+        self.assertEqual(data, col.machine_readable())
         self.assertEqual("key1='value1'\nkey2='value2'", col.human_readable())
+
+    def test_complex_object(self):
+        """Non-list-of-dict objects should be converted to a list-of-dicts."""
+        # not actually a list (which is the point)
+        data = (
+            collections.OrderedDict([('key1', 'value1'), ('key2', 'value2')]),
+        )
+        col = format_columns.ListDictColumn(data)
+        # we explicitly check type rather than use isinstance since an
+        # OrderedDict is a subclass of dict and would inadvertently pass
+        self.assertEqual(type(col.machine_readable()), list)
+        for x in col.machine_readable():
+            self.assertEqual(type(x), dict)
