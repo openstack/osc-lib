@@ -146,7 +146,7 @@ class OSC_Config(config.OpenStackConfig):
     def auth_config_hook(self, config):
         """Allow examination of config values before loading auth plugin
 
-        OpenStackClient will override this to perform additional chacks
+        OpenStackClient will override this to perform additional checks
         on auth_type.
         """
 
