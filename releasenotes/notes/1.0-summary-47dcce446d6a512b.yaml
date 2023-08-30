@@ -47,7 +47,7 @@ fixes:
     move all option special-cases into ``cli.client_config.OSC_Config``.
     Also change some private attributes to public (``region_name``,
     ``interface``, ``cacert``, ``verify`` and remove ``_insecure``).
-  - Refactor ``OpenStackShell`` to handle only global argument 
+  - Refactor ``OpenStackShell`` to handle only global argument
     processing and setting up the ClientManager with configuration
     from ``os-client-config``.  Command and plugin loading remain in
     OSC.
