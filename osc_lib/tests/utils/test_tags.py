@@ -26,15 +26,22 @@ def help_enhancer(_h):
 
 
 class TestTags(test_utils.TestCase):
-
     def test_add_tag_filtering_option_to_parser(self):
         parser = argparse.ArgumentParser()
         tags.add_tag_filtering_option_to_parser(parser, 'test')
 
-        parsed_args = parser.parse_args(['--tags', 'tag1,tag2',
-                                         '--any-tags', 'tag4',
-                                         '--not-tags', 'tag5',
-                                         '--not-any-tags', 'tag6'])
+        parsed_args = parser.parse_args(
+            [
+                '--tags',
+                'tag1,tag2',
+                '--any-tags',
+                'tag4',
+                '--not-tags',
+                'tag5',
+                '--not-any-tags',
+                'tag6',
+            ]
+        )
 
         actual = getattr(parsed_args, 'tags', [])
         expected = ['tag1', 'tag2']
@@ -56,12 +63,24 @@ class TestTags(test_utils.TestCase):
         parser = argparse.ArgumentParser()
         tags.add_tag_filtering_option_to_parser(parser, 'test')
 
-        parsed_args = parser.parse_args(['--tags', 'tag1,tag2',
-                                         '--any-tags', 'tag4',
-                                         '--not-tags', 'tag5',
-                                         '--not-any-tags', 'tag6'])
-        expected = {'tags': 'tag1,tag2', 'any_tags': 'tag4',
-                    'not_tags': 'tag5', 'not_any_tags': 'tag6'}
+        parsed_args = parser.parse_args(
+            [
+                '--tags',
+                'tag1,tag2',
+                '--any-tags',
+                'tag4',
+                '--not-tags',
+                'tag5',
+                '--not-any-tags',
+                'tag6',
+            ]
+        )
+        expected = {
+            'tags': 'tag1,tag2',
+            'any_tags': 'tag4',
+            'not_tags': 'tag5',
+            'not_any_tags': 'tag6',
+        }
         args = {}
         tags.get_tag_filtering_args(parsed_args, args)
         self.assertEqual(expected, args)
@@ -71,8 +90,9 @@ class TestTags(test_utils.TestCase):
         tags.add_tag_option_to_parser_for_create(parser, 'test')
 
         # Test that --tag and --no-tag are mutually exclusive
-        self.assertRaises(SystemExit, parser.parse_args,
-                          ['--tag', 'tag1', '--no-tag'])
+        self.assertRaises(
+            SystemExit, parser.parse_args, ['--tag', 'tag1', '--no-tag']
+        )
 
         parsed_args = parser.parse_args(['--tag', 'tag1'])
         actual = getattr(parsed_args, 'tags', [])
@@ -103,8 +123,9 @@ class TestTags(test_utils.TestCase):
         tags.add_tag_option_to_parser_for_unset(parser, 'test')
 
         # Test that --tag and --all-tag are mutually exclusive
-        self.assertRaises(SystemExit, parser.parse_args,
-                          ['--tag', 'tag1', '--all-tag'])
+        self.assertRaises(
+            SystemExit, parser.parse_args, ['--tag', 'tag1', '--all-tag']
+        )
 
         parsed_args = parser.parse_args(['--tag', 'tag1'])
         actual = getattr(parsed_args, 'tags', [])
@@ -127,7 +148,8 @@ class TestTags(test_utils.TestCase):
         mock_obj.tags = None
         tags.update_tags_for_set(mock_client, mock_obj, mock_parsed_args)
         mock_client.set_tags.assert_called_once_with(
-            mock_obj, list(mock_parsed_args.tags))
+            mock_obj, list(mock_parsed_args.tags)
+        )
 
         # no-tag False path
         mock_client.set_tags.reset_mock()
@@ -136,8 +158,7 @@ class TestTags(test_utils.TestCase):
         mock_obj.tags = ['tag2']
         expected_list = ['tag1', 'tag2']
         tags.update_tags_for_set(mock_client, mock_obj, mock_parsed_args)
-        mock_client.set_tags.assert_called_once_with(
-            mock_obj, expected_list)
+        mock_client.set_tags.assert_called_once_with(mock_obj, expected_list)
 
         # no new tags path
         mock_client.set_tags.reset_mock()
@@ -164,8 +185,7 @@ class TestTags(test_utils.TestCase):
         mock_parsed_args.all_tag = True
         mock_parsed_args.tags = None
         tags.update_tags_for_unset(mock_client, mock_obj, mock_parsed_args)
-        mock_client.set_tags.assert_called_once_with(
-            mock_obj, [])
+        mock_client.set_tags.assert_called_once_with(mock_obj, [])
 
         # Remove one tag
         mock_client.set_tags.reset_mock()
@@ -173,12 +193,10 @@ class TestTags(test_utils.TestCase):
         mock_parsed_args.all_tag = False
         mock_parsed_args.tags = ['tag2']
         tags.update_tags_for_unset(mock_client, mock_obj, mock_parsed_args)
-        mock_client.set_tags.assert_called_once_with(
-            mock_obj, ['tag1'])
+        mock_client.set_tags.assert_called_once_with(mock_obj, ['tag1'])
 
 
 class TestTagHelps(test_utils.TestCase):
-
     def _test_tag_method_help(self, meth, exp_normal, exp_enhanced):
         """Vet the help text of the options added by the tag filtering helpers.
 
@@ -241,7 +259,8 @@ usage: run.py [-h] [--tags <tag>[,<tag>,...]] [--any-tags <tag>[,<tag>,...]]
   --not-any-tags <tag>[,<tag>,...]
                         )sgat fo tsil detarapes-ammoC( )s(gat nevig yna evah
                         hcihw tset edulcxE
-""")
+""",
+        )
 
     def test_add_tag_option_to_parser_for_create(self):
         self._test_tag_method_help(
@@ -263,7 +282,8 @@ usage: run.py [-h] [--tag <tag> | --no-tag]
   --tag <tag>  )sgat elpitlum tes ot noitpo taeper( tset eht ot dedda eb ot
                gaT
   --no-tag     tset eht htiw detaicossa sgat oN
-""")
+""",
+        )
 
     def test_add_tag_option_to_parser_for_set(self):
         self._test_tag_method_help(
@@ -287,7 +307,8 @@ usage: run.py [-h] [--tag <tag>] [--no-tag]
                gaT
   --no-tag     sgat tnerruc etirwrevo ot gat-on-- dna gat-- htob yficepS .tset
                eht htiw detaicossa sgat raelC
-""")
+""",
+        )
 
     def test_add_tag_option_to_parser_for_unset(self):
         self._test_tag_method_help(
@@ -309,4 +330,5 @@ usage: run.py [-h] [--tag <tag> | --all-tag]
   --tag <tag>  )sgat elpitlum evomer ot noitpo taeper( tset eht morf devomer
                eb ot gaT
   --all-tag    tset eht htiw detaicossa sgat lla raelC
-""")
+""",
+        )

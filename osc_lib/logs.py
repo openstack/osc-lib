@@ -81,8 +81,10 @@ def set_warning_filter(log_level):
 
 class _FileFormatter(logging.Formatter):
     """Customize the logging format for logging handler"""
+
     _LOG_MESSAGE_BEGIN = (
-        '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s ')
+        '%(asctime)s.%(msecs)03d %(process)d %(levelname)s %(name)s '
+    )
     _LOG_MESSAGE_CONTEXT = '[%(cloud)s %(username)s %(project)s] '
     _LOG_MESSAGE_END = '%(message)s'
     _LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -102,16 +104,17 @@ class _FileFormatter(logging.Formatter):
                 'username': config.auth.get('username', ''),
             }
         if context:
-            self.fmt = (self._LOG_MESSAGE_BEGIN +
-                        (self._LOG_MESSAGE_CONTEXT % context) +
-                        self._LOG_MESSAGE_END)
+            self.fmt = (
+                self._LOG_MESSAGE_BEGIN
+                + (self._LOG_MESSAGE_CONTEXT % context)
+                + self._LOG_MESSAGE_END
+            )
         else:
             self.fmt = self._LOG_MESSAGE_BEGIN + self._LOG_MESSAGE_END
         logging.Formatter.__init__(self, self.fmt, self._LOG_DATE_FORMAT)
 
 
 class LogConfigurator(object):
-
     _CONSOLE_MESSAGE_FORMAT = '%(message)s'
 
     def __init__(self, options):
@@ -183,7 +186,7 @@ class LogConfigurator(object):
             for k in logconfig.keys():
                 level = log_level_from_string(logconfig[k])
                 logging.getLogger(k).setLevel(level)
-                if (highest_level < level):
+                if highest_level < level:
                     highest_level = level
             self.console_logger.setLevel(highest_level)
             if self.file_logger:

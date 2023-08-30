@@ -86,17 +86,20 @@ class ParserException(Exception):
 
 
 class TestCase(testtools.TestCase):
-
     def setUp(self):
         testtools.TestCase.setUp(self)
 
-        if (os.environ.get("OS_STDOUT_CAPTURE") == "True" or
-                os.environ.get("OS_STDOUT_CAPTURE") == "1"):
+        if (
+            os.environ.get("OS_STDOUT_CAPTURE") == "True"
+            or os.environ.get("OS_STDOUT_CAPTURE") == "1"
+        ):
             stdout = self.useFixture(fixtures.StringStream("stdout")).stream
             self.useFixture(fixtures.MonkeyPatch("sys.stdout", stdout))
 
-        if (os.environ.get("OS_STDERR_CAPTURE") == "True" or
-                os.environ.get("OS_STDERR_CAPTURE") == "1"):
+        if (
+            os.environ.get("OS_STDERR_CAPTURE") == "True"
+            or os.environ.get("OS_STDERR_CAPTURE") == "1"
+        ):
             stderr = self.useFixture(fixtures.StringStream("stderr")).stream
             self.useFixture(fixtures.MonkeyPatch("sys.stderr", stderr))
 
@@ -162,10 +165,13 @@ class TestCommand(TestCase):
         for col_expected, col_actual in zip(expected, actual):
             if isinstance(col_expected, cliff_columns.FormattableColumn):
                 self.assertIsInstance(col_actual, col_expected.__class__)
-                self.assertEqual(col_expected.human_readable(),
-                                 col_actual.human_readable())
-                self.assertEqual(col_expected.machine_readable(),
-                                 col_actual.machine_readable())
+                self.assertEqual(
+                    col_expected.human_readable(), col_actual.human_readable()
+                )
+                self.assertEqual(
+                    col_expected.machine_readable(),
+                    col_actual.machine_readable(),
+                )
             else:
                 self.assertEqual(col_expected, col_actual)
 
@@ -201,18 +207,24 @@ class TestClientManager(TestCase):
         # fake v2password token retrieval
         self.stub_auth(json=fakes.TEST_RESPONSE_DICT)
         # fake token and token_endpoint retrieval
-        self.stub_auth(json=fakes.TEST_RESPONSE_DICT,
-                       url='/'.join([fakes.AUTH_URL, 'v2.0/tokens']))
+        self.stub_auth(
+            json=fakes.TEST_RESPONSE_DICT,
+            url='/'.join([fakes.AUTH_URL, 'v2.0/tokens']),
+        )
         # fake v3password token retrieval
-        self.stub_auth(json=fakes.TEST_RESPONSE_DICT_V3,
-                       url='/'.join([fakes.AUTH_URL, 'v3/auth/tokens']))
+        self.stub_auth(
+            json=fakes.TEST_RESPONSE_DICT_V3,
+            url='/'.join([fakes.AUTH_URL, 'v3/auth/tokens']),
+        )
         # fake password token retrieval
-        self.stub_auth(json=fakes.TEST_RESPONSE_DICT_V3,
-                       url='/'.join([fakes.AUTH_URL, 'auth/tokens']))
+        self.stub_auth(
+            json=fakes.TEST_RESPONSE_DICT_V3,
+            url='/'.join([fakes.AUTH_URL, 'auth/tokens']),
+        )
         # fake password version endpoint discovery
-        self.stub_auth(json=fakes.TEST_VERSIONS,
-                       url=fakes.AUTH_URL,
-                       verb='GET')
+        self.stub_auth(
+            json=fakes.TEST_VERSIONS, url=fakes.AUTH_URL, verb='GET'
+        )
 
         # Mock the auth plugin
         self.auth_mock = mock.Mock()
@@ -250,7 +262,6 @@ class TestClientManager(TestCase):
         auth_plugin_name=None,
         auth_required=None,
     ):
-
         if identity_api_version is None:
             identity_api_version = '2.0'
         if auth_plugin_name is None:
@@ -267,13 +278,15 @@ class TestClientManager(TestCase):
             auth_dict = auth_args
 
         cli_options = defaults.get_defaults()
-        cli_options.update({
-            'auth_type': auth_plugin_name,
-            'auth': auth_dict,
-            'interface': fakes.INTERFACE,
-            'region_name': fakes.REGION_NAME,
-            # 'workflow_api_version': '2',
-        })
+        cli_options.update(
+            {
+                'auth_type': auth_plugin_name,
+                'auth': auth_dict,
+                'interface': fakes.INTERFACE,
+                'region_name': fakes.REGION_NAME,
+                # 'workflow_api_version': '2',
+            }
+        )
         if config_args is not None:
             cli_options.update(config_args)
 
@@ -302,7 +315,6 @@ class TestClientManager(TestCase):
 
 
 class TestShell(TestCase):
-
     # Full name of the OpenStackShell class to test (cliff.app.App subclass)
     shell_class_name = "osc_lib.shell.OpenStackShell"
 
@@ -325,8 +337,8 @@ class TestShell(TestCase):
         """
 
         with mock.patch(
-                self.shell_class_name + ".initialize_app",
-                self.app,
+            self.shell_class_name + ".initialize_app",
+            self.app,
         ):
             _shell = make_shell(shell_class=self.shell_class)
             _cmd = cmd_options + " module list"
@@ -352,8 +364,8 @@ class TestShell(TestCase):
         cloud.config = {}
         self.occ_get_one = mock.Mock(return_value=cloud)
         with mock.patch(
-                "openstack.config.loader.OpenStackConfig.get_one",
-                self.occ_get_one,
+            "openstack.config.loader.OpenStackConfig.get_one",
+            self.occ_get_one,
         ):
             _shell = make_shell(shell_class=self.shell_class)
             _cmd = cmd_options + " module list"

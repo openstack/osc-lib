@@ -41,7 +41,7 @@ AUTH_DICT = {
     'auth_url': fakes.AUTH_URL,
     'username': fakes.USERNAME,
     'password': fakes.PASSWORD,
-    'project_name': fakes.PROJECT_NAME
+    'project_name': fakes.PROJECT_NAME,
 }
 
 
@@ -58,7 +58,6 @@ class Container(object):
 
 
 class TestClientCache(utils.TestCase):
-
     def test_singleton(self):
         # NOTE(dtroyer): Verify that the ClientCache descriptor only invokes
         # the factory one time and always returns the same value after that.
@@ -67,14 +66,14 @@ class TestClientCache(utils.TestCase):
 
     def test_attribute_error_propagates(self):
         c = Container()
-        err = self.assertRaises(exc.PluginAttributeError,
-                                getattr, c, 'buggy_attr')
+        err = self.assertRaises(
+            exc.PluginAttributeError, getattr, c, 'buggy_attr'
+        )
         self.assertNotIsInstance(err, AttributeError)
         self.assertEqual("'Container' object has no attribute 'foo'", str(err))
 
 
 class TestClientManager(utils.TestClientManager):
-
     def test_client_manager_none(self):
         none_auth = {
             'endpoint': fakes.AUTH_URL,
@@ -268,10 +267,12 @@ class TestClientManager(utils.TestClientManager):
         )
 
         auth_args = copy.deepcopy(self.default_password_auth)
-        auth_args.update({
-            'user_domain_name': 'default',
-            'project_domain_name': 'default',
-        })
+        auth_args.update(
+            {
+                'user_domain_name': 'default',
+                'project_domain_name': 'default',
+            }
+        )
         self._make_clientmanager(
             auth_args=auth_args,
             identity_api_version='3',
@@ -292,10 +293,12 @@ class TestClientManager(utils.TestClientManager):
 
         # Use v3 auth args
         auth_args = copy.deepcopy(self.default_password_auth)
-        auth_args.update({
-            'user_domain_name': 'default',
-            'project_domain_name': 'default',
-        })
+        auth_args.update(
+            {
+                'user_domain_name': 'default',
+                'project_domain_name': 'default',
+            }
+        )
         self._make_clientmanager(
             auth_args=auth_args,
             identity_api_version='3',
@@ -303,9 +306,11 @@ class TestClientManager(utils.TestClientManager):
 
         auth_args = copy.deepcopy(self.default_password_auth)
         auth_args.pop('username')
-        auth_args.update({
-            'user_id': fakes.USER_ID,
-        })
+        auth_args.update(
+            {
+                'user_id': fakes.USER_ID,
+            }
+        )
         self._make_clientmanager(
             auth_args=auth_args,
             identity_api_version='3',
@@ -342,12 +347,14 @@ class TestClientManager(utils.TestClientManager):
         loader = loading.get_plugin_loader('password')
         auth_plugin = loader.load_from_options(**AUTH_DICT)
         cli_options = defaults.get_defaults()
-        cli_options.update({
-            'auth_type': 'password',
-            'auth': AUTH_DICT,
-            'interface': fakes.INTERFACE,
-            'region_name': fakes.REGION_NAME,
-        })
+        cli_options.update(
+            {
+                'auth_type': 'password',
+                'auth': AUTH_DICT,
+                'interface': fakes.INTERFACE,
+                'region_name': fakes.REGION_NAME,
+            }
+        )
         client_manager = self._clientmanager_class()(
             cli_options=cloud_config.CloudConfig(
                 name='t1',
@@ -372,10 +379,12 @@ class TestClientManager(utils.TestClientManager):
 
     def test_client_manager_endpoint_disabled(self):
         auth_args = copy.deepcopy(self.default_password_auth)
-        auth_args.update({
-            'user_domain_name': 'default',
-            'project_domain_name': 'default',
-        })
+        auth_args.update(
+            {
+                'user_domain_name': 'default',
+                'project_domain_name': 'default',
+            }
+        )
         # v3 fake doesn't have network endpoint
         client_manager = self._make_clientmanager(
             auth_args=auth_args,
@@ -389,14 +398,16 @@ class TestClientManager(utils.TestClientManager):
         loader = loading.get_plugin_loader('password')
         auth_plugin = loader.load_from_options(**AUTH_DICT)
         cli_options = defaults.get_defaults()
-        cli_options.update({
-            'auth_type': 'password',
-            'auth': AUTH_DICT,
-            'interface': fakes.INTERFACE,
-            'region_name': fakes.REGION_NAME,
-            'service_provider': fakes.SERVICE_PROVIDER_ID,
-            'remote_project_id': fakes.PROJECT_ID
-        })
+        cli_options.update(
+            {
+                'auth_type': 'password',
+                'auth': AUTH_DICT,
+                'interface': fakes.INTERFACE,
+                'region_name': fakes.REGION_NAME,
+                'service_provider': fakes.SERVICE_PROVIDER_ID,
+                'remote_project_id': fakes.PROJECT_ID,
+            }
+        )
         client_manager = self._clientmanager_class()(
             cli_options=cloud_config.CloudConfig(
                 name='t1',
@@ -425,27 +436,31 @@ class TestClientManager(utils.TestClientManager):
             auth_plugin_name='none',
         )
         self.assertIsNone(
-            client_manager.get_endpoint_for_service_type('compute'))
+            client_manager.get_endpoint_for_service_type('compute')
+        )
 
     def test_client_manager_endpoint_override(self):
         # test token auth
         client_manager = self._make_clientmanager(
             auth_args={},
-            config_args={'compute_endpoint_override': 'http://example.com',
-                         'foo_bar_endpoint_override': 'http://example2.com'},
+            config_args={
+                'compute_endpoint_override': 'http://example.com',
+                'foo_bar_endpoint_override': 'http://example2.com',
+            },
             auth_plugin_name='none',
         )
         self.assertEqual(
             'http://example.com',
-            client_manager.get_endpoint_for_service_type('compute'))
+            client_manager.get_endpoint_for_service_type('compute'),
+        )
         self.assertEqual(
             'http://example2.com',
-            client_manager.get_endpoint_for_service_type('foo-bar'))
+            client_manager.get_endpoint_for_service_type('foo-bar'),
+        )
         self.assertTrue(client_manager.is_service_available('compute'))
 
 
 class TestClientManagerSDK(utils.TestClientManager):
-
     def test_client_manager_connection(self):
         client_manager = self._make_clientmanager(
             auth_required=True,

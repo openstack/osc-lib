@@ -20,7 +20,6 @@ from osc_lib.tests import utils
 
 
 class TestDictColumn(utils.TestCase):
-
     def test_dict_column(self):
         data = {
             'key1': 'value1',
@@ -42,7 +41,6 @@ class TestDictColumn(utils.TestCase):
 
 
 class TestDictListColumn(utils.TestCase):
-
     def test_dict_list_column(self):
         data = {
             'public': ['2001:db8::8', '172.24.4.6'],
@@ -67,7 +65,6 @@ class TestDictListColumn(utils.TestCase):
 
 
 class TestListColumn(utils.TestCase):
-
     def test_list_column(self):
         data = [
             'key1',
@@ -87,7 +84,6 @@ class TestListColumn(utils.TestCase):
 
 
 class TestListDictColumn(utils.TestCase):
-
     def test_list_dict_column(self):
         data = [
             {'key1': 'value1'},
@@ -112,7 +108,6 @@ class TestListDictColumn(utils.TestCase):
 
 
 class TestSizeColumn(utils.TestCase):
-
     def test_size_column(self):
         content = 1576395005
         col = format_columns.SizeColumn(content)

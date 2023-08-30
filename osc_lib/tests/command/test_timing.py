@@ -28,14 +28,12 @@ timing_elapsed = 0.872809
 
 
 class FakeGenericClient(object):
-
     def __init__(self, **kwargs):
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
 
 
 class TestTiming(utils.TestCommand):
-
     columns = (
         'URL',
         'Seconds',
@@ -71,16 +69,23 @@ class TestTiming(utils.TestCommand):
 
         self.assertEqual(self.columns, columns)
         datalist = [
-            ('Total', 0.0,)
+            (
+                'Total',
+                0.0,
+            )
         ]
         self.assertEqual(datalist, data)
 
     def test_timing_list(self):
-        self.app.timing_data = [session.RequestTiming(
-            method=timing_method,
-            url=timing_url,
-            elapsed=datetime.timedelta(microseconds=timing_elapsed * 1000000),
-        )]
+        self.app.timing_data = [
+            session.RequestTiming(
+                method=timing_method,
+                url=timing_url,
+                elapsed=datetime.timedelta(
+                    microseconds=timing_elapsed * 1000000
+                ),
+            )
+        ]
 
         arglist = []
         verifylist = []

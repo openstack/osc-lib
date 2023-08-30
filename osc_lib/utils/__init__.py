@@ -53,11 +53,13 @@ def backward_compat_col_lister(column_headers, columns, column_map):
     column_headers = list(column_headers)
     for old_col, new_col in column_map.items():
         if old_col in columns:
-            LOG.warning(_('The column "%(old_column)s" was deprecated, '
-                          'please use "%(new_column)s" replace.') % {
-                              'old_column': old_col,
-                              'new_column': new_col}
-                        )
+            LOG.warning(
+                _(
+                    'The column "%(old_column)s" was deprecated, '
+                    'please use "%(new_column)s" replace.'
+                )
+                % {'old_column': old_col, 'new_column': new_col}
+            )
             if new_col in column_headers:
                 column_headers[column_headers.index(new_col)] = old_col
     return column_headers
@@ -81,11 +83,13 @@ def backward_compat_col_showone(show_object, columns, column_map):
     show_object = copy.deepcopy(show_object)
     for old_col, new_col in column_map.items():
         if old_col in columns:
-            LOG.warning(_('The column "%(old_column)s" was deprecated, '
-                          'please use "%(new_column)s" replace.') % {
-                              'old_column': old_col,
-                              'new_column': new_col}
-                        )
+            LOG.warning(
+                _(
+                    'The column "%(old_column)s" was deprecated, '
+                    'please use "%(new_column)s" replace.'
+                )
+                % {'old_column': old_col, 'new_column': new_col}
+            )
             if new_col in show_object:
                 show_object.update({old_col: show_object.pop(new_col)})
     return show_object
@@ -118,11 +122,13 @@ def calculate_header_and_attrs(column_headers, attrs, parsed_args):
     """
     if parsed_args.columns:
         header_attr_map = dict(zip(column_headers, attrs))
-        expected_attrs = [header_attr_map.get(c, c)
-                          for c in parsed_args.columns]
+        expected_attrs = [
+            header_attr_map.get(c, c) for c in parsed_args.columns
+        ]
         attr_header_map = dict(zip(attrs, column_headers))
-        expected_headers = [attr_header_map.get(c, c)
-                            for c in parsed_args.columns]
+        expected_headers = [
+            attr_header_map.get(c, c) for c in parsed_args.columns
+        ]
         # If attribute name is used in parsed_args.columns
         # convert it into display names because cliff expects
         # name in parsed_args.columns and name in column_headers matches.
@@ -215,9 +221,11 @@ def find_resource(manager, name_or_id, **kwargs):
     #                 Eventually this should be pulled from a common set
     #                 of client exceptions.
     except Exception as ex:
-        if (type(ex).__name__ == 'NotFound' or
-                type(ex).__name__ == 'HTTPNotFound' or
-                type(ex).__name__ == 'TypeError'):
+        if (
+            type(ex).__name__ == 'NotFound'
+            or type(ex).__name__ == 'HTTPNotFound'
+            or type(ex).__name__ == 'TypeError'
+        ):
             pass
         else:
             raise
@@ -246,21 +254,25 @@ def find_resource(manager, name_or_id, **kwargs):
     #                 of client exceptions.
     except Exception as ex:
         if type(ex).__name__ == 'NotFound':
-            msg = _(
-                "No %(resource)s with a name or ID of '%(id)s' exists."
+            msg = _("No %(resource)s with a name or ID of '%(id)s' exists.")
+            raise exceptions.CommandError(
+                msg
+                % {
+                    'resource': manager.resource_class.__name__.lower(),
+                    'id': name_or_id,
+                }
             )
-            raise exceptions.CommandError(msg % {
-                'resource': manager.resource_class.__name__.lower(),
-                'id': name_or_id,
-            })
         if type(ex).__name__ == 'NoUniqueMatch':
             msg = _(
                 "More than one %(resource)s exists with the name '%(id)s'."
             )
-            raise exceptions.CommandError(msg % {
-                'resource': manager.resource_class.__name__.lower(),
-                'id': name_or_id,
-            })
+            raise exceptions.CommandError(
+                msg
+                % {
+                    'resource': manager.resource_class.__name__.lower(),
+                    'id': name_or_id,
+                }
+            )
         else:
             pass
 
@@ -268,8 +280,10 @@ def find_resource(manager, name_or_id, **kwargs):
     # to find a matching name or ID.
     count = 0
     for resource in manager.list():
-        if (resource.get('id') == name_or_id or
-                resource.get('name') == name_or_id):
+        if (
+            resource.get('id') == name_or_id
+            or resource.get('name') == name_or_id
+        ):
             count += 1
             _resource = resource
     if count == 0:
@@ -403,17 +417,21 @@ def get_client_class(api_name, version, version_map):
     try:
         client_path = version_map[str(version)]
     except (KeyError, ValueError):
-        sorted_versions = sorted(version_map.keys(),
-                                 key=lambda s: list(map(int, s.split('.'))))
+        sorted_versions = sorted(
+            version_map.keys(), key=lambda s: list(map(int, s.split('.')))
+        )
         msg = _(
             "Invalid %(api_name)s client version '%(version)s'. "
             "must be one of: %(version_map)s"
         )
-        raise exceptions.UnsupportedVersion(msg % {
-            'api_name': api_name,
-            'version': version,
-            'version_map': ', '.join(sorted_versions),
-        })
+        raise exceptions.UnsupportedVersion(
+            msg
+            % {
+                'api_name': api_name,
+                'version': version,
+                'version_map': ', '.join(sorted_versions),
+            }
+        )
 
     return importutils.import_class(client_path)
 
@@ -443,16 +461,15 @@ def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
         if field in formatters:
             formatter = formatters[field]
             # columns must be either a subclass of FormattableColumn
-            if (
-                isinstance(formatter, type) and
-                issubclass(formatter, cliff_columns.FormattableColumn)
+            if isinstance(formatter, type) and issubclass(
+                formatter, cliff_columns.FormattableColumn
             ):
                 data = formatter(data)
             # or a partial wrapping one (to allow us to pass extra parameters)
             elif (
-                isinstance(formatter, functools.partial) and
-                isinstance(formatter.func, type) and
-                issubclass(formatter.func, cliff_columns.FormattableColumn)
+                isinstance(formatter, functools.partial)
+                and isinstance(formatter.func, type)
+                and issubclass(formatter.func, cliff_columns.FormattableColumn)
             ):
                 data = formatter(data)
             # otherwise it's probably a legacy-style function
@@ -461,7 +478,8 @@ def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
                     'The usage of formatter functions is now discouraged. '
                     'Consider using cliff.columns.FormattableColumn instead. '
                     'See reviews linked with bug 1687955 for more detail.',
-                    category=DeprecationWarning)
+                    category=DeprecationWarning,
+                )
                 if data is not None:
                     data = formatter(data)
             else:
@@ -520,15 +538,17 @@ def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
         data = getattr(item, field_name, '')
         if field in formatters:
             formatter = formatters[field]
-            if (isinstance(formatter, type) and issubclass(
-                    formatter, cliff_columns.FormattableColumn)):
+            if isinstance(formatter, type) and issubclass(
+                formatter, cliff_columns.FormattableColumn
+            ):
                 data = formatter(data)
             elif callable(formatter):
                 warnings.warn(
                     'The usage of formatter functions is now discouraged. '
                     'Consider using cliff.columns.FormattableColumn instead. '
                     'See reviews linked with bug 1687955 for more detail.',
-                    category=DeprecationWarning)
+                    category=DeprecationWarning,
+                )
                 if data is not None:
                     data = formatter(data)
             else:
@@ -561,8 +581,11 @@ def get_password(stdin, prompt=None, confirm=True):
 
 def is_ascii(string):
     try:
-        (string.decode('ascii') if isinstance(string, bytes)
-            else string.encode('ascii'))
+        (
+            string.decode('ascii')
+            if isinstance(string, bytes)
+            else string.encode('ascii')
+        )
         return True
     except (UnicodeEncodeError, UnicodeDecodeError):
         return False
@@ -607,10 +630,13 @@ def sort_items(items, sort_str, sort_type=None):
                     "'%(direction)s' is not a valid sort direction for "
                     "sort key %(sort_key)s, use 'asc' or 'desc' instead"
                 )
-                raise exceptions.CommandError(msg % {
-                    'direction': direction,
-                    'sort_key': sort_key,
-                })
+                raise exceptions.CommandError(
+                    msg
+                    % {
+                        'direction': direction,
+                        'sort_key': sort_key,
+                    }
+                )
             if direction == 'desc':
                 reverse = True
 
@@ -632,14 +658,16 @@ def sort_items(items, sort_str, sort_type=None):
     return items
 
 
-def wait_for_delete(manager,
-                    res_id,
-                    status_field='status',
-                    error_status=['error'],
-                    exception_name=['NotFound'],
-                    sleep_time=5,
-                    timeout=300,
-                    callback=None):
+def wait_for_delete(
+    manager,
+    res_id,
+    status_field='status',
+    error_status=['error'],
+    exception_name=['NotFound'],
+    sleep_time=5,
+    timeout=300,
+    callback=None,
+):
     """Wait for resource deletion
 
     :param manager: the manager from which we can get the resource
@@ -683,13 +711,15 @@ def wait_for_delete(manager,
     return False
 
 
-def wait_for_status(status_f,
-                    res_id,
-                    status_field='status',
-                    success_status=['active'],
-                    error_status=['error'],
-                    sleep_time=5,
-                    callback=None):
+def wait_for_status(
+    status_f,
+    res_id,
+    status_field='status',
+    success_status=['active'],
+    error_status=['error'],
+    sleep_time=5,
+    callback=None,
+):
     """Wait for status change on a resource during a long-running operation
 
     :param status_f: a status function that takes a single id argument
@@ -718,9 +748,7 @@ def wait_for_status(status_f,
 
 
 def get_osc_show_columns_for_sdk_resource(
-    sdk_resource,
-    osc_column_map,
-    invisible_columns=None
+    sdk_resource, osc_column_map, invisible_columns=None
 ):
     """Get and filter the display and attribute columns for an SDK resource.
 
@@ -740,7 +768,8 @@ def get_osc_show_columns_for_sdk_resource(
         # 100% sdk compatible. Unless we introduce SDK test/fake resources we
         # should check presence of the specific method
         resource_dict = sdk_resource.to_dict(
-            body=True, headers=False, ignore_none=False)
+            body=True, headers=False, ignore_none=False
+        )
     else:
         # We might land here with not a real SDK Resource (during the
         # transition period).

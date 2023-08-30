@@ -25,14 +25,16 @@ def add_project_owner_option_to_parser(parser):
     parser.add_argument(
         '--project',
         metavar='<project>',
-        help=_("Owner's project (name or ID)")
+        help=_("Owner's project (name or ID)"),
     )
     parser.add_argument(
         '--project-domain',
         metavar='<project-domain>',
-        help=_('Domain the project belongs to (name or ID). '
-               'This can be used in case collisions between project names '
-               'exist.'),
+        help=_(
+            'Domain the project belongs to (name or ID). '
+            'This can be used in case collisions between project names '
+            'exist.'
+        ),
     )
 
 
@@ -55,14 +57,15 @@ def find_project(sdk_connection, name_or_id, domain_name_or_id=None):
     """
     try:
         if domain_name_or_id:
-            domain = sdk_connection.identity.find_domain(domain_name_or_id,
-                                                         ignore_missing=False)
+            domain = sdk_connection.identity.find_domain(
+                domain_name_or_id, ignore_missing=False
+            )
             domain_id = domain.id
         else:
             domain_id = None
-        return sdk_connection.identity.find_project(name_or_id,
-                                                    ignore_missing=False,
-                                                    domain_id=domain_id)
+        return sdk_connection.identity.find_project(
+            name_or_id, ignore_missing=False, domain_id=domain_id
+        )
     # NOTE: OpenStack SDK raises HttpException for 403 response code.
     # There is no specific exception class at now, so we need to catch
     # HttpException and check the status code.

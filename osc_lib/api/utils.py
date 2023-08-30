@@ -60,8 +60,11 @@ def simple_filter(
         if attr in d:
             # Searching data fields
             search_value = d[attr]
-        elif (property_field and property_field in d and
-                isinstance(d[property_field], dict)):
+        elif (
+            property_field
+            and property_field in d
+            and isinstance(d[property_field], dict)
+        ):
             # Searching a properties field - do this separately because
             # we don't want to fail over to checking the fields if a
             # property name is given.

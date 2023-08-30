@@ -37,8 +37,7 @@ class TestBaseAPIFilter(api_fakes.TestSession):
         ]
 
     def test_simple_filter_none(self):
-        output = api_utils.simple_filter(
-        )
+        output = api_utils.simple_filter()
         self.assertIsNone(output)
 
     def test_simple_filter_no_attr(self):

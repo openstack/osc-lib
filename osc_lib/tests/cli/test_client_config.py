@@ -16,7 +16,6 @@ from osc_lib.tests import utils
 
 
 class TestOSCConfig(utils.TestCase):
-
     def setUp(self):
         super(TestOSCConfig, self).setUp()
 
@@ -209,7 +208,7 @@ class TestOSCConfig(utils.TestCase):
                 'username': 'fred',
                 'project_id': 'id',
                 'project_domain_id': 'proj',
-                'user_domain_id': 'use'
+                'user_domain_id': 'use',
             },
         }
         ret_config = self.cloud._auth_default_domain(config)

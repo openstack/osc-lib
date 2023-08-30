@@ -24,25 +24,26 @@ from osc_lib.i18n import _
 
 
 class CommandMeta(abc.ABCMeta):
-
     def __new__(mcs, name, bases, cls_dict):
         if 'log' not in cls_dict:
             cls_dict['log'] = logging.getLogger(
-                cls_dict['__module__'] + '.' + name)
+                cls_dict['__module__'] + '.' + name
+            )
         return super(CommandMeta, mcs).__new__(mcs, name, bases, cls_dict)
 
 
 class Command(command.Command, metaclass=CommandMeta):
-
     def run(self, parsed_args):
         self.log.debug('run(%s)', parsed_args)
         return super(Command, self).run(parsed_args)
 
     def validate_os_beta_command_enabled(self):
         if not self.app.options.os_beta_command:
-            msg = _('Caution: This is a beta command and subject to '
-                    'change. Use global option --os-beta-command '
-                    'to enable this command.')
+            msg = _(
+                'Caution: This is a beta command and subject to '
+                'change. Use global option --os-beta-command '
+                'to enable this command.'
+            )
             raise exceptions.CommandError(msg)
 
     def deprecated_option_warning(self, old_option, new_option):

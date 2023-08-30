@@ -47,7 +47,6 @@ LIST_BODY = {
 
 
 class TestSession(utils.TestCase):
-
     BASE_URL = 'https://api.example.com:1234/test'
 
     def setUp(self):

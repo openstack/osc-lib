@@ -26,6 +26,7 @@ class AuthorizationFailure(Exception):
 
 class PluginAttributeError(Exception):
     """A plugin threw an AttributeError while being lazily loaded."""
+
     # This *must not* inherit from AttributeError;
     # that would defeat the whole purpose.
     pass
@@ -33,21 +34,25 @@ class PluginAttributeError(Exception):
 
 class NoTokenLookupException(Exception):
     """This does not support looking up endpoints from an existing token."""
+
     pass
 
 
 class EndpointNotFound(Exception):
     """Could not find Service or Region in Service Catalog."""
+
     pass
 
 
 class UnsupportedVersion(Exception):
     """The user is trying to use an unsupported version of the API"""
+
     pass
 
 
 class InvalidValue(Exception):
     """An argument value is not valid: wrong type, out of range, etc"""
+
     message = "Supplied value is not valid"
 
 
@@ -68,36 +73,42 @@ class ClientException(Exception):
 
 class BadRequest(ClientException):
     """HTTP 400 - Bad request: you sent some malformed data."""
+
     http_status = 400
     message = "Bad request"
 
 
 class Unauthorized(ClientException):
     """HTTP 401 - Unauthorized: bad credentials."""
+
     http_status = 401
     message = "Unauthorized"
 
 
 class Forbidden(ClientException):
     """HTTP 403 - Forbidden: not authorized to access to this resource."""
+
     http_status = 403
     message = "Forbidden"
 
 
 class NotFound(ClientException):
     """HTTP 404 - Not found"""
+
     http_status = 404
     message = "Not found"
 
 
 class Conflict(ClientException):
     """HTTP 409 - Conflict"""
+
     http_status = 409
     message = "Conflict"
 
 
 class OverLimit(ClientException):
     """HTTP 413 - Over limit: reached the API limits for this time period."""
+
     http_status = 413
     message = "Over limit"
 
@@ -105,6 +116,7 @@ class OverLimit(ClientException):
 # NotImplemented is a python keyword.
 class HTTPNotImplemented(ClientException):
     """HTTP 501 - Not Implemented: server does not support this operation."""
+
     http_status = 501
     message = "Not Implemented"
 
@@ -115,11 +127,14 @@ class HTTPNotImplemented(ClientException):
 #                      for c in ClientException.__subclasses__())
 #
 # Instead, we have to hardcode it:
-_code_map = dict((c.http_status, c) for c in [
-    BadRequest,
-    Unauthorized,
-    Forbidden,
-    NotFound,
-    OverLimit,
-    HTTPNotImplemented
-])
+_code_map = dict(
+    (c.http_status, c)
+    for c in [
+        BadRequest,
+        Unauthorized,
+        Forbidden,
+        NotFound,
+        OverLimit,
+        HTTPNotImplemented,
+    ]
+)

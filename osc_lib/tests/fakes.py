@@ -32,8 +32,7 @@ VERSION = "3"
 
 SERVICE_PROVIDER_ID = "bob"
 
-TEST_RESPONSE_DICT = fixture.V2Token(token_id=AUTH_TOKEN,
-                                     user_name=USERNAME)
+TEST_RESPONSE_DICT = fixture.V2Token(token_id=AUTH_TOKEN, user_name=USERNAME)
 _s = TEST_RESPONSE_DICT.add_service('identity', name='keystone')
 _s.add_endpoint(AUTH_URL + ':5000/v2.0')
 _s = TEST_RESPONSE_DICT.add_service('network', name='neutron')
@@ -54,8 +53,10 @@ TEST_VERSIONS = fixture.DiscoveryList(href=AUTH_URL)
 def to_unicode_dict(catalog_dict):
     """Converts dict to unicode dict"""
     if isinstance(catalog_dict, dict):
-        return {to_unicode_dict(key): to_unicode_dict(value)
-                for key, value in catalog_dict.items()}
+        return {
+            to_unicode_dict(key): to_unicode_dict(value)
+            for key, value in catalog_dict.items()
+        }
     elif isinstance(catalog_dict, list):
         return [to_unicode_dict(element) for element in catalog_dict]
     elif isinstance(catalog_dict, str):
@@ -65,7 +66,6 @@ def to_unicode_dict(catalog_dict):
 
 
 class FakeStdout(object):
-
     def __init__(self):
         self.content = []
 
@@ -80,7 +80,6 @@ class FakeStdout(object):
 
 
 class FakeLog(object):
-
     def __init__(self):
         self.messages = {}
 
@@ -101,7 +100,6 @@ class FakeLog(object):
 
 
 class FakeApp(object):
-
     def __init__(self, _stdout, _log):
         self.stdout = _stdout
         self.client_manager = None
@@ -118,7 +116,6 @@ class FakeOptions(object):
 
 
 class FakeClientManager(object):
-
     def __init__(self):
         self.compute = None
         self.identity = None
@@ -143,7 +140,6 @@ class FakeClientManager(object):
 
 
 class FakeModule(object):
-
     def __init__(self, name, version):
         self.name = name
         self.__version__ = version
@@ -153,7 +149,6 @@ class FakeModule(object):
 
 
 class FakeResource(object):
-
     def __init__(self, manager=None, info=None, loaded=False, methods=None):
         """Set attributes and methods for a resource.
 
@@ -177,7 +172,7 @@ class FakeResource(object):
         self._loaded = loaded
 
     def _add_details(self, info):
-        for (k, v) in info.items():
+        for k, v in info.items():
             setattr(self, k, v)
 
     def _add_methods(self, methods):
@@ -188,13 +183,14 @@ class FakeResource(object):
         @value. When users access the attribute with (), @value will be
         returned, which looks like a function call.
         """
-        for (name, ret) in methods.items():
+        for name, ret in methods.items():
             method = mock.MagicMock(return_value=ret)
             setattr(self, name, method)
 
     def __repr__(self):
-        reprkeys = sorted(k for k in self.__dict__.keys() if k[0] != '_' and
-                          k != 'manager')
+        reprkeys = sorted(
+            k for k in self.__dict__.keys() if k[0] != '_' and k != 'manager'
+        )
         info = ", ".join("%s=%s" % (k, getattr(self, k)) for k in reprkeys)
         return "<%s %s>" % (self.__class__.__name__, info)
 

@@ -53,7 +53,8 @@ def get_options_list():
                 os_name = o.name.lower().replace('_', '-')
                 os_env_name = 'OS_' + os_name.upper().replace('-', '_')
                 OPTIONS_LIST.setdefault(
-                    os_name, {'env': os_env_name, 'help': ''},
+                    os_name,
+                    {'env': os_env_name, 'help': ''},
                 )
                 # TODO(mhu) simplistic approach, would be better to only add
                 # help texts if they vary from one auth plugin to another
@@ -67,19 +68,23 @@ def get_options_list():
 
 def check_valid_authorization_options(options, auth_plugin_name):
     """Validate authorization options, and provide helpful error messages."""
-    if (options.auth.get('project_id') and not
-            options.auth.get('domain_id') and not
-            options.auth.get('domain_name') and not
-            options.auth.get('project_name') and not
-            options.auth.get('tenant_id') and not
-            options.auth.get('tenant_name')):
-        raise exc.CommandError(_(
-            'Missing parameter(s): '
-            'Set either a project or a domain scope, but not both. Set a '
-            'project scope with --os-project-name, OS_PROJECT_NAME, or '
-            'auth.project_name. Alternatively, set a domain scope with '
-            '--os-domain-name, OS_DOMAIN_NAME or auth.domain_name.'
-        ))
+    if (
+        options.auth.get('project_id')
+        and not options.auth.get('domain_id')
+        and not options.auth.get('domain_name')
+        and not options.auth.get('project_name')
+        and not options.auth.get('tenant_id')
+        and not options.auth.get('tenant_name')
+    ):
+        raise exc.CommandError(
+            _(
+                'Missing parameter(s): '
+                'Set either a project or a domain scope, but not both. Set a '
+                'project scope with --os-project-name, OS_PROJECT_NAME, or '
+                'auth.project_name. Alternatively, set a domain scope with '
+                '--os-domain-name, OS_DOMAIN_NAME or auth.domain_name.'
+            )
+        )
 
 
 def check_valid_authentication_options(options, auth_plugin_name):
@@ -102,31 +107,34 @@ def check_valid_authentication_options(options, auth_plugin_name):
 
     # when no auth params are passed in, user advised to use os-cloud
     if not options.auth and auth_plugin_name != 'none':
-        msgs.append(_(
-            'Set a cloud-name with --os-cloud or OS_CLOUD'
-        ))
+        msgs.append(_('Set a cloud-name with --os-cloud or OS_CLOUD'))
     else:
-        if ('password' in plugin_opts and not
-                (options.auth.get('username') or options.auth.get('user_id'))):
-            msgs.append(_(
-                'Set a username with --os-username, OS_USERNAME,'
-                ' or auth.username'
-                ' or set a user-id with --os-user-id, OS_USER_ID,'
-                ' or auth.user_id'
-            ))
+        if 'password' in plugin_opts and not (
+            options.auth.get('username') or options.auth.get('user_id')
+        ):
+            msgs.append(
+                _(
+                    'Set a username with --os-username, OS_USERNAME,'
+                    ' or auth.username'
+                    ' or set a user-id with --os-user-id, OS_USER_ID,'
+                    ' or auth.user_id'
+                )
+            )
         if 'auth_url' in plugin_opts and not options.auth.get('auth_url'):
-            msgs.append(_(
-                'Set an authentication URL, with --os-auth-url,'
-                ' OS_AUTH_URL or auth.auth_url'
-            ))
+            msgs.append(
+                _(
+                    'Set an authentication URL, with --os-auth-url,'
+                    ' OS_AUTH_URL or auth.auth_url'
+                )
+            )
         if 'url' in plugin_opts and not options.auth.get('url'):
-            msgs.append(_(
-                'Set a service URL, with --os-url, OS_URL or auth.url'
-            ))
+            msgs.append(
+                _('Set a service URL, with --os-url, OS_URL or auth.url')
+            )
         if 'token' in plugin_opts and not options.auth.get('token'):
-            msgs.append(_(
-                'Set a token with --os-token, OS_TOKEN or auth.token'
-            ))
+            msgs.append(
+                _('Set a token with --os-token, OS_TOKEN or auth.token')
+            )
 
     if msgs:
         raise exc.CommandError(
@@ -147,20 +155,21 @@ def build_auth_plugins_option_parser(parser):
         metavar='<auth-type>',
         dest='auth_type',
         default=utils.env('OS_AUTH_TYPE'),
-        help=_('Select an authentication type. Available types: %s.'
-               ' Default: selected based on --os-username/--os-token'
-               ' (Env: OS_AUTH_TYPE)') % ', '.join(available_plugins),
-        choices=available_plugins
+        help=_(
+            'Select an authentication type. Available types: %s.'
+            ' Default: selected based on --os-username/--os-token'
+            ' (Env: OS_AUTH_TYPE)'
+        )
+        % ', '.join(available_plugins),
+        choices=available_plugins,
     )
     # Maintain compatibility with old tenant env vars
     envs = {
         'OS_PROJECT_NAME': utils.env(
-            'OS_PROJECT_NAME',
-            default=utils.env('OS_TENANT_NAME')
+            'OS_PROJECT_NAME', default=utils.env('OS_TENANT_NAME')
         ),
         'OS_PROJECT_ID': utils.env(
-            'OS_PROJECT_ID',
-            default=utils.env('OS_TENANT_ID')
+            'OS_PROJECT_ID', default=utils.env('OS_TENANT_ID')
         ),
     }
     for o in get_options_list():
@@ -174,7 +183,8 @@ def build_auth_plugins_option_parser(parser):
                     OPTIONS_LIST[o]['env'],
                     utils.env(OPTIONS_LIST[o]['env']),
                 ),
-                help=_('%(help)s\n(Env: %(env)s)') % {
+                help=_('%(help)s\n(Env: %(env)s)')
+                % {
                     'help': OPTIONS_LIST[o]['help'],
                     'env': OPTIONS_LIST[o]['env'],
                 },
@@ -196,10 +206,14 @@ def build_auth_plugins_option_parser(parser):
     return parser
 
 
-def get_keystone2keystone_auth(local_auth, service_provider,
-                               project_id=None, project_name=None,
-                               project_domain_id=None,
-                               project_domain_name=None):
+def get_keystone2keystone_auth(
+    local_auth,
+    service_provider,
+    project_id=None,
+    project_name=None,
+    project_domain_id=None,
+    project_domain_name=None,
+):
     """Return Keystone 2 Keystone authentication for service provider.
 
     :param local_auth: authentication to use with the local Keystone
@@ -210,9 +224,11 @@ def get_keystone2keystone_auth(local_auth, service_provider,
     :param project_domain_name: name of domain to in the service provider
     :return: Keystone2Keystone auth object for service provider
     """
-    return k2k.Keystone2Keystone(local_auth,
-                                 service_provider,
-                                 project_id=project_id,
-                                 project_name=project_name,
-                                 project_domain_id=project_domain_id,
-                                 project_domain_name=project_domain_name)
+    return k2k.Keystone2Keystone(
+        local_auth,
+        service_provider,
+        project_id=project_id,
+        project_name=project_name,
+        project_domain_id=project_domain_id,
+        project_domain_name=project_domain_name,
+    )

@@ -31,12 +31,19 @@ def run_apidoc(app):
         return
     run_already = True
 
-    package_dir = path.abspath(path.join(app.srcdir, '..', '..',
-                                         'osc_lib'))
+    package_dir = path.abspath(path.join(app.srcdir, '..', '..', 'osc_lib'))
     source_dir = path.join(app.srcdir, 'api')
-    apidoc.main(['apidoc', package_dir, '-f',
-                 '-H', 'osc-lib Modules',
-                 '-o', source_dir])
+    apidoc.main(
+        [
+            'apidoc',
+            package_dir,
+            '-f',
+            '-H',
+            'osc-lib Modules',
+            '-o',
+            source_dir,
+        ]
+    )
 
 
 def setup(app):

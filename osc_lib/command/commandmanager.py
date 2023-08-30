@@ -18,4 +18,5 @@ import cliff.commandmanager
 
 class CommandManager(cliff.commandmanager.CommandManager):
     """Noop subclass for transition purposes."""
+
     pass

@@ -18,7 +18,7 @@
 import copy
 import logging
 
-from openstack.config import loader as config   # noqa
+from openstack.config import loader as config  # noqa
 from openstack import connection
 from oslo_utils import strutils
 
@@ -145,13 +145,16 @@ class ClientManager(object):
 
         # Horrible hack alert...must handle prompt for null password if
         # password auth is requested.
-        if (self.auth_plugin_name.endswith('password') and
-                not self._cli_options.auth.get('password')):
+        if self.auth_plugin_name.endswith(
+            'password'
+        ) and not self._cli_options.auth.get('password'):
             self._cli_options.auth['password'] = self._pw_callback()
 
         LOG.info('Using auth plugin: %s', self.auth_plugin_name)
-        LOG.debug('Using parameters %s',
-                  strutils.mask_password(self._cli_options.auth))
+        LOG.debug(
+            'Using parameters %s',
+            strutils.mask_password(self._cli_options.auth),
+        )
         self.auth = self._cli_options.get_auth()
 
         if self._cli_options.service_provider:
@@ -161,7 +164,7 @@ class ClientManager(object):
                 self._cli_options.remote_project_id,
                 self._cli_options.remote_project_name,
                 self._cli_options.remote_project_domain_id,
-                self._cli_options.remote_project_domain_name
+                self._cli_options.remote_project_domain_name,
             )
 
         self.session = self._cli_options.get_session()
@@ -193,8 +196,10 @@ class ClientManager(object):
     @property
     def auth_ref(self):
         """Dereference will trigger an auth if it hasn't already"""
-        if (not self._auth_required or
-                self._cli_options.config['auth_type'] == 'none'):
+        if (
+            not self._auth_required
+            or self._cli_options.config['auth_type'] == 'none'
+        ):
             # Forcibly skip auth if we know we do not need it
             return None
         if not self._auth_ref:
@@ -230,8 +235,9 @@ class ClientManager(object):
             LOG.debug("No service catalog")
         return service_available
 
-    def get_endpoint_for_service_type(self, service_type, region_name=None,
-                                      interface='public'):
+    def get_endpoint_for_service_type(
+        self, service_type, region_name=None, interface='public'
+    ):
         """Return the endpoint URL for the service type."""
         # Overrides take priority unconditionally
         override = self._override_for(service_type)

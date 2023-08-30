@@ -42,11 +42,7 @@ class BaseAPI(object):
     HEADER_NAME = "OpenStack-API-Version"
 
     def __init__(
-        self,
-        session=None,
-        service_type=None,
-        endpoint=None,
-        **kwargs
+        self, session=None, service_type=None, endpoint=None, **kwargs
     ):
         """Base object that contains some common API objects and methods
 
@@ -140,13 +136,7 @@ class BaseAPI(object):
 
     # The basic action methods all take a Session and return dict/lists
 
-    def create(
-        self,
-        url,
-        session=None,
-        method=None,
-        **params
-    ):
+    def create(self, url, session=None, method=None, **params):
         """Create a new resource
 
         :param string url:
@@ -166,12 +156,7 @@ class BaseAPI(object):
         except json.JSONDecodeError:
             return ret
 
-    def delete(
-        self,
-        url,
-        session=None,
-        **params
-    ):
+    def delete(self, url, session=None, **params):
         """Delete a resource
 
         :param string url:
@@ -292,9 +277,7 @@ class BaseAPI(object):
         if len(data) > 1:
             msg = _("Multiple %(resource)s exist with %(attr)s='%(value)s'")
             raise exceptions.CommandError(
-                msg % {'resource': resource,
-                       'attr': attr,
-                       'value': value}
+                msg % {'resource': resource, 'attr': attr, 'value': value}
             )
 
         # Search by id
@@ -304,17 +287,10 @@ class BaseAPI(object):
             return data[0]
         msg = _("No %(resource)s with a %(attr)s or ID of '%(value)s' found")
         raise exceptions.CommandError(
-            msg % {'resource': resource,
-                   'attr': attr,
-                   'value': value}
+            msg % {'resource': resource, 'attr': attr, 'value': value}
         )
 
-    def find_bulk(
-        self,
-        path,
-        headers=None,
-        **kwargs
-    ):
+    def find_bulk(self, path, headers=None, **kwargs):
         """Bulk load and filter locally
 
         :param string path:
@@ -342,11 +318,7 @@ class BaseAPI(object):
 
         return ret
 
-    def find_one(
-        self,
-        path,
-        **kwargs
-    ):
+    def find_one(self, path, **kwargs):
         """Find a resource by name or ID
 
         :param string path:
@@ -390,7 +362,8 @@ class BaseAPI(object):
 
         try:
             ret = self._request(
-                'GET', "/%s/%s" % (path, value),
+                'GET',
+                "/%s/%s" % (path, value),
                 headers=headers,
             ).json()
             if isinstance(ret, dict):
@@ -404,11 +377,7 @@ class BaseAPI(object):
             if attr:
                 kwargs = {attr: value}
                 try:
-                    ret = self.find_one(
-                        path,
-                        headers=headers,
-                        **kwargs
-                    )
+                    ret = self.find_one(path, headers=headers, **kwargs)
                 except (
                     exceptions.NotFound,
                     ksa_exceptions.NotFound,

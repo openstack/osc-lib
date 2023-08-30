@@ -113,7 +113,7 @@ global_options = {
     '--os-default-domain': (DEFAULT_DOMAIN_NAME, True, True),
     '--os-cacert': ('/dev/null', True, True),
     '--timing': (True, True, False),
-    '--os-interface': (DEFAULT_INTERFACE, True, True)
+    '--os-interface': (DEFAULT_INTERFACE, True, True),
 }
 if shell.osprofiler_profiler:
     global_options['--os-profile'] = ('SECRET_KEY', True, True)
@@ -138,8 +138,8 @@ class TestShellArgV(utils.TestShell):
         """
 
         with mock.patch(
-                "osc_lib.shell.OpenStackShell.run",
-                self.app,
+            "osc_lib.shell.OpenStackShell.run",
+            self.app,
         ):
             # Ensure type gets through unmolested through shell.main()
             argv = sys.argv
@@ -220,8 +220,8 @@ class TestShellCli(utils.TestShell):
     def test_shell_args_no_options(self):
         _shell = utils.make_shell()
         with mock.patch(
-                "osc_lib.shell.OpenStackShell.initialize_app",
-                self.app,
+            "osc_lib.shell.OpenStackShell.initialize_app",
+            self.app,
         ):
             utils.fake_execute(_shell, "list user")
             self.app.assert_called_with(["list", "user"])
@@ -306,8 +306,7 @@ class TestShellCli(utils.TestShell):
 
         # --os-cert and --os-key
         utils.fake_execute(
-            _shell,
-            "--os-cert mycert --os-key mickey module list"
+            _shell, "--os-cert mycert --os-key mickey module list"
         )
         self.assertEqual('mycert', _shell.options.cert)
         self.assertEqual('mickey', _shell.options.key)

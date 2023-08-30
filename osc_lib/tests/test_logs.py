@@ -19,7 +19,6 @@ from osc_lib.tests import utils
 
 
 class TestContext(utils.TestCase):
-
     def test_log_level_from_options(self):
         opts = mock.Mock()
         opts.verbose_level = 0
@@ -66,35 +65,47 @@ class TestContext(utils.TestCase):
 
 
 class TestFileFormatter(utils.TestCase):
-
     def test_nothing(self):
         formatter = logs._FileFormatter()
-        self.assertEqual(('%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
-                          '%(name)s %(message)s'), formatter.fmt)
+        self.assertEqual(
+            (
+                '%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
+                '%(name)s %(message)s'
+            ),
+            formatter.fmt,
+        )
 
     def test_options(self):
         class Opts(object):
             cloud = 'cloudy'
             os_project_name = 'projecty'
             username = 'usernamey'
+
         options = Opts()
         formatter = logs._FileFormatter(options=options)
-        self.assertEqual(('%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
-                          '%(name)s [cloudy usernamey projecty] %(message)s'),
-                         formatter.fmt)
+        self.assertEqual(
+            (
+                '%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
+                '%(name)s [cloudy usernamey projecty] %(message)s'
+            ),
+            formatter.fmt,
+        )
 
     def test_config(self):
         config = mock.Mock()
         config.config = {'cloud': 'cloudy'}
         config.auth = {'project_name': 'projecty', 'username': 'usernamey'}
         formatter = logs._FileFormatter(config=config)
-        self.assertEqual(('%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
-                          '%(name)s [cloudy usernamey projecty] %(message)s'),
-                         formatter.fmt)
+        self.assertEqual(
+            (
+                '%(asctime)s.%(msecs)03d %(process)d %(levelname)s '
+                '%(name)s [cloudy usernamey projecty] %(message)s'
+            ),
+            formatter.fmt,
+        )
 
 
 class TestLogConfigurator(utils.TestCase):
-
     def setUp(self):
         super(TestLogConfigurator, self).setUp()
         self.options = mock.Mock()
@@ -117,7 +128,8 @@ class TestLogConfigurator(utils.TestCase):
             self.requests_log,
             self.cliff_log,
             self.stevedore_log,
-            self.iso8601_log]
+            self.iso8601_log,
+        ]
 
     @mock.patch('logging.StreamHandler')
     @mock.patch('logging.getLogger')
@@ -186,7 +198,8 @@ class TestLogConfigurator(utils.TestCase):
         cloud_config.config = {
             'log_file': config_log,
             'verbose_level': 1,
-            'log_level': 'info'}
+            'log_level': 'info',
+        }
         file_logger = mock.Mock()
         file_logger.setFormatter = mock.Mock()
         file_logger.setLevel = mock.Mock()

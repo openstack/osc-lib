@@ -84,8 +84,15 @@ class MultiKeyValueAction(argparse.Action):
     And comma(',') and equal('=') may not be used in the key or value.
     """
 
-    def __init__(self, option_strings, dest, nargs=None,
-                 required_keys=None, optional_keys=None, **kwargs):
+    def __init__(
+        self,
+        option_strings,
+        dest,
+        nargs=None,
+        required_keys=None,
+        optional_keys=None,
+        **kwargs
+    ):
         """Initialize the action object, and parse customized options
 
         Required keys and optional keys can be specified when initializing
@@ -99,8 +106,9 @@ class MultiKeyValueAction(argparse.Action):
             msg = _("Parameter 'nargs' is not allowed, but got %s")
             raise ValueError(msg % nargs)
 
-        super(MultiKeyValueAction, self).__init__(option_strings,
-                                                  dest, **kwargs)
+        super(MultiKeyValueAction, self).__init__(
+            option_strings, dest, **kwargs
+        )
 
         # required_keys: A list of keys that is required. None by default.
         if required_keys and not isinstance(required_keys, list):
@@ -128,10 +136,13 @@ class MultiKeyValueAction(argparse.Action):
                     "Invalid keys %(invalid_keys)s specified.\n"
                     "Valid keys are: %(valid_keys)s"
                 )
-                raise argparse.ArgumentTypeError(msg % {
-                    'invalid_keys': ', '.join(invalid_keys),
-                    'valid_keys': ', '.join(valid_keys),
-                })
+                raise argparse.ArgumentTypeError(
+                    msg
+                    % {
+                        'invalid_keys': ', '.join(invalid_keys),
+                        'valid_keys': ', '.join(valid_keys),
+                    }
+                )
 
         if self.required_keys:
             missing_keys = [k for k in self.required_keys if k not in keys]
@@ -140,10 +151,13 @@ class MultiKeyValueAction(argparse.Action):
                     "Missing required keys %(missing_keys)s.\n"
                     "Required keys are: %(required_keys)s"
                 )
-                raise argparse.ArgumentTypeError(msg % {
-                    'missing_keys': ', '.join(missing_keys),
-                    'required_keys': ', '.join(self.required_keys),
-                })
+                raise argparse.ArgumentTypeError(
+                    msg
+                    % {
+                        'missing_keys': ', '.join(missing_keys),
+                        'required_keys': ', '.join(self.required_keys),
+                    }
+                )
 
     def __call__(self, parser, namespace, values, metavar=None):
         # Make sure we have an empty list rather than None
@@ -245,10 +259,14 @@ class RangeAction(argparse.Action):
                 setattr(namespace, self.dest, (int(range[0]), int(range[1])))
             else:
                 msg = _("Invalid range, %(min)s is not less than %(max)s")
-                raise argparse.ArgumentError(self, msg % {
-                    'min': range[0],
-                    'max': range[1],
-                })
+                raise argparse.ArgumentError(
+                    self,
+                    msg
+                    % {
+                        'min': range[0],
+                        'max': range[1],
+                    },
+                )
         else:
             # Too many values
             msg = _("Invalid range, too many values")

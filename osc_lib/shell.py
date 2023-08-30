@@ -63,29 +63,32 @@ def prompt_for_password(prompt=None):
             pass
     # No password because we did't have a tty or nothing was entered
     if not pw:
-        raise exc.CommandError(_("No password entered, or found via"
-                                 " --os-password or OS_PASSWORD"),)
+        raise exc.CommandError(
+            _(
+                "No password entered, or found via"
+                " --os-password or OS_PASSWORD"
+            ),
+        )
 
     return pw
 
 
 class OpenStackShell(app.App):
-
     CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
 
     log = logging.getLogger(__name__)
     timing_data = []
 
     def __init__(
-            self,
-            description=None,
-            version=None,
-            command_manager=None,
-            stdin=None,
-            stdout=None,
-            stderr=None,
-            interactive_app_factory=None,
-            deferred_help=False,
+        self,
+        description=None,
+        version=None,
+        command_manager=None,
+        stdin=None,
+        stdout=None,
+        stderr=None,
+        interactive_app_factory=None,
+        deferred_help=False,
     ):
         # Patch command.Command to add a default auth_required = True
         command.Command.auth_required = True
@@ -163,10 +166,14 @@ class OpenStackShell(app.App):
             # bigger than most big default one (CRITICAL) or something like
             # that (PROFILE = 60 for instance), but not sure we need it here.
             self.log.warning("Trace ID: %s" % trace_id)
-            self.log.warning("Short trace ID "
-                             "for OpenTracing-based drivers: %s" % short_id)
-            self.log.warning("Display trace data with command:\n"
-                             "osprofiler trace show --html %s " % trace_id)
+            self.log.warning(
+                "Short trace ID "
+                "for OpenTracing-based drivers: %s" % short_id
+            )
+            self.log.warning(
+                "Display trace data with command:\n"
+                "osprofiler trace show --html %s " % trace_id
+            )
 
     def run_subcommand(self, argv):
         self.init_profile()
@@ -186,8 +193,8 @@ class OpenStackShell(app.App):
 
     def build_option_parser(self, description, version):
         parser = super(OpenStackShell, self).build_option_parser(
-            description,
-            version)
+            description, version
+        )
 
         # service token auth argument
         parser.add_argument(
@@ -243,11 +250,11 @@ class OpenStackShell(app.App):
             '--os-default-domain',
             metavar='<auth-domain>',
             dest='default_domain',
-            default=utils.env(
-                'OS_DEFAULT_DOMAIN',
-                default=DEFAULT_DOMAIN),
-            help=_('Default domain ID, default=%s. '
-                   '(Env: OS_DEFAULT_DOMAIN)') % DEFAULT_DOMAIN,
+            default=utils.env('OS_DEFAULT_DOMAIN', default=DEFAULT_DOMAIN),
+            help=_(
+                'Default domain ID, default=%s. ' '(Env: OS_DEFAULT_DOMAIN)'
+            )
+            % DEFAULT_DOMAIN,
         )
         parser.add_argument(
             '--os-interface',
@@ -258,18 +265,23 @@ class OpenStackShell(app.App):
             # config key 'interface' will be ignored. Use OSC_Config's ctor
             # option 'override_defaults' below instead.
             default=utils.env('OS_INTERFACE'),
-            help=_('Select an interface type.'
-                   ' Valid interface types: [admin, public, internal].'
-                   ' default=%s, (Env: OS_INTERFACE)') % DEFAULT_INTERFACE,
+            help=_(
+                'Select an interface type.'
+                ' Valid interface types: [admin, public, internal].'
+                ' default=%s, (Env: OS_INTERFACE)'
+            )
+            % DEFAULT_INTERFACE,
         )
         parser.add_argument(
             '--os-service-provider',
             metavar='<service_provider>',
             dest='service_provider',
             default=utils.env('OS_SERVICE_PROVIDER'),
-            help=_('Authenticate with and perform the command on a service'
-                   ' provider using Keystone-to-keystone federation. Must'
-                   ' also specify the remote project option.')
+            help=_(
+                'Authenticate with and perform the command on a service'
+                ' provider using Keystone-to-keystone federation. Must'
+                ' also specify the remote project option.'
+            ),
         )
         remote_project_group = parser.add_mutually_exclusive_group()
         remote_project_group.add_argument(
@@ -277,16 +289,20 @@ class OpenStackShell(app.App):
             metavar='<remote_project_name>',
             dest='remote_project_name',
             default=utils.env('OS_REMOTE_PROJECT_NAME'),
-            help=_('Project name when authenticating to a service provider'
-                   ' if using Keystone-to-Keystone federation.')
+            help=_(
+                'Project name when authenticating to a service provider'
+                ' if using Keystone-to-Keystone federation.'
+            ),
         )
         remote_project_group.add_argument(
             '--os-remote-project-id',
             metavar='<remote_project_id>',
             dest='remote_project_id',
             default=utils.env('OS_REMOTE_PROJECT_ID'),
-            help=_('Project ID when authenticating to a service provider'
-                   ' if using Keystone-to-Keystone federation.')
+            help=_(
+                'Project ID when authenticating to a service provider'
+                ' if using Keystone-to-Keystone federation.'
+            ),
         )
         remote_project_domain_group = parser.add_mutually_exclusive_group()
         remote_project_domain_group.add_argument(
@@ -294,18 +310,22 @@ class OpenStackShell(app.App):
             metavar='<remote_project_domain_name>',
             dest='remote_project_domain_name',
             default=utils.env('OS_REMOTE_PROJECT_DOMAIN_NAME'),
-            help=_('Domain name of the project when authenticating to a'
-                   ' service provider if using Keystone-to-Keystone'
-                   ' federation.')
+            help=_(
+                'Domain name of the project when authenticating to a'
+                ' service provider if using Keystone-to-Keystone'
+                ' federation.'
+            ),
         )
         remote_project_domain_group.add_argument(
             '--os-remote-project-domain-id',
             metavar='<remote_project_domain_id>',
             dest='remote_project_domain_id',
             default=utils.env('OS_REMOTE_PROJECT_DOMAIN_ID'),
-            help=_('Domain ID of the project when authenticating to a'
-                   ' service provider if using Keystone-to-Keystone'
-                   ' federation.')
+            help=_(
+                'Domain ID of the project when authenticating to a'
+                ' service provider if using Keystone-to-Keystone'
+                ' federation.'
+            ),
         )
         parser.add_argument(
             '--timing',
@@ -345,6 +365,7 @@ class OpenStackShell(app.App):
     * ClientManager
 
     """
+
     def _final_defaults(self):
         # Set the default plugin to None
         # NOTE(dtroyer): This is here to set up for setting it to a default
@@ -396,10 +417,11 @@ class OpenStackShell(app.App):
 
         # Parent __init__ parses argv into self.options
         super(OpenStackShell, self).initialize_app(argv)
-        self.log.info("START with options: %s",
-                      strutils.mask_password(" ".join(self.command_options)))
-        self.log.debug("options: %s",
-                       strutils.mask_password(self.options))
+        self.log.info(
+            "START with options: %s",
+            strutils.mask_password(" ".join(self.command_options)),
+        )
+        self.log.debug("options: %s", strutils.mask_password(self.options))
 
         # Callout for stuff between superclass init and o-c-c
         self._final_defaults()
@@ -434,8 +456,9 @@ class OpenStackShell(app.App):
         self.log_configurator.configure(self.cloud)
         self.dump_stack_trace = self.log_configurator.dump_trace
         self.log.debug("defaults: %s", self.cloud_config.defaults)
-        self.log.debug("cloud cfg: %s",
-                       strutils.mask_password(self.cloud.config))
+        self.log.debug(
+            "cloud cfg: %s", strutils.mask_password(self.cloud.config)
+        )
 
         # Callout for stuff between o-c-c and ClientManager
         # self._initialize_app_2(self.options)
@@ -489,8 +512,9 @@ class OpenStackShell(app.App):
                 # let the command decide whether we need a scoped token
                 self.client_manager.validate_scope()
             # Trigger the Identity client to initialize
-            self.client_manager.session.auth.auth_ref = \
+            self.client_manager.session.auth.auth_ref = (
                 self.client_manager.auth_ref
+            )
         return
 
     def clean_up(self, cmd, result, err):
@@ -518,8 +542,10 @@ class OpenStackShell(app.App):
             # If anything other than prettytable is specified, force csv
             format = 'table'
             # Check the formatter used in the actual command
-            if hasattr(cmd, 'formatter') \
-                    and cmd.formatter != cmd._formatter_plugins['table'].obj:
+            if (
+                hasattr(cmd, 'formatter')
+                and cmd.formatter != cmd._formatter_plugins['table'].obj
+            ):
                 format = 'csv'
 
             sys.stdout.write('\n')

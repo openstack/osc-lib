@@ -22,7 +22,6 @@ from osc_lib.tests.api import fakes as api_fakes
 
 
 class TestBaseAPIDefault(api_fakes.TestSession):
-
     def setUp(self):
         super(TestBaseAPIDefault, self).setUp()
         self.api = api.BaseAPI()
@@ -89,7 +88,6 @@ class TestBaseAPIDefault(api_fakes.TestSession):
 
 
 class TestBaseAPIEndpointArg(api_fakes.TestSession):
-
     def test_baseapi_endpoint_no_endpoint(self):
         x_api = api.BaseAPI(
             session=self.sess,
@@ -187,7 +185,6 @@ class TestBaseAPIEndpointArg(api_fakes.TestSession):
 
 
 class TestBaseAPIArgs(api_fakes.TestSession):
-
     def setUp(self):
         super(TestBaseAPIArgs, self).setUp()
         self.api = api.BaseAPI(
@@ -222,7 +219,6 @@ class TestBaseAPIArgs(api_fakes.TestSession):
 
 
 class TestBaseAPICreate(api_fakes.TestSession):
-
     def setUp(self):
         super(TestBaseAPICreate, self).setUp()
         self.api = api.BaseAPI(
@@ -261,7 +257,6 @@ class TestBaseAPICreate(api_fakes.TestSession):
 
 
 class TestBaseAPIFind(api_fakes.TestSession):
-
     def setUp(self):
         super(TestBaseAPIFind, self).setUp()
         self.api = api.BaseAPI(
@@ -283,14 +278,9 @@ class TestBaseAPIFind(api_fakes.TestSession):
             self.BASE_URL + '/qaz/1',
             status_code=404,
         )
-        self.assertRaises(
-            exceptions.NotFound,
-            self.api.find,
-            'qaz',
-            '1')
+        self.assertRaises(exceptions.NotFound, self.api.find, 'qaz', '1')
 
     def test_baseapi_find_attr_by_id(self):
-
         # All first requests (by name) will fail in this test
         self.requests_mock.register_uri(
             'GET',
@@ -382,7 +372,6 @@ class TestBaseAPIFind(api_fakes.TestSession):
         self.assertEqual(api_fakes.RESP_ITEM_1, ret)
 
     def test_baseapi_find_attr_path_resource(self):
-
         # Test resource different than path
         self.requests_mock.register_uri(
             'GET',
@@ -462,7 +451,6 @@ class TestBaseAPIFind(api_fakes.TestSession):
 
 
 class TestBaseAPIList(api_fakes.TestSession):
-
     def setUp(self):
         super(TestBaseAPIList, self).setUp()
         self.api = api.BaseAPI(

@@ -16,7 +16,6 @@ from osc_lib.utils import columns as column_utils
 
 
 class TestColumnUtils(test_utils.TestCase):
-
     def test_get_column_definitions(self):
         attr_map = (
             ('id', 'ID', column_utils.LIST_BOTH),
@@ -25,7 +24,8 @@ class TestColumnUtils(test_utils.TestCase):
             ('summary', 'Summary', column_utils.LIST_SHORT_ONLY),
         )
         headers, columns = column_utils.get_column_definitions(
-            attr_map, long_listing=False)
+            attr_map, long_listing=False
+        )
         self.assertEqual(['id', 'name', 'summary'], columns)
         self.assertEqual(['ID', 'Name', 'Summary'], headers)
 
@@ -37,7 +37,8 @@ class TestColumnUtils(test_utils.TestCase):
             ('summary', 'Summary', column_utils.LIST_SHORT_ONLY),
         )
         headers, columns = column_utils.get_column_definitions(
-            attr_map, long_listing=True)
+            attr_map, long_listing=True
+        )
         self.assertEqual(['id', 'tenant_id', 'name'], columns)
         self.assertEqual(['ID', 'Project', 'Name'], headers)
 

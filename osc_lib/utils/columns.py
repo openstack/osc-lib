@@ -44,15 +44,29 @@ def get_column_definitions(attr_map, long_listing):
     """
 
     if long_listing:
-        headers = [hdr for col, hdr, listing_mode in attr_map
-                   if listing_mode in (LIST_BOTH, LIST_LONG_ONLY)]
-        columns = [col for col, hdr, listing_mode in attr_map
-                   if listing_mode in (LIST_BOTH, LIST_LONG_ONLY)]
+        headers = [
+            hdr
+            for col, hdr, listing_mode in attr_map
+            if listing_mode in (LIST_BOTH, LIST_LONG_ONLY)
+        ]
+        columns = [
+            col
+            for col, hdr, listing_mode in attr_map
+            if listing_mode in (LIST_BOTH, LIST_LONG_ONLY)
+        ]
     else:
-        headers = [hdr for col, hdr, listing_mode in attr_map if listing_mode
-                   if listing_mode in (LIST_BOTH, LIST_SHORT_ONLY)]
-        columns = [col for col, hdr, listing_mode in attr_map if listing_mode
-                   if listing_mode in (LIST_BOTH, LIST_SHORT_ONLY)]
+        headers = [
+            hdr
+            for col, hdr, listing_mode in attr_map
+            if listing_mode
+            if listing_mode in (LIST_BOTH, LIST_SHORT_ONLY)
+        ]
+        columns = [
+            col
+            for col, hdr, listing_mode in attr_map
+            if listing_mode
+            if listing_mode in (LIST_BOTH, LIST_SHORT_ONLY)
+        ]
 
     return headers, columns
 
@@ -92,8 +106,8 @@ def get_columns(item, attr_map=None):
     attr_map = attr_map or tuple([])
     _attr_map_dict = dict((col, hdr) for col, hdr, listing_mode in attr_map)
 
-    columns = [(column, _attr_map_dict.get(column, column))
-               for column in item.keys()]
+    columns = [
+        (column, _attr_map_dict.get(column, column)) for column in item.keys()
+    ]
     columns = sorted(columns, key=operator.itemgetter(1))
-    return (tuple(col[0] for col in columns),
-            tuple(col[1] for col in columns))
+    return (tuple(col[0] for col in columns), tuple(col[1] for col in columns))

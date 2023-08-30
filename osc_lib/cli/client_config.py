@@ -26,7 +26,6 @@ LOG = logging.getLogger(__name__)
 # Sublcass OpenStackConfig in order to munge config values
 # before auth plugins are loaded
 class OSC_Config(config.OpenStackConfig):
-
     def _auth_select_default_plugin(self, config):
         """Select a default plugin based on supplied arguments
 
@@ -66,7 +65,7 @@ class OSC_Config(config.OpenStackConfig):
         Migrated from auth.build_auth_params()
         """
 
-        if ('auth_type' in config and config['auth_type'].startswith("v2")):
+        if 'auth_type' in config and config['auth_type'].startswith("v2"):
             if 'project_id' in config['auth']:
                 config['auth']['tenant_id'] = config['auth']['project_id']
             if 'project_name' in config['auth']:
@@ -82,8 +81,9 @@ class OSC_Config(config.OpenStackConfig):
         # NOTE(hieulq): If USER_DOMAIN_NAME, USER_DOMAIN_ID, PROJECT_DOMAIN_ID
         # or PROJECT_DOMAIN_NAME is present and API_VERSION is 2.0, then
         # ignore all domain related configs.
-        if (str(config.get('identity_api_version', '')).startswith('2') and
-                config.get('auth_type').endswith('password')):
+        if str(config.get('identity_api_version', '')).startswith(
+            '2'
+        ) and config.get('auth_type').endswith('password'):
             domain_props = [
                 'project_domain_id',
                 'project_domain_name',
@@ -95,12 +95,14 @@ class OSC_Config(config.OpenStackConfig):
                     if config.get('cloud'):
                         LOG.warning(
                             "Ignoring domain related config %s for %s"
-                            "because identity API version is 2.0" % (
-                                prop, config['cloud']))
+                            "because identity API version is 2.0"
+                            % (prop, config['cloud'])
+                        )
                     else:
                         LOG.warning(
                             "Ignoring domain related config %s because"
-                            " identity API version is 2.0" % prop)
+                            " identity API version is 2.0" % prop
+                        )
         return config
 
     def _auth_default_domain(self, config):
@@ -115,17 +117,18 @@ class OSC_Config(config.OpenStackConfig):
         # TODO(mordred): This is a usability improvement that's broadly useful
         # We should port it back up into os-client-config.
         default_domain = config.get('default_domain', None)
-        if (identity_version == '3' and
-                not auth_type.startswith('v2') and
-                default_domain):
-
+        if (
+            identity_version == '3'
+            and not auth_type.startswith('v2')
+            and default_domain
+        ):
             # NOTE(stevemar): If PROJECT_DOMAIN_ID or PROJECT_DOMAIN_NAME is
             # present, then do not change the behaviour. Otherwise, set the
             # PROJECT_DOMAIN_ID to 'OS_DEFAULT_DOMAIN' for better usability.
             if (
-                    auth_type in ("password", "v3password", "v3totp") and
-                    not config['auth'].get('project_domain_id') and
-                    not config['auth'].get('project_domain_name')
+                auth_type in ("password", "v3password", "v3totp")
+                and not config['auth'].get('project_domain_id')
+                and not config['auth'].get('project_domain_name')
             ):
                 config['auth']['project_domain_id'] = default_domain
 
@@ -136,9 +139,9 @@ class OSC_Config(config.OpenStackConfig):
             # TODO(dtroyer): Move this to os-client-config after the plugin has
             # been loaded so we can check directly if the options are accepted.
             if (
-                    auth_type in ("password", "v3password", "v3totp") and
-                    not config['auth'].get('user_domain_id') and
-                    not config['auth'].get('user_domain_name')
+                auth_type in ("password", "v3password", "v3totp")
+                and not config['auth'].get('user_domain_id')
+                and not config['auth'].get('user_domain_name')
             ):
                 config['auth']['user_domain_id'] = default_domain
         return config
@@ -156,8 +159,9 @@ class OSC_Config(config.OpenStackConfig):
         config = self._auth_default_domain(config)
 
         if LOG.isEnabledFor(logging.DEBUG):
-            LOG.debug("auth_config_hook(): %s",
-                      strutils.mask_password(str(config)))
+            LOG.debug(
+                "auth_config_hook(): %s", strutils.mask_password(str(config))
+            )
         return config
 
     def _validate_auth(self, config, loader, fixed_argparse=None):
@@ -176,7 +180,8 @@ class OSC_Config(config.OpenStackConfig):
             winning_value = self._find_winning_auth_value(p_opt, config)
             if not winning_value:
                 winning_value = self._find_winning_auth_value(
-                    p_opt, config['auth'])
+                    p_opt, config['auth']
+                )
 
             # if the plugin tells us that this value is required
             # then error if it's doesn't exist now
@@ -184,7 +189,8 @@ class OSC_Config(config.OpenStackConfig):
                 msgs.append(
                     'Missing value {auth_key}'
                     ' required for auth plugin {plugin}'.format(
-                        auth_key=p_opt.name, plugin=config.get('auth_type'),
+                        auth_key=p_opt.name,
+                        plugin=config.get('auth_type'),
                     )
                 )
 
@@ -198,17 +204,18 @@ class OSC_Config(config.OpenStackConfig):
                 # Prefer the plugin configuration dest value if the value's key
                 # is marked as depreciated.
                 if p_opt.dest is None:
-                    config['auth'][p_opt.name.replace('-', '_')] = (
-                        winning_value)
+                    config['auth'][
+                        p_opt.name.replace('-', '_')
+                    ] = winning_value
                 else:
                     config['auth'][p_opt.dest] = winning_value
 
             # See if this needs a prompting
             if (
-                    'prompt' in vars(p_opt) and
-                    p_opt.prompt is not None and
-                    p_opt.dest not in config['auth'] and
-                    self._pw_callback is not None
+                'prompt' in vars(p_opt)
+                and p_opt.prompt is not None
+                and p_opt.dest not in config['auth']
+                and self._pw_callback is not None
             ):
                 # Defer these until we know all required opts are present
                 prompt_options.append(p_opt)

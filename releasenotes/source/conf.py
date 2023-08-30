@@ -32,6 +32,7 @@
 # -- General configuration ------------------------------------------------
 
 from sphinx.util import logging
+
 # According to the discussion in
 # https://github.com/sphinx-doc/sphinx/issues/10112 this may be applied as a
 # dirty hack until the issue with replacing extlinks is resolved
@@ -248,10 +249,8 @@ htmlhelp_basename = 'OSC_LIBReleaseNotesdoc'
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     # 'preamble': '',
 }
@@ -259,12 +258,14 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [(
-    'index',
-    'OSC_LIBReleaseNotes.tex',
-    'osc-lib Release Notes Documentation',
-    'osc-lib Developers',
-    'manual'),
+latex_documents = [
+    (
+        'index',
+        'OSC_LIBReleaseNotes.tex',
+        'osc-lib Release Notes Documentation',
+        'osc-lib Developers',
+        'manual',
+    ),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -298,13 +299,15 @@ latex_documents = [(
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(
-    'index',
-    'osc_libreleasenotes',
-    'osc-lib Release Notes Documentation',
-    ['osc-lib Developers'],
-    1,
-)]
+man_pages = [
+    (
+        'index',
+        'osc_libreleasenotes',
+        'osc-lib Release Notes Documentation',
+        ['osc-lib Developers'],
+        1,
+    )
+]
 
 # If true, show URL addresses after external links.
 #
@@ -316,15 +319,17 @@ man_pages = [(
 # Grouping the document tree into Texinfo files. List of tuples
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
-texinfo_documents = [(
-    'index',
-    'OSC_LIBReleaseNotes',
-    'osc-lib Release Notes Documentation',
-    'osc-lib Developers',
-    'OSC_LIBReleaseNotes',
-    'Common base library for OpenStackClient plugins.',
-    'Miscellaneous',
-)]
+texinfo_documents = [
+    (
+        'index',
+        'OSC_LIBReleaseNotes',
+        'osc-lib Release Notes Documentation',
+        'osc-lib Developers',
+        'OSC_LIBReleaseNotes',
+        'Common base library for OpenStackClient plugins.',
+        'Miscellaneous',
+    )
+]
 
 # Documents to append as an appendix to all manuals.
 #
