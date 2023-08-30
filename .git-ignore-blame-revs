@@ -1,0 +1,4 @@
+# You can configure git to automatically use this file with the following config:
+# git config --global blame.ignoreRevsFile .git-blame-ignore-revs
+
+ab7cdb4c25304c0bb781fd643b0d36d8ecd8600e  # Blacken code
