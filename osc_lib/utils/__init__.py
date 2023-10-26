@@ -16,6 +16,7 @@
 """Common client utilities"""
 
 import copy
+import functools
 import getpass
 import logging
 import os
@@ -441,9 +442,20 @@ def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
         data = item[field_name] if field_name in item else ''
         if field in formatters:
             formatter = formatters[field]
-            if (isinstance(formatter, type) and issubclass(
-                    formatter, cliff_columns.FormattableColumn)):
+            # columns must be either a subclass of FormattableColumn
+            if (
+                isinstance(formatter, type) and
+                issubclass(formatter, cliff_columns.FormattableColumn)
+            ):
                 data = formatter(data)
+            # or a partial wrapping one (to allow us to pass extra parameters)
+            elif (
+                isinstance(formatter, functools.partial) and
+                isinstance(formatter.func, type) and
+                issubclass(formatter.func, cliff_columns.FormattableColumn)
+            ):
+                data = formatter(data)
+            # otherwise it's probably a legacy-style function
             elif callable(formatter):
                 warnings.warn(
                     'The usage of formatter functions is now discouraged. '
