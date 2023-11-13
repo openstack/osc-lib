@@ -106,9 +106,9 @@ class TestListDictColumn(utils.TestCase):
         col = format_columns.ListDictColumn(data)
         # we explicitly check type rather than use isinstance since an
         # OrderedDict is a subclass of dict and would inadvertently pass
-        self.assertEqual(type(col.machine_readable()), list)
+        self.assertEqual(type(col.machine_readable()), list)  # noqa: H212
         for x in col.machine_readable():
-            self.assertEqual(type(x), dict)
+            self.assertEqual(type(x), dict)  # noqa: H212
 
 
 class TestSizeColumn(utils.TestCase):

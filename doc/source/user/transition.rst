@@ -13,7 +13,8 @@ The complete list of public module name changes:
 * ``openstackclient.api.auth`` -> ``osc_lib.api.auth``
 * ``openstackclient.api.utils`` -> ``osc_lib.api.utils``
 * ``openstackclient.common.command`` -> ``osc_lib.command.command``
-* ``openstackclient.common.commandmanager`` -> ``osc_lib.command.commandmanager``
+* ``openstackclient.common.commandmanager`` ->
+  ``osc_lib.command.commandmanager``
 * ``openstackclient.common.exceptions`` -> ``osc_lib.exceptions``
 * ``openstackclient.common.logs`` -> ``osc_lib.logs``
 * ``openstackclient.common.parseractions`` -> ``osc_lib.cli.parseractions``
@@ -26,25 +27,26 @@ Additional Changes
 ==================
 
 In addition to the existing public modules, other parts of OSC have been
-extracted, including the base ``Command``, ``CommandManager``, ``ClientManager``
-and ``Session`` classes.
+extracted, including the base ``Command``, ``CommandManager``,
+``ClientManager`` and ``Session`` classes.
 
 ClientManager
 -------------
 
 The OSC ``ClientManager`` is responsible for managing all of the handles to the
-individual API client objects as well as coordinating session and authentication
-objects.
+individual API client objects as well as coordinating session and
+authentication objects.
 
-Plugins are encouraged to use the ClientManager interface for obtaining information
-about global configuration.
+Plugins are encouraged to use the ClientManager interface for obtaining
+information about global configuration.
 
 * ``openstackclient.common.clientmanager`` -> ``osc_lib.clientmanager``
 * All of the handling of the ``verify``/``insecure``/``cacert`` configuration
-  options has been consolidated into ``ClientManager``.  This converts the ``--verify``,
-  ``--insecure`` and ``--os-cacert`` options into a ``Requests``-compatible
-  ``verify`` attribute and a ``cacert`` attribute for the legacy client libraries.
-  both are now public; the ``_insecure`` attribute has been removed.
+  options has been consolidated into ``ClientManager``.  This converts the
+  ``--verify``, ``--insecure`` and ``--os-cacert`` options into a
+  ``Requests``-compatible ``verify`` attribute and a ``cacert`` attribute for
+  the legacy client libraries. both are now public; the ``_insecure`` attribute
+  has been removed.
 
 .. list-table:: Verify/Insecure/CACert
    :header-rows: 1
@@ -79,8 +81,8 @@ about global configuration.
      - ``verify=False``, ``cacert=None``
 
 * A number of other ``ClientManager`` attributes have also been made public to
-  encourage their direct use rather than reaching in to the global options passed
-  in the ``ClientManager`` constructor:
+  encourage their direct use rather than reaching in to the global options
+  passed in the ``ClientManager`` constructor:
 
   * ``_verify`` -> ``verify``
   * ``_cacert`` -> ``cacert``

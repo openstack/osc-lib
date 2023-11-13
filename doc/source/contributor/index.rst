@@ -4,8 +4,8 @@
 
 osc-lib utilizes all of the usual OpenStack processes and requirements for
 contributions.  The code is hosted `on OpenStack's Git server`_. `Bug reports`_
-and `blueprints`_ may be submitted to the :code:`python-openstackclient` project
-on `Launchpad`_.  Code may be submitted to the
+and `blueprints`_ may be submitted to the :code:`python-openstackclient`
+project on `Launchpad`_.  Code may be submitted to the
 :code:`openstack/osc-lib` project using `Gerrit`_.
 Developers may also be found in the `IRC channel`_ ``#openstack-sdks``.
 

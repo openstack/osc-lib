@@ -34,6 +34,8 @@ used with other data structure literals and terminate the method call with
 the last argument line ending with a comma and the closing parentheses on its
 own line indented to the starting line level.
 
+.. code-block:: python
+
     unnecessarily_long_function_name(
         'string one',
         'string two',
