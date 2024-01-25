@@ -1,6 +1,7 @@
 [run]
 branch = True
 source = osc_lib
+omit = osc_lib/tests/*
 
 [report]
 ignore_errors = True
