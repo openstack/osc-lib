@@ -2,7 +2,6 @@
 - project:
     templates:
       - check-requirements
-      - openstack-lower-constraints-jobs
       - openstack-python3-xena-jobs
       - osc-tox-unit-tips
       - publish-openstack-docs-pti
@@ -10,13 +9,6 @@
     check:
       jobs:
         - osc-functional-devstack:
-            required-projects:
-              - openstack/python-openstackclient
-        - osc-functional-devstack-tips:
-            voting: false
-            # The functional-tips job only tests the latest and shouldn't be run
-            # on the stable branches
-            branches: ^(?!stable)
             required-projects:
               - openstack/python-openstackclient
     gate:
