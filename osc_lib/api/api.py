@@ -12,10 +12,9 @@
 #
 
 """Base API Library"""
-
 from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session as ksa_session
-import simplejson as json
+import requests
 
 from osc_lib import exceptions
 from osc_lib.i18n import _
@@ -153,7 +152,7 @@ class BaseAPI(object):
         # Should this move into _requests()?
         try:
             return ret.json()
-        except json.JSONDecodeError:
+        except requests.JSONDecodeError:
             return ret
 
     def delete(self, url, session=None, **params):
@@ -218,7 +217,7 @@ class BaseAPI(object):
             )
         try:
             return ret.json()
-        except json.JSONDecodeError:
+        except requests.JSONDecodeError:
             return ret
 
     # Layered actions built on top of the basic action methods do not
