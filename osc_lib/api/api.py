@@ -12,6 +12,7 @@
 #
 
 """Base API Library"""
+
 from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session as ksa_session
 import requests
@@ -173,7 +174,7 @@ class BaseAPI(object):
         body=None,
         detailed=False,
         headers=None,
-        **params
+        **params,
     ):
         """Return a list of resources
 

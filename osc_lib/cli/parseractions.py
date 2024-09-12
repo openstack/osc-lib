@@ -91,7 +91,7 @@ class MultiKeyValueAction(argparse.Action):
         nargs=None,
         required_keys=None,
         optional_keys=None,
-        **kwargs
+        **kwargs,
     ):
         """Initialize the action object, and parse customized options
 

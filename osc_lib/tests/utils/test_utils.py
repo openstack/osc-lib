@@ -368,7 +368,7 @@ class TestUtils(test_utils.TestCase):
         self.assertFalse(utils.is_ascii(b'\xe2'))
 
     def test_is_ascii_string(self):
-        self.assertFalse(utils.is_ascii(u'\u2665'))
+        self.assertFalse(utils.is_ascii('\u2665'))
 
     def test_format_size(self):
         self.assertEqual("999", utils.format_size(999))
