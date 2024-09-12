@@ -104,7 +104,7 @@ class TestListDictColumn(utils.TestCase):
         # OrderedDict is a subclass of dict and would inadvertently pass
         self.assertEqual(type(col.machine_readable()), list)  # noqa: H212
         for x in col.machine_readable():
-            self.assertEqual(type(x), dict)  # noqa: H212
+            self.assertEqual(type(x), dict)  # noqa: H211
 
 
 class TestSizeColumn(utils.TestCase):
