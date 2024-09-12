@@ -29,9 +29,11 @@ def get_column_definitions(attr_map, long_listing):
 
         .. code-block:: python
 
-           (('id', 'ID', LIST_BOTH),
-            ('name', 'Name', LIST_BOTH),
-            ('tenant_id', 'Project', LIST_LONG_ONLY))
+           (
+               ('id', 'ID', LIST_BOTH),
+               ('name', 'Name', LIST_BOTH),
+               ('tenant_id', 'Project', LIST_LONG_ONLY),
+           )
 
         The third field of each tuple must be one of LIST_BOTH,
         LIST_LONG_ONLY (a corresponding column is shown only in a long mode),
@@ -80,17 +82,18 @@ def get_columns(item, attr_map=None):
 
         .. code-block:: python
 
-           {'id': 'myid', 'name': 'myname',
-            'foo': 'bar', 'tenant_id': 'mytenan'}
+           {'id': 'myid', 'name': 'myname', 'foo': 'bar', 'tenant_id': 'mytenan'}
 
     :param attr_map: a list of mapping from attribute to display name.
         The same format is used as for get_column_definitions attr_map.
 
         .. code-block:: python
 
-           (('id', 'ID', LIST_BOTH),
-            ('name', 'Name', LIST_BOTH),
-            ('tenant_id', 'Project', LIST_LONG_ONLY))
+           (
+               ('id', 'ID', LIST_BOTH),
+               ('name', 'Name', LIST_BOTH),
+               ('tenant_id', 'Project', LIST_LONG_ONLY),
+           )
 
     :return: A pair of tuple of attributes and tuple of display names.
 

@@ -60,7 +60,7 @@ def to_unicode_dict(catalog_dict):
     elif isinstance(catalog_dict, list):
         return [to_unicode_dict(element) for element in catalog_dict]
     elif isinstance(catalog_dict, str):
-        return catalog_dict + u""
+        return catalog_dict + ""
     else:
         return catalog_dict
 

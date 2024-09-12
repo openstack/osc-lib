@@ -148,7 +148,7 @@ class TestShellArgV(utils.TestShell):
 
             # When shell.main() gets sys.argv itself it should be decoded
             shell.main()
-            self.assertEqual(type(u'x'), type(self.app.call_args[0][0][0]))
+            self.assertEqual(type('x'), type(self.app.call_args[0][0][0]))
 
 
 class TestShellHelp(utils.TestShell):
