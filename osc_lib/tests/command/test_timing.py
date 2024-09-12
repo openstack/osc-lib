@@ -27,7 +27,7 @@ timing_url = 'http://localhost:5000'
 timing_elapsed = 0.872809
 
 
-class FakeGenericClient(object):
+class FakeGenericClient:
     def __init__(self, **kwargs):
         self.auth_token = kwargs['token']
         self.management_url = kwargs['endpoint']
@@ -40,7 +40,7 @@ class TestTiming(utils.TestCommand):
     )
 
     def setUp(self):
-        super(TestTiming, self).setUp()
+        super().setUp()
 
         self.app.timing_data = []
 

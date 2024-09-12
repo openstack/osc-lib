@@ -21,7 +21,7 @@ from osc_lib import exceptions
 from osc_lib.i18n import _
 
 
-class BaseAPI(object):
+class BaseAPI:
     """Base API wrapper for keystoneauth1.session.Session
 
     Encapsulate the translation between keystoneauth1.session.Session
@@ -58,7 +58,7 @@ class BaseAPI(object):
             Keyword arguments passed to keystoneauth1.session.Session().
         """
 
-        super(BaseAPI, self).__init__()
+        super().__init__()
 
         # Create a keystoneauth1.session.Session if one is not supplied
         if not session:
@@ -363,7 +363,7 @@ class BaseAPI(object):
         try:
             ret = self._request(
                 'GET',
-                "/%s/%s" % (path, value),
+                f"/{path}/{value}",
                 headers=headers,
             ).json()
             if isinstance(ret, dict):

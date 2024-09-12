@@ -23,7 +23,7 @@ from osc_lib.tests.api import fakes as api_fakes
 
 class TestBaseAPIDefault(api_fakes.TestSession):
     def setUp(self):
-        super(TestBaseAPIDefault, self).setUp()
+        super().setUp()
         self.api = api.BaseAPI()
 
     def test_baseapi_request_no_url(self):
@@ -186,7 +186,7 @@ class TestBaseAPIEndpointArg(api_fakes.TestSession):
 
 class TestBaseAPIArgs(api_fakes.TestSession):
     def setUp(self):
-        super(TestBaseAPIArgs, self).setUp()
+        super().setUp()
         self.api = api.BaseAPI(
             session=self.sess,
             endpoint=self.BASE_URL,
@@ -220,7 +220,7 @@ class TestBaseAPIArgs(api_fakes.TestSession):
 
 class TestBaseAPICreate(api_fakes.TestSession):
     def setUp(self):
-        super(TestBaseAPICreate, self).setUp()
+        super().setUp()
         self.api = api.BaseAPI(
             session=self.sess,
             endpoint=self.BASE_URL,
@@ -258,7 +258,7 @@ class TestBaseAPICreate(api_fakes.TestSession):
 
 class TestBaseAPIFind(api_fakes.TestSession):
     def setUp(self):
-        super(TestBaseAPIFind, self).setUp()
+        super().setUp()
         self.api = api.BaseAPI(
             session=self.sess,
             endpoint=self.BASE_URL,
@@ -452,7 +452,7 @@ class TestBaseAPIFind(api_fakes.TestSession):
 
 class TestBaseAPIList(api_fakes.TestSession):
     def setUp(self):
-        super(TestBaseAPIList, self).setUp()
+        super().setUp()
         self.api = api.BaseAPI(
             session=self.sess,
             endpoint=self.BASE_URL,

@@ -114,7 +114,7 @@ class _FileFormatter(logging.Formatter):
         logging.Formatter.__init__(self, self.fmt, self._LOG_DATE_FORMAT)
 
 
-class LogConfigurator(object):
+class LogConfigurator:
     _CONSOLE_MESSAGE_FORMAT = '%(message)s'
 
     def __init__(self, options):

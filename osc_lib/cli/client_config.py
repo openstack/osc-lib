@@ -56,7 +56,7 @@ class OSC_Config(config.OpenStackConfig):
             if not config.get('auth_type', None):
                 config['auth_type'] = 'password'
 
-        LOG.debug("Auth plugin %s selected" % config['auth_type'])
+        LOG.debug("Auth plugin {} selected".format(config['auth_type']))
         return config
 
     def _auth_v2_arguments(self, config):
@@ -94,14 +94,15 @@ class OSC_Config(config.OpenStackConfig):
                 if config['auth'].pop(prop, None) is not None:
                     if config.get('cloud'):
                         LOG.warning(
-                            "Ignoring domain related config %s for %s"
-                            "because identity API version is 2.0"
-                            % (prop, config['cloud'])
+                            "Ignoring domain related config {} for {}"
+                            "because identity API version is 2.0".format(
+                                prop, config['cloud']
+                            )
                         )
                     else:
                         LOG.warning(
-                            "Ignoring domain related config %s because"
-                            " identity API version is 2.0" % prop
+                            f"Ignoring domain related config {prop} because"
+                            " identity API version is 2.0"
                         )
         return config
 

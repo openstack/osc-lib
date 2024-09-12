@@ -31,7 +31,7 @@ LOG = logging.getLogger(__name__)
 PLUGIN_MODULES = []
 
 
-class ClientCache(object):
+class ClientCache:
     """Descriptor class for caching created client handles."""
 
     def __init__(self, factory):
@@ -50,7 +50,7 @@ class ClientCache(object):
         return self._handle
 
 
-class ClientManager(object):
+class ClientManager:
     """Manages access to API clients, including authentication."""
 
     # NOTE(dtroyer): Keep around the auth required state of the _current_
@@ -209,7 +209,7 @@ class ClientManager(object):
         return self._auth_ref
 
     def _override_for(self, service_type):
-        key = '%s_endpoint_override' % service_type.replace('-', '_')
+        key = '{}_endpoint_override'.format(service_type.replace('-', '_'))
         return self._cli_options.config.get(key)
 
     def is_service_available(self, service_type):

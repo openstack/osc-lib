@@ -65,7 +65,7 @@ def to_unicode_dict(catalog_dict):
         return catalog_dict
 
 
-class FakeStdout(object):
+class FakeStdout:
     def __init__(self):
         self.content = []
 
@@ -79,7 +79,7 @@ class FakeStdout(object):
         return result
 
 
-class FakeLog(object):
+class FakeLog:
     def __init__(self):
         self.messages = {}
 
@@ -99,7 +99,7 @@ class FakeLog(object):
         self.messages['critical'] = msg
 
 
-class FakeApp(object):
+class FakeApp:
     def __init__(self, _stdout, _log):
         self.stdout = _stdout
         self.client_manager = None
@@ -110,12 +110,12 @@ class FakeApp(object):
         self.log = _log
 
 
-class FakeOptions(object):
+class FakeOptions:
     def __init__(self, **kwargs):
         self.os_beta_command = False
 
 
-class FakeClientManager(object):
+class FakeClientManager:
     def __init__(self):
         self.compute = None
         self.identity = None
@@ -139,7 +139,7 @@ class FakeClientManager(object):
         }
 
 
-class FakeModule(object):
+class FakeModule:
     def __init__(self, name, version):
         self.name = name
         self.__version__ = version
@@ -148,7 +148,7 @@ class FakeModule(object):
         self.version.__version__ = version
 
 
-class FakeResource(object):
+class FakeResource:
     def __init__(self, manager=None, info=None, loaded=False, methods=None):
         """Set attributes and methods for a resource.
 
@@ -191,8 +191,8 @@ class FakeResource(object):
         reprkeys = sorted(
             k for k in self.__dict__.keys() if k[0] != '_' and k != 'manager'
         )
-        info = ", ".join("%s=%s" % (k, getattr(self, k)) for k in reprkeys)
-        return "<%s %s>" % (self.__class__.__name__, info)
+        info = ", ".join(f"{k}={getattr(self, k)}" for k in reprkeys)
+        return f"<{self.__class__.__name__} {info}>"
 
     def keys(self):
         return self._info.keys()

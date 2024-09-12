@@ -21,7 +21,7 @@ from osc_lib.tests import utils
 
 class TestKeyValueAction(utils.TestCase):
     def setUp(self):
-        super(TestKeyValueAction, self).setUp()
+        super().setUp()
 
         self.parser = argparse.ArgumentParser()
 
@@ -73,7 +73,7 @@ class TestKeyValueAction(utils.TestCase):
 
 class TestKeyValueAppendAction(utils.TestCase):
     def setUp(self):
-        super(TestKeyValueAppendAction, self).setUp()
+        super().setUp()
 
         self.parser = argparse.ArgumentParser()
 
@@ -132,7 +132,7 @@ class TestKeyValueAppendAction(utils.TestCase):
 
 class TestMultiKeyValueAction(utils.TestCase):
     def setUp(self):
-        super(TestMultiKeyValueAction, self).setUp()
+        super().setUp()
 
         self.parser = argparse.ArgumentParser()
 
@@ -272,7 +272,7 @@ class TestMultiKeyValueAction(utils.TestCase):
 
 class TestMultiKeyValueCommaAction(utils.TestCase):
     def setUp(self):
-        super(TestMultiKeyValueCommaAction, self).setUp()
+        super().setUp()
         self.parser = argparse.ArgumentParser()
 
         # Typical usage
@@ -480,7 +480,7 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
 
 class TestNonNegativeAction(utils.TestCase):
     def setUp(self):
-        super(TestNonNegativeAction, self).setUp()
+        super().setUp()
 
         self.parser = argparse.ArgumentParser()
 

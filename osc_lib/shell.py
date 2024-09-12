@@ -107,7 +107,7 @@ class OpenStackShell(app.App):
         else:
             cm = command_manager
 
-        super(OpenStackShell, self).__init__(
+        super().__init__(
             description=__doc__.strip(),
             version=version,
             command_manager=cm,
@@ -134,7 +134,7 @@ class OpenStackShell(app.App):
         ret_val = 1
         self.command_options = argv
         try:
-            ret_val = super(OpenStackShell, self).run(argv)
+            ret_val = super().run(argv)
             return ret_val
         except Exception as e:
             if not logging.getLogger('').handlers:
@@ -165,20 +165,19 @@ class OpenStackShell(app.App):
             # printed. In fact we can define custom log level here with value
             # bigger than most big default one (CRITICAL) or something like
             # that (PROFILE = 60 for instance), but not sure we need it here.
-            self.log.warning("Trace ID: %s" % trace_id)
+            self.log.warning(f"Trace ID: {trace_id}")
             self.log.warning(
-                "Short trace ID "
-                "for OpenTracing-based drivers: %s" % short_id
+                "Short trace ID " f"for OpenTracing-based drivers: {short_id}"
             )
             self.log.warning(
                 "Display trace data with command:\n"
-                "osprofiler trace show --html %s " % trace_id
+                f"osprofiler trace show --html {trace_id} "
             )
 
     def run_subcommand(self, argv):
         self.init_profile()
         try:
-            ret_value = super(OpenStackShell, self).run_subcommand(argv)
+            ret_value = super().run_subcommand(argv)
         finally:
             self.close_profile()
         return ret_value
@@ -186,15 +185,13 @@ class OpenStackShell(app.App):
     def interact(self):
         self.init_profile()
         try:
-            ret_value = super(OpenStackShell, self).interact()
+            ret_value = super().interact()
         finally:
             self.close_profile()
         return ret_value
 
     def build_option_parser(self, description, version):
-        parser = super(OpenStackShell, self).build_option_parser(
-            description, version
-        )
+        parser = super().build_option_parser(description, version)
 
         # service token auth argument
         parser.add_argument(
@@ -416,7 +413,7 @@ class OpenStackShell(app.App):
         """
 
         # Parent __init__ parses argv into self.options
-        super(OpenStackShell, self).initialize_app(argv)
+        super().initialize_app(argv)
         self.log.info(
             "START with options: %s",
             strutils.mask_password(" ".join(self.command_options)),
@@ -435,7 +432,7 @@ class OpenStackShell(app.App):
                     'auth_type': self._auth_type,
                 },
             )
-        except (IOError, OSError) as e:
+        except OSError as e:
             self.log.critical("Could not read clouds.yaml configuration file")
             self.print_help_if_requested()
             raise e

@@ -17,7 +17,7 @@ from osc_lib.tests import utils
 
 class TestOSCConfig(utils.TestCase):
     def setUp(self):
-        super(TestOSCConfig, self).setUp()
+        super().setUp()
 
         self.cloud = client_config.OSC_Config()
 

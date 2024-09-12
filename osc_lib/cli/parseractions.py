@@ -106,9 +106,7 @@ class MultiKeyValueAction(argparse.Action):
             msg = _("Parameter 'nargs' is not allowed, but got %s")
             raise ValueError(msg % nargs)
 
-        super(MultiKeyValueAction, self).__init__(
-            option_strings, dest, **kwargs
-        )
+        super().__init__(option_strings, dest, **kwargs)
 
         # required_keys: A list of keys that is required. None by default.
         if required_keys and not isinstance(required_keys, list):
@@ -226,7 +224,7 @@ class MultiKeyValueCommaAction(MultiKeyValueAction):
                 # means the current value is a part of the previous
                 # key=value pair, so append it.
                 try:
-                    params[key] = "%s,%s" % (params[key], kv)
+                    params[key] = f"{params[key]},{kv}"
                 except KeyError:
                     msg = _("A key=value pair is required: %s")
                     raise argparse.ArgumentError(self, msg % str(kv))
