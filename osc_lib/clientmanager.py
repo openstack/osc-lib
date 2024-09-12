@@ -150,7 +150,7 @@ class ClientManager(object):
         ) and not self._cli_options.auth.get('password'):
             self._cli_options.auth['password'] = self._pw_callback()
 
-        LOG.info('Using auth plugin: %s', self.auth_plugin_name)
+        LOG.debug('Using auth plugin: %s', self.auth_plugin_name)
         LOG.debug(
             'Using parameters %s',
             strutils.mask_password(self._cli_options.auth),
