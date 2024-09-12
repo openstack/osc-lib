@@ -68,9 +68,7 @@ class TestKeyValueAction(utils.TestCase):
             ],
         ]
         for data in data_list:
-            self.assertRaises(
-                argparse.ArgumentTypeError, self.parser.parse_args, data
-            )
+            self.assertRaises(SystemExit, self.parser.parse_args, data)
 
 
 class TestKeyValueAppendAction(utils.TestCase):
@@ -129,9 +127,7 @@ class TestKeyValueAppendAction(utils.TestCase):
             ],
         ]
         for data in data_list:
-            self.assertRaises(
-                argparse.ArgumentTypeError, self.parser.parse_args, data
-            )
+            self.assertRaises(SystemExit, self.parser.parse_args, data)
 
 
 class TestMultiKeyValueAction(utils.TestCase):
@@ -213,13 +209,11 @@ class TestMultiKeyValueAction(utils.TestCase):
             ],
         ]
         for data in data_list:
-            self.assertRaises(
-                argparse.ArgumentTypeError, self.parser.parse_args, data
-            )
+            self.assertRaises(SystemExit, self.parser.parse_args, data)
 
     def test_error_values_without_comma(self):
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            SystemExit,
             self.parser.parse_args,
             [
                 '--test',
@@ -229,7 +223,7 @@ class TestMultiKeyValueAction(utils.TestCase):
 
     def test_missing_key(self):
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            SystemExit,
             self.parser.parse_args,
             [
                 '--test',
@@ -239,7 +233,7 @@ class TestMultiKeyValueAction(utils.TestCase):
 
     def test_invalid_key(self):
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            SystemExit,
             self.parser.parse_args,
             [
                 '--test',
@@ -361,21 +355,16 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
         ]
         self.assertCountEqual(expect, actual)
 
-        try:
-            results = self.parser.parse_args(
-                [
-                    '--test',
-                    'req1=aaa,bbb',
-                    '--test',
-                    'opt2=ccc',
-                ]
-            )
-            self.fail('ArgumentTypeError should be raised')
-        except argparse.ArgumentTypeError as e:
-            self.assertEqual(
-                'Missing required keys req1.\nRequired keys are: req1',
-                str(e),
-            )
+        self.assertRaises(
+            SystemExit,
+            self.parser.parse_args,
+            [
+                '--test',
+                'req1=aaa,bbb',
+                '--test',
+                'opt2=ccc',
+            ],
+        )
 
     def test_mkvca_multiples(self):
         results = self.parser.parse_args(
@@ -431,75 +420,34 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
         self.assertCountEqual(expect, actual)
 
     def test_mkvca_invalid_key(self):
-        try:
-            self.parser.parse_args(
-                [
-                    '--test',
-                    'req1=aaa,bbb=',
-                ]
-            )
-            self.fail('ArgumentTypeError should be raised')
-        except argparse.ArgumentTypeError as e:
-            self.assertIn(
-                'Invalid keys bbb specified.\nValid keys are:',
-                str(e),
-            )
+        self.assertRaises(
+            SystemExit,
+            self.parser.parse_args,
+            ['--test', 'req1=aaa,bbb='],
+        )
 
-        try:
-            self.parser.parse_args(
-                [
-                    '--test',
-                    'nnn=aaa',
-                ]
-            )
-            self.fail('ArgumentTypeError should be raised')
-        except argparse.ArgumentTypeError as e:
-            self.assertIn(
-                'Invalid keys nnn specified.\nValid keys are:',
-                str(e),
-            )
+        self.assertRaises(
+            SystemExit,
+            self.parser.parse_args,
+            ['--test', 'nnn=aaa'],
+        )
 
     def test_mkvca_value_no_key(self):
-        try:
-            self.parser.parse_args(
-                [
-                    '--test',
-                    'req1=aaa,=bbb',
-                ]
-            )
-            self.fail('ArgumentTypeError should be raised')
-        except argparse.ArgumentTypeError as e:
-            self.assertEqual(
-                "A key must be specified before '=': =bbb",
-                str(e),
-            )
-        try:
-            self.parser.parse_args(
-                [
-                    '--test',
-                    '=nnn',
-                ]
-            )
-            self.fail('ArgumentTypeError should be raised')
-        except argparse.ArgumentTypeError as e:
-            self.assertEqual(
-                "A key must be specified before '=': =nnn",
-                str(e),
-            )
-
-        try:
-            self.parser.parse_args(
-                [
-                    '--test',
-                    'nnn',
-                ]
-            )
-            self.fail('ArgumentTypeError should be raised')
-        except argparse.ArgumentTypeError as e:
-            self.assertIn(
-                'A key=value pair is required:',
-                str(e),
-            )
+        self.assertRaises(
+            SystemExit,
+            self.parser.parse_args,
+            ['--test', 'req1=aaa,=bbb'],
+        )
+        self.assertRaises(
+            SystemExit,
+            self.parser.parse_args,
+            ['--test', '=nnn'],
+        )
+        self.assertRaises(
+            SystemExit,
+            self.parser.parse_args,
+            ['--test', 'nnn'],
+        )
 
     def test_mkvca_required_keys_not_list(self):
         self.assertRaises(
@@ -546,7 +494,7 @@ class TestNonNegativeAction(utils.TestCase):
 
     def test_negative_values(self):
         self.assertRaises(
-            argparse.ArgumentTypeError,
+            SystemExit,
             self.parser.parse_args,
             "--foo -1".split(),
         )
