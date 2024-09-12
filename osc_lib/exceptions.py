@@ -68,7 +68,7 @@ class ClientException(Exception):
         self.details = details
 
     def __str__(self):
-        return "%s (HTTP %s)" % (self.message, self.code)
+        return f"{self.message} (HTTP {self.code})"
 
 
 class BadRequest(ClientException):

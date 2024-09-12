@@ -24,7 +24,7 @@ class TestBaseAPIFilter(api_fakes.TestSession):
     """The filters can be tested independently"""
 
     def setUp(self):
-        super(TestBaseAPIFilter, self).setUp()
+        super().setUp()
         self.api = api.BaseAPI(
             session=self.sess,
             endpoint=self.BASE_URL,

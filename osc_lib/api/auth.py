@@ -59,9 +59,8 @@ def get_options_list():
                 # TODO(mhu) simplistic approach, would be better to only add
                 # help texts if they vary from one auth plugin to another
                 # also the text rendering is ugly in the CLI ...
-                OPTIONS_LIST[os_name]['help'] += 'With %s: %s\n' % (
-                    plugin_name,
-                    o.help,
+                OPTIONS_LIST[os_name]['help'] += (
+                    f'With {plugin_name}: {o.help}\n'
                 )
     return OPTIONS_LIST
 
@@ -177,7 +176,7 @@ def build_auth_plugins_option_parser(parser):
         if 'tenant' not in o:
             parser.add_argument(
                 '--os-' + o,
-                metavar='<auth-%s>' % o,
+                metavar=f'<auth-{o}>',
                 dest=o.replace('-', '_'),
                 default=envs.get(
                     OPTIONS_LIST[o]['env'],

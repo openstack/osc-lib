@@ -76,7 +76,7 @@ class TestFileFormatter(utils.TestCase):
         )
 
     def test_options(self):
-        class Opts(object):
+        class Opts:
             cloud = 'cloudy'
             os_project_name = 'projecty'
             username = 'usernamey'
@@ -107,7 +107,7 @@ class TestFileFormatter(utils.TestCase):
 
 class TestLogConfigurator(utils.TestCase):
     def setUp(self):
-        super(TestLogConfigurator, self).setUp()
+        super().setUp()
         self.options = mock.Mock()
         self.options.verbose_level = 1
         self.options.log_file = None

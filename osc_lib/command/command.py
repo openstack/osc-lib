@@ -29,13 +29,13 @@ class CommandMeta(abc.ABCMeta):
             cls_dict['log'] = logging.getLogger(
                 cls_dict['__module__'] + '.' + name
             )
-        return super(CommandMeta, mcs).__new__(mcs, name, bases, cls_dict)
+        return super().__new__(mcs, name, bases, cls_dict)
 
 
 class Command(command.Command, metaclass=CommandMeta):
     def run(self, parsed_args):
         self.log.debug('run(%s)', parsed_args)
-        return super(Command, self).run(parsed_args)
+        return super().run(parsed_args)
 
     def validate_os_beta_command_enabled(self):
         if not self.app.options.os_beta_command:

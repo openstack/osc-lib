@@ -345,7 +345,7 @@ def format_dict_of_list(data, separator='; '):
         if value is None:
             continue
         value_str = format_list(value)
-        group = "%s=%s" % (key, value_str)
+        group = f"{key}={value_str}"
         output.append(group)
 
     return separator.join(output)
@@ -400,10 +400,10 @@ def format_size(size):
         index = index + 1
         size = size / base
 
-    padded = '%.1f' % size
+    padded = f'{size:.1f}'
     stripped = padded.rstrip('0').rstrip('.')
 
-    return '%s%s' % (stripped, suffix[index])
+    return f'{stripped}{suffix[index]}'
 
 
 def get_client_class(api_name, version, version_map):
@@ -596,7 +596,7 @@ def read_blob_file_contents(blob_file):
         with open(blob_file) as file:
             blob = file.read().strip()
         return blob
-    except IOError:
+    except OSError:
         msg = _("Error occurred trying to read from file %s")
         raise exceptions.CommandError(msg % blob_file)
 

@@ -544,7 +544,7 @@ class NoUniqueMatch(Exception):
 
 class TestFindResource(test_utils.TestCase):
     def setUp(self):
-        super(TestFindResource, self).setUp()
+        super().setUp()
         self.name = 'legos'
         self.expected = mock.Mock()
         self.manager = mock.Mock()
@@ -920,7 +920,7 @@ class TestAssertItemEqual(test_utils.TestCommand):
 
 class TestSDKUtils(test_utils.TestCase):
     def setUp(self):
-        super(TestSDKUtils, self).setUp()
+        super().setUp()
 
     def _test_get_osc_show_columns_for_sdk_resource(
         self,

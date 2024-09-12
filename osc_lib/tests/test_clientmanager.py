@@ -49,7 +49,7 @@ AUTH_DICT = {
 auth.get_options_list()
 
 
-class Container(object):
+class Container:
     attr = clientmanager.ClientCache(lambda x: object())
     buggy_attr = clientmanager.ClientCache(lambda x: x.foo)
 

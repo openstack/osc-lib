@@ -123,7 +123,7 @@ class TestShellArgV(utils.TestShell):
     """Test the deferred help flag"""
 
     def setUp(self):
-        super(TestShellArgV, self).setUp()
+        super().setUp()
 
     def test_shell_argv(self):
         """Test argv decoding
@@ -148,14 +148,14 @@ class TestShellArgV(utils.TestShell):
 
             # When shell.main() gets sys.argv itself it should be decoded
             shell.main()
-            self.assertEqual(type('x'), type(self.app.call_args[0][0][0]))
+            self.assertEqual(str, type(self.app.call_args[0][0][0]))
 
 
 class TestShellHelp(utils.TestShell):
     """Test the deferred help flag"""
 
     def setUp(self):
-        super(TestShellHelp, self).setUp()
+        super().setUp()
         self.useFixture(utils.EnvFixture())
 
     @testtools.skip("skip until bug 1444983 is resolved")
@@ -182,7 +182,7 @@ class TestShellOptions(utils.TestShell):
     """
 
     def setUp(self):
-        super(TestShellOptions, self).setUp()
+        super().setUp()
         self.useFixture(utils.EnvFixture())
 
     def test_empty_auth(self):
@@ -213,7 +213,7 @@ class TestShellCli(utils.TestShell):
     """
 
     def setUp(self):
-        super(TestShellCli, self).setUp()
+        super().setUp()
         env = {}
         self.useFixture(utils.EnvFixture(env.copy()))
 
@@ -465,7 +465,7 @@ class TestShellCliPrecedence(utils.TestShell):
     """Test option precedencr order"""
 
     def setUp(self):
-        super(TestShellCliPrecedence, self).setUp()
+        super().setUp()
         env = {
             'OS_CLOUD': 'megacloud',
             'OS_REGION_NAME': 'occ-env',

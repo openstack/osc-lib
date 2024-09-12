@@ -108,7 +108,7 @@ class TestCase(testtools.TestCase):
 
         if m.called:
             if not msg:
-                msg = 'method %s should not have been called' % m
+                msg = f'method {m} should not have been called'
             self.fail(msg)
 
     @contextlib.contextmanager
@@ -120,7 +120,7 @@ class TestCase(testtools.TestCase):
          * bug in testtools that breaks support for all versions
         """
         try:
-            with super(TestCase, self).subTest(*args, **kwargs):
+            with super().subTest(*args, **kwargs):
                 yield
         except TypeError:
             raise
@@ -134,7 +134,7 @@ class TestCommand(TestCase):
     """Test cliff command classes"""
 
     def setUp(self):
-        super(TestCommand, self).setUp()
+        super().setUp()
         # Build up a fake app
         self.fake_stdout = fakes.FakeStdout()
         self.fake_log = fakes.FakeLog()
@@ -201,7 +201,7 @@ class TestClientManager(TestCase):
     }
 
     def setUp(self):
-        super(TestClientManager, self).setUp()
+        super().setUp()
         self.mock = mock.Mock()
         self.requests = self.useFixture(fixture.Fixture())
         # fake v2password token retrieval
@@ -319,7 +319,7 @@ class TestShell(TestCase):
     shell_class_name = "osc_lib.shell.OpenStackShell"
 
     def setUp(self):
-        super(TestShell, self).setUp()
+        super().setUp()
         self.shell_class = importutils.import_class(self.shell_class_name)
         self.cmd_patch = mock.patch(self.shell_class_name + ".run_subcommand")
         self.cmd_save = self.cmd_patch.start()
@@ -349,7 +349,7 @@ class TestShell(TestCase):
                 self.assertEqual(
                     default_args[k],
                     vars(_shell.options)[k],
-                    "%s does not match" % k,
+                    f"{k} does not match",
                 )
 
     def _assert_cloud_region_arg(self, cmd_options, default_args):
@@ -377,7 +377,7 @@ class TestShell(TestCase):
                 self.assertEqual(
                     default_args[k],
                     vars(opts)[k],
-                    "%s does not match" % k,
+                    f"{k} does not match",
                 )
 
     def _test_options_init_app(self, test_opts):
