@@ -17,7 +17,11 @@
 
 import copy
 import logging
+import typing as ty
 
+from keystoneauth1 import access as ksa_access
+from keystoneauth1 import session as ksa_session
+from openstack.config import cloud_region
 from openstack.config import loader as config  # noqa
 from openstack import connection
 from oslo_utils import strutils
@@ -31,11 +35,11 @@ LOG = logging.getLogger(__name__)
 class ClientCache:
     """Descriptor class for caching created client handles."""
 
-    def __init__(self, factory):
+    def __init__(self, factory: ty.Any) -> None:
         self.factory = factory
         self._handle = None
 
-    def __get__(self, instance, owner):
+    def __get__(self, instance: ty.Any, owner: ty.Any) -> ty.Any:
         # Tell the ClientManager to login to keystone
         if self._handle is None:
             try:
@@ -47,8 +51,14 @@ class ClientCache:
         return self._handle
 
 
+class _PasswordHelper(ty.Protocol):
+    def __call__(self, prompt: ty.Optional[str] = None) -> str: ...
+
+
 class ClientManager:
     """Manages access to API clients, including authentication."""
+
+    session: ksa_session.Session
 
     # NOTE(dtroyer): Keep around the auth required state of the _current_
     #                command since ClientManager has no visibility to the
@@ -57,12 +67,12 @@ class ClientManager:
 
     def __init__(
         self,
-        cli_options=None,
-        api_version=None,
-        pw_func=None,
-        app_name=None,
-        app_version=None,
-    ):
+        cli_options: cloud_region.CloudRegion,
+        api_version: ty.Optional[dict[str, str]],
+        pw_func: ty.Optional[_PasswordHelper] = None,
+        app_name: ty.Optional[str] = None,
+        app_version: ty.Optional[str] = None,
+    ) -> None:
         """Set up a ClientManager
 
         :param cli_options:
@@ -90,7 +100,6 @@ class ClientManager:
         self.timing = self._cli_options.timing
 
         self._auth_ref = None
-        self.session = None
 
         # self.verify is the Requests-compatible form
         # self.cacert is the form used by the legacy client libs
@@ -121,7 +130,7 @@ class ClientManager:
         # prior to dereferrencing auth_ref.
         self._auth_setup_completed = False
 
-    def setup_auth(self):
+    def setup_auth(self) -> None:
         """Set up authentication
 
         This is deferred until authentication is actually attempted because
@@ -142,9 +151,11 @@ class ClientManager:
 
         # Horrible hack alert...must handle prompt for null password if
         # password auth is requested.
-        if self.auth_plugin_name.endswith(
-            'password'
-        ) and not self._cli_options.auth.get('password'):
+        if (
+            self.auth_plugin_name.endswith('password')
+            and not self._cli_options.auth.get('password')
+            and self._pw_callback is not None
+        ):
             self._cli_options.auth['password'] = self._pw_callback()
 
         LOG.debug('Using auth plugin: %s', self.auth_plugin_name)
@@ -174,7 +185,7 @@ class ClientManager:
 
         self._auth_setup_completed = True
 
-    def validate_scope(self):
+    def validate_scope(self) -> None:
         if not self._auth_ref:
             raise Exception('no authentication information')
 
@@ -194,7 +205,7 @@ class ClientManager:
         )
 
     @property
-    def auth_ref(self):
+    def auth_ref(self) -> ty.Optional[ksa_access.AccessInfo]:
         """Dereference will trigger an auth if it hasn't already"""
         if (
             not self._auth_required
@@ -208,11 +219,11 @@ class ClientManager:
             self._auth_ref = self.auth.get_auth_ref(self.session)
         return self._auth_ref
 
-    def _override_for(self, service_type):
+    def _override_for(self, service_type: str) -> ty.Optional[str]:
         key = '{}_endpoint_override'.format(service_type.replace('-', '_'))
-        return self._cli_options.config.get(key)
+        return ty.cast(ty.Optional[str], self._cli_options.config.get(key))
 
-    def is_service_available(self, service_type):
+    def is_service_available(self, service_type: str) -> ty.Optional[bool]:
         """Check if a service type is in the current Service Catalog"""
         # If there is an override, assume the service is available
         if self._override_for(service_type):
@@ -236,8 +247,11 @@ class ClientManager:
         return service_available
 
     def get_endpoint_for_service_type(
-        self, service_type, region_name=None, interface='public'
-    ):
+        self,
+        service_type: str,
+        region_name: ty.Optional[str] = None,
+        interface: str = 'public',
+    ) -> ty.Optional[str]:
         """Return the endpoint URL for the service type."""
         # Overrides take priority unconditionally
         override = self._override_for(service_type)
@@ -262,5 +276,5 @@ class ClientManager:
             )
         return endpoint
 
-    def get_configuration(self):
+    def get_configuration(self) -> dict[str, ty.Any]:
         return copy.deepcopy(self._cli_options.config)

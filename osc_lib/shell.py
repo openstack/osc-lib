@@ -79,6 +79,8 @@ def prompt_for_password(prompt: ty.Optional[str] = None) -> str:
 class OpenStackShell(app.App):
     CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
 
+    client_manager: clientmanager.ClientManager
+
     log = logging.getLogger(__name__)
     timing_data: list[ty.Any] = []
 
@@ -125,7 +127,6 @@ class OpenStackShell(app.App):
         # Set in subclasses
         self.api_version = None
 
-        self.client_manager = None
         self.command_options: list[str] = []
 
         self.do_profile = False
@@ -480,7 +481,7 @@ class OpenStackShell(app.App):
         # Handle deferred help and exit
         self.print_help_if_requested()
 
-        self.client_manager = clientmanager.ClientManager(  # type: ignore
+        self.client_manager = clientmanager.ClientManager(
             cli_options=self.cloud,
             api_version=self.api_version,
             pw_func=prompt_for_password,
@@ -496,16 +497,13 @@ class OpenStackShell(app.App):
             getattr(cmd, 'auth_required', None),
         )
 
-        if not self.client_manager:
-            raise RuntimeWarning("can't get here")
-
         # NOTE(dtroyer): If auth is not required for a command, skip
         #                get_one()'s validation to avoid loading plugins
-        validate = cmd.auth_required
+        validate = getattr(cmd, 'auth_required', False)
 
         # NOTE(dtroyer): Save the auth required state of the _current_ command
         #                in the ClientManager
-        self.client_manager._auth_required = cmd.auth_required
+        self.client_manager._auth_required = validate
 
         # Validate auth options
         self.cloud = self.cloud_config.get_one(
@@ -519,13 +517,13 @@ class OpenStackShell(app.App):
         # Push the updated args into ClientManager
         self.client_manager._cli_options = self.cloud
 
-        if cmd.auth_required:
+        if validate:
             self.client_manager.setup_auth()
             if hasattr(cmd, 'required_scope') and cmd.required_scope:
                 # let the command decide whether we need a scoped token
                 self.client_manager.validate_scope()
             # Trigger the Identity client to initialize
-            self.client_manager.session.auth.auth_ref = (
+            self.client_manager.session.auth.auth_ref = (  # type: ignore
                 self.client_manager.auth_ref
             )
         return
@@ -538,15 +536,12 @@ class OpenStackShell(app.App):
     ) -> None:
         self.log.debug('clean_up %s: %s', cmd.__class__.__name__, err or '')
 
-        if not self.client_manager:
-            raise RuntimeWarning("can't get here")
-
         # Close SDK connection if available to have proper cleanup there
-        if hasattr(self.client_manager, "sdk_connection"):
+        if getattr(self.client_manager, "sdk_connection", None) is not None:
             self.client_manager.sdk_connection.close()
 
         # Close session if available
-        if hasattr(self.client_manager.session, "session"):
+        if getattr(self.client_manager.session, "session", None) is not None:
             self.client_manager.session.session.close()
 
         # Process collected timing data
@@ -565,13 +560,14 @@ class OpenStackShell(app.App):
             # Check the formatter used in the actual command
             if (
                 hasattr(cmd, 'formatter')
+                and hasattr(cmd, '_formatter_plugins')
                 and cmd.formatter != cmd._formatter_plugins['table'].obj
             ):
                 format = 'csv'
 
             sys.stdout.write('\n')
             targs = tparser.parse_args(['-f', format])
-            tcmd.run(targs)
+            tcmd.run(targs)  # type: ignore
 
 
 def main(argv: ty.Optional[list[str]] = None) -> int:
