@@ -288,19 +288,19 @@ class TestShellCli(utils.TestShell):
 
         # Default
         utils.fake_execute(_shell, "module list")
-        self.assertEqual('', _shell.options.cert)
-        self.assertEqual('', _shell.options.key)
+        self.assertIsNone(_shell.options.cert)
+        self.assertIsNone(_shell.options.key)
         self.assertIsNone(_shell.client_manager.cert)
 
         # --os-cert
         utils.fake_execute(_shell, "--os-cert mycert module list")
         self.assertEqual('mycert', _shell.options.cert)
-        self.assertEqual('', _shell.options.key)
+        self.assertIsNone(_shell.options.key)
         self.assertEqual('mycert', _shell.client_manager.cert)
 
         # --os-key
         utils.fake_execute(_shell, "--os-key mickey module list")
-        self.assertEqual('', _shell.options.cert)
+        self.assertIsNone(_shell.options.cert)
         self.assertEqual('mickey', _shell.options.key)
         self.assertIsNone(_shell.client_manager.cert)
 

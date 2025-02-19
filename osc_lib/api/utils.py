@@ -13,13 +13,18 @@
 
 """API Utilities Library"""
 
+import typing as ty
+
+
+_T = ty.TypeVar('_T', bound=list[ty.Any])
+
 
 def simple_filter(
-    data=None,
-    attr=None,
-    value=None,
-    property_field=None,
-):
+    data: ty.Optional[_T] = None,
+    attr: ty.Optional[str] = None,
+    value: ty.Optional[str] = None,
+    property_field: ty.Optional[str] = None,
+) -> ty.Optional[_T]:
     """Filter a list of dicts
 
     :param list data:

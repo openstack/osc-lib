@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    The ``osc_lib.utils.env`` helper will now consistently return a string
+    or ``None``.

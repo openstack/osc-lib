@@ -13,6 +13,9 @@
 
 """Base API Library"""
 
+import builtins
+import typing as ty
+
 from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session as ksa_session
 import requests
@@ -42,8 +45,12 @@ class BaseAPI:
     HEADER_NAME = "OpenStack-API-Version"
 
     def __init__(
-        self, session=None, service_type=None, endpoint=None, **kwargs
-    ):
+        self,
+        session: ty.Optional[ksa_session.Session] = None,
+        service_type: ty.Optional[str] = None,
+        endpoint: ty.Optional[str] = None,
+        **kwargs: ty.Any,
+    ) -> None:
         """Base object that contains some common API objects and methods
 
         :param keystoneauth1.session.Session session:
@@ -69,7 +76,7 @@ class BaseAPI:
         self.service_type = service_type
         self.endpoint = self._munge_endpoint(endpoint)
 
-    def _munge_endpoint(self, endpoint):
+    def _munge_endpoint(self, endpoint: ty.Optional[str]) -> ty.Optional[str]:
         """Hook to allow subclasses to massage the passed-in endpoint
 
         Hook to massage passed-in endpoints from arbitrary sources,
@@ -90,7 +97,13 @@ class BaseAPI:
         else:
             return endpoint
 
-    def _request(self, method, url, session=None, **kwargs):
+    def _request(
+        self,
+        method: str,
+        url: str,
+        session: ty.Optional[ksa_session.Session] = None,
+        **kwargs: ty.Any,
+    ) -> requests.Response:
         """Perform call into session
 
         All API calls are funneled through this method to provide a common
@@ -136,7 +149,13 @@ class BaseAPI:
 
     # The basic action methods all take a Session and return dict/lists
 
-    def create(self, url, session=None, method=None, **params):
+    def create(
+        self,
+        url: str,
+        session: ty.Optional[ksa_session.Session] = None,
+        method: ty.Optional[str] = None,
+        **params: ty.Any,
+    ) -> ty.Union[requests.Response, ty.Any]:
         """Create a new resource
 
         :param string url:
@@ -156,7 +175,12 @@ class BaseAPI:
         except requests.JSONDecodeError:
             return ret
 
-    def delete(self, url, session=None, **params):
+    def delete(
+        self,
+        url: str,
+        session: ty.Optional[ksa_session.Session] = None,
+        **params: ty.Any,
+    ) -> requests.Response:
         """Delete a resource
 
         :param string url:
@@ -169,13 +193,13 @@ class BaseAPI:
 
     def list(
         self,
-        path,
-        session=None,
-        body=None,
-        detailed=False,
-        headers=None,
-        **params,
-    ):
+        path: str,
+        session: ty.Optional[ksa_session.Session] = None,
+        body: ty.Any = None,
+        detailed: bool = False,
+        headers: ty.Optional[dict[str, str]] = None,
+        **params: ty.Any,
+    ) -> ty.Union[requests.Response, ty.Any]:
         """Return a list of resources
 
         GET ${ENDPOINT}/${PATH}?${PARAMS}
@@ -226,11 +250,11 @@ class BaseAPI:
 
     def find_attr(
         self,
-        path,
-        value=None,
-        attr=None,
-        resource=None,
-    ):
+        path: str,
+        value: ty.Optional[str] = None,
+        attr: ty.Optional[str] = None,
+        resource: ty.Optional[str] = None,
+    ) -> ty.Any:
         """Find a resource via attribute or ID
 
         Most APIs return a list wrapped by a dict with the resource
@@ -260,7 +284,7 @@ class BaseAPI:
         if resource is None:
             resource = path
 
-        def getlist(kw):
+        def getlist(kw: dict[str, ty.Any]) -> ty.Any:
             """Do list call, unwrap resource dict if present"""
             ret = self.list(path, **kw)
             if isinstance(ret, dict) and resource in ret:
@@ -290,7 +314,12 @@ class BaseAPI:
             msg % {'resource': resource, 'attr': attr, 'value': value}
         )
 
-    def find_bulk(self, path, headers=None, **kwargs):
+    def find_bulk(
+        self,
+        path: str,
+        headers: ty.Optional[dict[str, str]] = None,
+        **kwargs: ty.Any,
+    ) -> builtins.list[ty.Any]:
         """Bulk load and filter locally
 
         :param string path:
@@ -318,7 +347,7 @@ class BaseAPI:
 
         return ret
 
-    def find_one(self, path, **kwargs):
+    def find_one(self, path: str, **kwargs: ty.Any) -> ty.Any:
         """Find a resource by name or ID
 
         :param string path:
@@ -339,11 +368,11 @@ class BaseAPI:
 
     def find(
         self,
-        path,
-        value=None,
-        attr=None,
-        headers=None,
-    ):
+        path: str,
+        value: ty.Optional[str] = None,
+        attr: ty.Optional[str] = None,
+        headers: ty.Optional[dict[str, str]] = None,
+    ) -> ty.Any:
         """Find a single resource by name or ID
 
         :param string path:
@@ -356,7 +385,7 @@ class BaseAPI:
             Headers dictionary to pass to requests
         """
 
-        def raise_not_found():
+        def raise_not_found() -> ty.NoReturn:
             msg = _("%s not found") % value
             raise exceptions.NotFound(404, msg)
 

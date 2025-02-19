@@ -16,12 +16,16 @@
 import argparse
 import typing as ty
 
+from keystoneauth1.identity import base as identity_base
 from keystoneauth1.identity.v3 import k2k
 from keystoneauth1.loading import base
 
 from osc_lib import exceptions as exc
 from osc_lib.i18n import _
 from osc_lib import utils
+
+if ty.TYPE_CHECKING:
+    from openstack import connection
 
 
 # Initialize the list of Authentication plugins early in order
@@ -38,7 +42,7 @@ class _OptionDict(ty.TypedDict):
 OPTIONS_LIST: dict[str, _OptionDict] = {}
 
 
-def get_plugin_list():
+def get_plugin_list() -> frozenset[str]:
     """Gather plugin list and cache it"""
 
     global PLUGIN_LIST
@@ -48,7 +52,7 @@ def get_plugin_list():
     return PLUGIN_LIST
 
 
-def get_options_list():
+def get_options_list() -> dict[str, _OptionDict]:
     """Gather plugin options so the help action has them available"""
 
     global OPTIONS_LIST
@@ -72,7 +76,10 @@ def get_options_list():
     return OPTIONS_LIST
 
 
-def check_valid_authorization_options(options, auth_plugin_name):
+def check_valid_authorization_options(
+    options: 'connection.Connection',
+    auth_plugin_name: str,
+) -> None:
     """Validate authorization options, and provide helpful error messages."""
     if (
         options.auth.get('project_id')
@@ -93,7 +100,10 @@ def check_valid_authorization_options(options, auth_plugin_name):
         )
 
 
-def check_valid_authentication_options(options, auth_plugin_name):
+def check_valid_authentication_options(
+    options: 'connection.Connection',
+    auth_plugin_name: str,
+) -> None:
     """Validate authentication options, and provide helpful error messages."""
     # Get all the options defined within the plugin.
     plugin_opts = {
@@ -144,7 +154,9 @@ def check_valid_authentication_options(options, auth_plugin_name):
         )
 
 
-def build_auth_plugins_option_parser(parser):
+def build_auth_plugins_option_parser(
+    parser: argparse.ArgumentParser,
+) -> argparse.ArgumentParser:
     """Auth plugins options builder
 
     Builds dynamically the list of options expected by each available
@@ -209,13 +221,13 @@ def build_auth_plugins_option_parser(parser):
 
 
 def get_keystone2keystone_auth(
-    local_auth,
-    service_provider,
-    project_id=None,
-    project_name=None,
-    project_domain_id=None,
-    project_domain_name=None,
-):
+    local_auth: identity_base.BaseIdentityPlugin,
+    service_provider: str,
+    project_id: ty.Optional[str] = None,
+    project_name: ty.Optional[str] = None,
+    project_domain_id: ty.Optional[str] = None,
+    project_domain_name: ty.Optional[str] = None,
+) -> k2k.Keystone2Keystone:
     """Return Keystone 2 Keystone authentication for service provider.
 
     :param local_auth: authentication to use with the local Keystone

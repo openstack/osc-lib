@@ -21,6 +21,7 @@ import getpass
 import logging
 import os
 import time
+import typing as ty
 import warnings
 
 from cliff import columns as cliff_columns
@@ -138,7 +139,7 @@ def calculate_header_and_attrs(column_headers, attrs, parsed_args):
         return column_headers, attrs
 
 
-def env(*vars, **kwargs):
+def env(*vars: str, **kwargs: ty.Any) -> ty.Optional[str]:
     """Search for the first defined of possibly many env vars
 
     Returns the first environment variable defined in vars, or
@@ -148,7 +149,11 @@ def env(*vars, **kwargs):
         value = os.environ.get(v, None)
         if value:
             return value
-    return kwargs.get('default', '')
+
+    if 'default' in kwargs and kwargs['default'] is not None:
+        return str(kwargs['default'])
+
+    return None
 
 
 def find_min_match(items, sort_attr, **kwargs):
