@@ -123,10 +123,7 @@ def add_tag_option_to_parser_for_create(
         dest='tags',
         metavar='<tag>',
         help=enhance_help(
-            _(
-                "Tag to be added to the %s "
-                "(repeat option to set multiple tags)"
-            )
+            _("Tag to be added to the %s (repeat option to set multiple tags)")
             % resource_name
         ),
     )
@@ -156,10 +153,7 @@ def add_tag_option_to_parser_for_set(
         dest='tags',
         metavar='<tag>',
         help=enhance_help(
-            _(
-                "Tag to be added to the %s "
-                "(repeat option to set multiple tags)"
-            )
+            _("Tag to be added to the %s (repeat option to set multiple tags)")
             % resource_name
         ),
     )

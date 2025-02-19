@@ -82,7 +82,12 @@ def get_columns(item, attr_map=None):
 
         .. code-block:: python
 
-           {'id': 'myid', 'name': 'myname', 'foo': 'bar', 'tenant_id': 'mytenan'}
+           {
+               'id': 'myid',
+               'name': 'myname',
+               'foo': 'bar',
+               'tenant_id': 'mytenan',
+           }
 
     :param attr_map: a list of mapping from attribute to display name.
         The same format is used as for get_column_definitions attr_map.

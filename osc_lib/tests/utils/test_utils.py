@@ -711,7 +711,7 @@ class TestFindResource(test_utils.TestCase):
             self.name,
         )
         self.assertEqual(
-            "More than one resource exists " "with the name or ID 'legos'.",
+            "More than one resource exists with the name or ID 'legos'.",
             str(result),
         )
         self.manager.get.assert_called_with(self.name)

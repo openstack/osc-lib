@@ -167,7 +167,7 @@ class OpenStackShell(app.App):
             # that (PROFILE = 60 for instance), but not sure we need it here.
             self.log.warning(f"Trace ID: {trace_id}")
             self.log.warning(
-                "Short trace ID " f"for OpenTracing-based drivers: {short_id}"
+                f"Short trace ID for OpenTracing-based drivers: {short_id}"
             )
             self.log.warning(
                 "Display trace data with command:\n"
@@ -248,9 +248,7 @@ class OpenStackShell(app.App):
             metavar='<auth-domain>',
             dest='default_domain',
             default=utils.env('OS_DEFAULT_DOMAIN', default=DEFAULT_DOMAIN),
-            help=_(
-                'Default domain ID, default=%s. ' '(Env: OS_DEFAULT_DOMAIN)'
-            )
+            help=_('Default domain ID, default=%s. (Env: OS_DEFAULT_DOMAIN)')
             % DEFAULT_DOMAIN,
         )
         parser.add_argument(
