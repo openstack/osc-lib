@@ -1,0 +1,7 @@
+---
+deprecations:
+  - |
+    The ``osc_lib.utils.get_client_class``, ``osc_lib.utils.wait_for_delete``,
+    and ``osc_lib.utils.wait_for_status`` helpers are now deprecated. They do
+    not support for openstacksdk-based clients and resource. There is no
+    replacement.
