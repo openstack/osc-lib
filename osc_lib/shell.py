@@ -28,6 +28,7 @@ from cliff import command
 from cliff import commandmanager
 from cliff import complete
 from cliff import help
+from cliff import interactive
 from oslo_utils import importutils
 from oslo_utils import strutils
 
@@ -47,7 +48,7 @@ DEFAULT_DOMAIN = 'default'
 DEFAULT_INTERFACE = 'public'
 
 
-def prompt_for_password(prompt=None):
+def prompt_for_password(prompt: ty.Optional[str] = None) -> str:
     """Prompt user for a password
 
     Prompt for a password if stdin is a tty.
@@ -83,15 +84,17 @@ class OpenStackShell(app.App):
 
     def __init__(
         self,
-        description=None,
-        version=None,
-        command_manager=None,
-        stdin=None,
-        stdout=None,
-        stderr=None,
-        interactive_app_factory=None,
-        deferred_help=False,
-    ):
+        description: ty.Optional[str] = None,
+        version: ty.Optional[str] = None,
+        command_manager: ty.Optional[commandmanager.CommandManager] = None,
+        stdin: ty.Optional[ty.TextIO] = None,
+        stdout: ty.Optional[ty.TextIO] = None,
+        stderr: ty.Optional[ty.TextIO] = None,
+        interactive_app_factory: ty.Optional[
+            type['interactive.InteractiveApp']
+        ] = None,
+        deferred_help: bool = False,
+    ) -> None:
         # Patch command.Command to add a default auth_required = True
         setattr(command.Command, 'auth_required', True)
 
@@ -123,16 +126,16 @@ class OpenStackShell(app.App):
         self.api_version = None
 
         self.client_manager = None
-        self.command_options = None
+        self.command_options: list[str] = []
 
         self.do_profile = False
 
-    def configure_logging(self):
+    def configure_logging(self) -> None:
         """Configure logging for the app."""
         self.log_configurator = logs.LogConfigurator(self.options)
         self.dump_stack_trace = self.log_configurator.dump_trace
 
-    def run(self, argv):
+    def run(self, argv: list[str]) -> int:
         ret_val = 1
         self.command_options = argv
         try:
@@ -151,12 +154,12 @@ class OpenStackShell(app.App):
         finally:
             self.log.debug("END return value: %s", ret_val)
 
-    def init_profile(self):
+    def init_profile(self) -> None:
         self.do_profile = osprofiler_profiler and self.options.profile
         if self.do_profile:
             osprofiler_profiler.init(self.options.profile)
 
-    def close_profile(self):
+    def close_profile(self) -> None:
         if self.do_profile:
             profiler = osprofiler_profiler.get()
             trace_id = profiler.get_base_id()
@@ -176,7 +179,7 @@ class OpenStackShell(app.App):
                 f"osprofiler trace show --html {trace_id} "
             )
 
-    def run_subcommand(self, argv):
+    def run_subcommand(self, argv: list[str]) -> int:
         self.init_profile()
         try:
             ret_value = super().run_subcommand(argv)
@@ -184,7 +187,7 @@ class OpenStackShell(app.App):
             self.close_profile()
         return ret_value
 
-    def interact(self):
+    def interact(self) -> None:
         self.init_profile()
         try:
             ret_value = super().interact()
@@ -371,7 +374,7 @@ class OpenStackShell(app.App):
 
     """
 
-    def _final_defaults(self):
+    def _final_defaults(self) -> None:
         # Set the default plugin to None
         # NOTE(dtroyer): This is here to set up for setting it to a default
         #                in the calling CLI
@@ -398,21 +401,21 @@ class OpenStackShell(app.App):
         # Save default domain
         self.default_domain = self.options.default_domain
 
-    def _load_plugins(self):
+    def _load_plugins(self) -> None:
         """Load plugins via stevedore
 
         osc-lib has no opinion on what plugins should be loaded
         """
         pass
 
-    def _load_commands(self):
+    def _load_commands(self) -> None:
         """Load commands via cliff/stevedore
 
         osc-lib has no opinion on what commands should be loaded
         """
         pass
 
-    def initialize_app(self, argv):
+    def initialize_app(self, argv: list[str]) -> None:
         """Global app init bits:
 
         * set up API versions
@@ -477,20 +480,20 @@ class OpenStackShell(app.App):
         # Handle deferred help and exit
         self.print_help_if_requested()
 
-        self.client_manager = clientmanager.ClientManager(
+        self.client_manager = clientmanager.ClientManager(  # type: ignore
             cli_options=self.cloud,
             api_version=self.api_version,
             pw_func=prompt_for_password,
         )
 
-    def prepare_to_run_command(self, cmd):
+    def prepare_to_run_command(self, cmd: 'command.Command') -> None:
         """Set up auth and API versions"""
         self.log.debug(
             'command: %s -> %s.%s (auth=%s)',
             getattr(cmd, 'cmd_name', '<none>'),
             cmd.__class__.__module__,
             cmd.__class__.__name__,
-            cmd.auth_required,
+            getattr(cmd, 'auth_required', None),
         )
 
         if not self.client_manager:
@@ -527,7 +530,12 @@ class OpenStackShell(app.App):
             )
         return
 
-    def clean_up(self, cmd, result, err):
+    def clean_up(
+        self,
+        cmd: 'command.Command',
+        result: int,
+        err: ty.Optional[BaseException],
+    ) -> None:
         self.log.debug('clean_up %s: %s', cmd.__class__.__name__, err or '')
 
         if not self.client_manager:
@@ -566,7 +574,7 @@ class OpenStackShell(app.App):
             tcmd.run(targs)
 
 
-def main(argv=None):
+def main(argv: ty.Optional[list[str]] = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
     return OpenStackShell().run(argv)
