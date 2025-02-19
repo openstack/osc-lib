@@ -15,6 +15,8 @@
 
 """Exception definitions."""
 
+import typing as ty
+
 
 class CommandError(Exception):
     pass
@@ -62,7 +64,12 @@ class ClientException(Exception):
     http_status: int
     message: str
 
-    def __init__(self, code, message=None, details=None):
+    def __init__(
+        self,
+        code: ty.Union[int, str],
+        message: ty.Optional[str] = None,
+        details: ty.Optional[str] = None,
+    ):
         if not isinstance(code, int) and message is None:
             message = code
             code = self.http_status
@@ -70,7 +77,7 @@ class ClientException(Exception):
         self.message = message or self.__class__.message
         self.details = details
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.message} (HTTP {self.code})"
 
 
