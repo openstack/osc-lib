@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    Support for providing callables in the ``formatters`` argument to the
+    ``osc_lib.utils.get_dict_properties`` and
+    ``osc_lib.utils.get_item_properties`` helpers, first deprecated in 1.8.0
+    (December 2017) has now been removed. You must provide subclasses of
+    ``cliff.columns.FormattableColumn`` instead.

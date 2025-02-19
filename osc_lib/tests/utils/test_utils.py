@@ -460,11 +460,6 @@ class TestUtils(test_utils.TestCase):
         self.assertEqual('fake-id', res_id)
         return res_attr
 
-    def test_get_item_properties_with_format_func(self):
-        formatters = {'attr': utils.format_list}
-        res_attr = self._test_get_item_properties_with_formatter(formatters)
-        self.assertEqual(utils.format_list(['a', 'b']), res_attr)
-
     def test_get_item_properties_with_formattable_column(self):
         formatters = {'attr': format_columns.ListColumn}
         res_attr = self._test_get_item_properties_with_formatter(formatters)
@@ -478,11 +473,6 @@ class TestUtils(test_utils.TestCase):
         )
         self.assertEqual('fake-id', res_id)
         return res_attr
-
-    def test_get_dict_properties_with_format_func(self):
-        formatters = {'attr': utils.format_list}
-        res_attr = self._test_get_dict_properties_with_formatter(formatters)
-        self.assertEqual(utils.format_list(['a', 'b']), res_attr)
 
     def test_get_dict_properties_with_formattable_column(self):
         formatters = {'attr': format_columns.ListColumn}
