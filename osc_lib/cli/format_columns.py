@@ -15,12 +15,14 @@
 
 """Formattable column for specify content type"""
 
+import typing as ty
+
 from cliff import columns
 
 from osc_lib import utils
 
 
-class DictColumn(columns.FormattableColumn):
+class DictColumn(columns.FormattableColumn[dict[str, ty.Any]]):
     """Format column for dict content"""
 
     def human_readable(self):
@@ -30,7 +32,7 @@ class DictColumn(columns.FormattableColumn):
         return dict(self._value or {})
 
 
-class DictListColumn(columns.FormattableColumn):
+class DictListColumn(columns.FormattableColumn[dict[str, list[ty.Any]]]):
     """Format column for dict, key is string, value is list"""
 
     def human_readable(self):
@@ -40,7 +42,7 @@ class DictListColumn(columns.FormattableColumn):
         return dict(self._value or {})
 
 
-class ListColumn(columns.FormattableColumn):
+class ListColumn(columns.FormattableColumn[list[ty.Any]]):
     """Format column for list content"""
 
     def human_readable(self):
@@ -50,7 +52,7 @@ class ListColumn(columns.FormattableColumn):
         return [x for x in self._value or []]
 
 
-class ListDictColumn(columns.FormattableColumn):
+class ListDictColumn(columns.FormattableColumn[list[dict[str, ty.Any]]]):
     """Format column for list of dict content"""
 
     def human_readable(self):
@@ -60,7 +62,7 @@ class ListDictColumn(columns.FormattableColumn):
         return [dict(x) for x in self._value or []]
 
 
-class SizeColumn(columns.FormattableColumn):
+class SizeColumn(columns.FormattableColumn[ty.Union[int, float]]):
     """Format column for file size content"""
 
     def human_readable(self):

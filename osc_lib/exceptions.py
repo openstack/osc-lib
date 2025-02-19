@@ -59,6 +59,9 @@ class InvalidValue(Exception):
 class ClientException(Exception):
     """The base exception class for all exceptions this library raises."""
 
+    http_status: int
+    message: str
+
     def __init__(self, code, message=None, details=None):
         if not isinstance(code, int) and message is None:
             message = code

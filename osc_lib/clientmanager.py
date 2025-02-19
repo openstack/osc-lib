@@ -25,10 +25,7 @@ from oslo_utils import strutils
 from osc_lib.api import auth
 from osc_lib import exceptions
 
-
 LOG = logging.getLogger(__name__)
-
-PLUGIN_MODULES = []
 
 
 class ClientCache:
@@ -178,6 +175,9 @@ class ClientManager:
         self._auth_setup_completed = True
 
     def validate_scope(self):
+        if not self._auth_ref:
+            raise Exception('no authentication information')
+
         if self._auth_ref.project_id is not None:
             # We already have a project scope.
             return

@@ -20,7 +20,9 @@ import getpass
 import logging
 import sys
 import traceback
+import typing as ty
 
+from cliff import _argparse
 from cliff import app
 from cliff import command
 from cliff import commandmanager
@@ -77,7 +79,7 @@ class OpenStackShell(app.App):
     CONSOLE_MESSAGE_FORMAT = '%(levelname)s: %(name)s %(message)s'
 
     log = logging.getLogger(__name__)
-    timing_data = []
+    timing_data: list[ty.Any] = []
 
     def __init__(
         self,
@@ -91,11 +93,11 @@ class OpenStackShell(app.App):
         deferred_help=False,
     ):
         # Patch command.Command to add a default auth_required = True
-        command.Command.auth_required = True
+        setattr(command.Command, 'auth_required', True)
 
         # Some commands do not need authentication
-        help.HelpCommand.auth_required = False
-        complete.CompleteCommand.auth_required = False
+        setattr(help.HelpCommand, 'auth_required', False)
+        setattr(complete.CompleteCommand, 'auth_required', False)
 
         # Slight change to the meaning of --debug
         self.DEFAULT_DEBUG_VALUE = None
@@ -190,8 +192,17 @@ class OpenStackShell(app.App):
             self.close_profile()
         return ret_value
 
-    def build_option_parser(self, description, version):
-        parser = super().build_option_parser(description, version)
+    def build_option_parser(
+        self,
+        description: ty.Optional[str],
+        version: ty.Optional[str],
+        argparse_kwargs: ty.Optional[dict[str, ty.Any]] = None,
+    ) -> _argparse.ArgumentParser:
+        parser = super().build_option_parser(
+            description,
+            version,
+            argparse_kwargs,
+        )
 
         # service token auth argument
         parser.add_argument(
@@ -345,7 +356,6 @@ class OpenStackShell(app.App):
             )
 
         return parser
-        # return clientmanager.build_plugin_option_parser(parser)
 
     """
     Break up initialize_app() so that overriding it in a subclass does not
@@ -414,7 +424,9 @@ class OpenStackShell(app.App):
         super().initialize_app(argv)
         self.log.info(
             "START with options: %s",
-            strutils.mask_password(" ".join(self.command_options)),
+            strutils.mask_password(" ".join(self.command_options))
+            if self.command_options
+            else "",
         )
         self.log.debug("options: %s", strutils.mask_password(self.options))
 
@@ -481,6 +493,9 @@ class OpenStackShell(app.App):
             cmd.auth_required,
         )
 
+        if not self.client_manager:
+            raise RuntimeWarning("can't get here")
+
         # NOTE(dtroyer): If auth is not required for a command, skip
         #                get_one()'s validation to avoid loading plugins
         validate = cmd.auth_required
@@ -514,6 +529,9 @@ class OpenStackShell(app.App):
 
     def clean_up(self, cmd, result, err):
         self.log.debug('clean_up %s: %s', cmd.__class__.__name__, err or '')
+
+        if not self.client_manager:
+            raise RuntimeWarning("can't get here")
 
         # Close SDK connection if available to have proper cleanup there
         if hasattr(self.client_manager, "sdk_connection"):

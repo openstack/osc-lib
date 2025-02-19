@@ -33,6 +33,8 @@ class CommandMeta(abc.ABCMeta):
 
 
 class Command(command.Command, metaclass=CommandMeta):
+    log: logging.Logger
+
     def run(self, parsed_args):
         self.log.debug('run(%s)', parsed_args)
         return super().run(parsed_args)

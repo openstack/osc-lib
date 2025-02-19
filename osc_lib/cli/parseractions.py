@@ -164,7 +164,7 @@ class MultiKeyValueAction(argparse.Action):
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
 
-        params = {}
+        params: dict[str, str] = {}
         for kv in values.split(','):
             # Add value if an assignment else raise ArgumentError
             if '=' in kv:
@@ -174,7 +174,7 @@ class MultiKeyValueAction(argparse.Action):
                     msg = _("Each property key must be specified: %s")
                     raise argparse.ArgumentError(self, msg % str(kv))
                 else:
-                    params.update([kv_list])
+                    params.update(dict([kv_list]))
             else:
                 msg = _(
                     "Expected comma separated 'key=value' pairs, but got: %s"
@@ -206,7 +206,7 @@ class MultiKeyValueCommaAction(MultiKeyValueAction):
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
 
-        params = {}
+        params: dict[str, str] = {}
         key = ''
         for kv in values.split(','):
             # Add value if an assignment else raise ArgumentError
@@ -217,7 +217,7 @@ class MultiKeyValueCommaAction(MultiKeyValueAction):
                     msg = _("A key must be specified before '=': %s")
                     raise argparse.ArgumentError(self, msg % str(kv))
                 else:
-                    params.update([kv_list])
+                    params.update(dict([kv_list]))
                 key = kv_list[0]
             else:
                 # If the ',' split does not have key=value pair, then it

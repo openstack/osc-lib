@@ -14,6 +14,7 @@
 """Authentication Library"""
 
 import argparse
+import typing as ty
 
 from keystoneauth1.identity.v3 import k2k
 from keystoneauth1.loading import base
@@ -27,8 +28,14 @@ from osc_lib import utils
 # to get the command-line options
 PLUGIN_LIST = None
 
+
+class _OptionDict(ty.TypedDict):
+    env: str
+    help: str
+
+
 # List of plugin command line options
-OPTIONS_LIST = {}
+OPTIONS_LIST: dict[str, _OptionDict] = {}
 
 
 def get_plugin_list():
@@ -87,15 +94,11 @@ def check_valid_authorization_options(options, auth_plugin_name):
 
 
 def check_valid_authentication_options(options, auth_plugin_name):
-    """Validate authentication options, and provide helpful error messages
-
-    :param required_scope: indicate whether a scoped token is required
-
-    """
-
+    """Validate authentication options, and provide helpful error messages."""
     # Get all the options defined within the plugin.
-    plugin_opts = base.get_plugin_options(auth_plugin_name)
-    plugin_opts = {opt.dest: opt for opt in plugin_opts}
+    plugin_opts = {
+        opt.dest: opt for opt in base.get_plugin_options(auth_plugin_name)
+    }
 
     # NOTE(aloga): this is an horrible hack. We need a way to specify the
     # required options in the plugins. Using the "required" argument for
