@@ -1,0 +1,4 @@
+---
+deprecations:
+  - |
+    The ``osc_lib.clientmanager.ClientCache`` class is deprecated for removal.

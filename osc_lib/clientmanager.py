@@ -18,6 +18,7 @@
 import copy
 import logging
 import typing as ty
+import warnings
 
 from keystoneauth1 import access as ksa_access
 from keystoneauth1 import session as ksa_session
@@ -36,6 +37,12 @@ class ClientCache:
     """Descriptor class for caching created client handles."""
 
     def __init__(self, factory: ty.Any) -> None:
+        warnings.warn(
+            "The ClientCache class is deprecated for removal as it has no "
+            "users.",
+            category=DeprecationWarning,
+        )
+
         self.factory = factory
         self._handle = None
 
