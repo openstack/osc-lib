@@ -9,21 +9,32 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import argparse
+import collections.abc
+import typing as ty
 
 from osc_lib.i18n import _
 
 
 class _CommaListAction(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: ty.Union[str, ty.Sequence[ty.Any], None],
+        option_string: ty.Optional[str] = None,
+    ) -> None:
+        if not isinstance(values, str):
+            raise TypeError('expected str')
         setattr(namespace, self.dest, values.split(','))
 
 
 def add_tag_filtering_option_to_parser(
-    parser, resource_name, enhance_help=lambda _h: _h
-):
+    parser: argparse.ArgumentParser,
+    resource_name: str,
+    enhance_help: collections.abc.Callable[[str], str] = lambda _h: _h,
+) -> None:
     """Add tag filtering options to a parser.
 
     :param parser: argparse.Argument parser object.
@@ -84,7 +95,10 @@ def add_tag_filtering_option_to_parser(
     )
 
 
-def get_tag_filtering_args(parsed_args, args):
+def get_tag_filtering_args(
+    parsed_args: argparse.Namespace,
+    args: dict[str, ty.Any],
+) -> None:
     """Adds the tag arguments to an args list.
 
     Intended to be used to append the tags to an argument list that will be
@@ -104,8 +118,10 @@ def get_tag_filtering_args(parsed_args, args):
 
 
 def add_tag_option_to_parser_for_create(
-    parser, resource_name, enhance_help=lambda _h: _h
-):
+    parser: argparse.ArgumentParser,
+    resource_name: str,
+    enhance_help: collections.abc.Callable[[str], str] = lambda _h: _h,
+) -> None:
     """Add tag options to a parser for create commands.
 
     :param parser: argparse.Argument parser object.
@@ -135,8 +151,10 @@ def add_tag_option_to_parser_for_create(
 
 
 def add_tag_option_to_parser_for_set(
-    parser, resource_name, enhance_help=lambda _h: _h
-):
+    parser: argparse.ArgumentParser,
+    resource_name: str,
+    enhance_help: collections.abc.Callable[[str], str] = lambda _h: _h,
+) -> None:
     """Add tag options to a parser for set commands.
 
     :param parser: argparse.Argument parser object.
@@ -171,8 +189,10 @@ def add_tag_option_to_parser_for_set(
 
 
 def add_tag_option_to_parser_for_unset(
-    parser, resource_name, enhance_help=lambda _h: _h
-):
+    parser: argparse.ArgumentParser,
+    resource_name: str,
+    enhance_help: collections.abc.Callable[[str], str] = lambda _h: _h,
+) -> None:
     """Add tag options to a parser for set commands.
 
     :param parser: argparse.Argument parser object.
@@ -206,7 +226,9 @@ def add_tag_option_to_parser_for_unset(
     )
 
 
-def update_tags_for_set(client, obj, parsed_args):
+def update_tags_for_set(
+    client: ty.Any, obj: ty.Any, parsed_args: argparse.Namespace
+) -> None:
     """Set the tags on an object.
 
     :param client: The service client to use setting the tags.
@@ -223,7 +245,9 @@ def update_tags_for_set(client, obj, parsed_args):
         client.set_tags(obj, sorted(list(tags)))
 
 
-def update_tags_for_unset(client, obj, parsed_args):
+def update_tags_for_unset(
+    client: ty.Any, obj: ty.Any, parsed_args: argparse.Namespace
+) -> None:
     """Unset the tags on an object.
 
     :param client: The service client to use unsetting the tags.

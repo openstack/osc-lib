@@ -11,13 +11,16 @@
 #   under the License.
 
 import operator
+import typing as ty
 
 LIST_BOTH = 'both'
 LIST_SHORT_ONLY = 'short_only'
 LIST_LONG_ONLY = 'long_only'
 
 
-def get_column_definitions(attr_map, long_listing):
+def get_column_definitions(
+    attr_map: list[tuple[str, str, str]], long_listing: bool
+) -> tuple[list[str], list[str]]:
     """Return table headers and column names for a listing table.
 
     An attribute map (attr_map) is a list of table entry definitions
@@ -73,7 +76,10 @@ def get_column_definitions(attr_map, long_listing):
     return headers, columns
 
 
-def get_columns(item, attr_map=None):
+def get_columns(
+    item: dict[str, ty.Any],
+    attr_map: ty.Optional[list[tuple[str, str, str]]] = None,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Return pair of resource attributes and corresponding display names.
 
     :param item: a dictionary which represents a resource.
@@ -111,7 +117,7 @@ def get_columns(item, attr_map=None):
         in the alphabetical order.
         Attributes not found in a given attr_map are kept as-is.
     """
-    attr_map = attr_map or tuple([])
+    attr_map = attr_map or []
     _attr_map_dict = dict((col, hdr) for col, hdr, listing_mode in attr_map)
 
     columns = [

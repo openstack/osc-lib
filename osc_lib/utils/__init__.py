@@ -15,6 +15,8 @@
 
 """Common client utilities"""
 
+import argparse
+import collections.abc
 import copy
 import functools
 import getpass
@@ -25,16 +27,22 @@ import typing as ty
 import warnings
 
 from cliff import columns as cliff_columns
+from openstack import resource
 from oslo_utils import importutils
 
 from osc_lib import exceptions
 from osc_lib.i18n import _
 
-
 LOG = logging.getLogger(__name__)
 
+_T = ty.TypeVar('_T')
 
-def backward_compat_col_lister(column_headers, columns, column_map):
+
+def backward_compat_col_lister(
+    column_headers: list[str],
+    columns: list[str],
+    column_map: dict[str, str],
+) -> list[str]:
     """Convert the column headers to keep column backward compatibility.
 
     Replace the new column name of column headers by old name, so that
@@ -66,7 +74,11 @@ def backward_compat_col_lister(column_headers, columns, column_map):
     return column_headers
 
 
-def backward_compat_col_showone(show_object, columns, column_map):
+def backward_compat_col_showone(
+    show_object: collections.abc.MutableMapping[str, _T],
+    columns: list[str],
+    column_map: dict[str, str],
+) -> collections.abc.MutableMapping[str, _T]:
     """Convert the output object to keep column backward compatibility.
 
     Replace the new column name of output object by old name, so that
@@ -96,7 +108,7 @@ def backward_compat_col_showone(show_object, columns, column_map):
     return show_object
 
 
-def build_kwargs_dict(arg_name, value):
+def build_kwargs_dict(arg_name: str, value: _T) -> dict[str, _T]:
     """Return a dictionary containing `arg_name` if `value` is set."""
     kwargs = {}
     if value:
@@ -104,7 +116,11 @@ def build_kwargs_dict(arg_name, value):
     return kwargs
 
 
-def calculate_header_and_attrs(column_headers, attrs, parsed_args):
+def calculate_header_and_attrs(
+    column_headers: collections.abc.Sequence[str],
+    attrs: collections.abc.Sequence[str],
+    parsed_args: argparse.Namespace,
+) -> tuple[collections.abc.Sequence[str], collections.abc.Sequence[str]]:
     """Calculate headers and attribute names based on parsed_args.column.
 
     When --column (-c) option is specified, this function calculates
@@ -156,7 +172,11 @@ def env(*vars: str, **kwargs: ty.Any) -> ty.Optional[str]:
     return None
 
 
-def find_min_match(items, sort_attr, **kwargs):
+def find_min_match(
+    items: collections.abc.Sequence[_T],
+    sort_attr: str,
+    **kwargs: ty.Any,
+) -> collections.abc.Sequence[_T]:
     """Find all resources meeting the given minimum constraints
 
     :param items: A List of objects to consider
@@ -165,7 +185,7 @@ def find_min_match(items, sort_attr, **kwargs):
     :rtype: A list of resources osrted by sort_attr that meet the minimums
     """
 
-    def minimum_pieces_of_flair(item):
+    def minimum_pieces_of_flair(item: _T) -> bool:
         """Find lowest value greater than the minumum"""
 
         result = True
@@ -174,10 +194,16 @@ def find_min_match(items, sort_attr, **kwargs):
             result = result and kwargs[k] <= get_field(item, k)
         return result
 
-    return sort_items(filter(minimum_pieces_of_flair, items), sort_attr)
+    return sort_items(list(filter(minimum_pieces_of_flair, items)), sort_attr)
 
 
-def find_resource(manager, name_or_id, **kwargs):
+# TODO(stephenfin): We should return a proper type, but how to do so without
+# using generics?
+def find_resource(
+    manager: ty.Any,
+    name_or_id: str,
+    **kwargs: ty.Any,
+) -> ty.Any:
     """Helper for the _find_* methods.
 
     :param manager: A client manager class
@@ -284,19 +310,16 @@ def find_resource(manager, name_or_id, **kwargs):
     # Case 5: For client with no find function, list all resources and hope
     # to find a matching name or ID.
     count = 0
-    for resource in manager.list():
-        if (
-            resource.get('id') == name_or_id
-            or resource.get('name') == name_or_id
-        ):
+    for res in manager.list():
+        if res.get('id') == name_or_id or res.get('name') == name_or_id:
             count += 1
-            _resource = resource
+            _res = res
     if count == 0:
         # we found no match, report back this error:
         msg = _("Could not find resource %s")
         raise exceptions.CommandError(msg % name_or_id)
     elif count == 1:
-        return _resource
+        return _res
     else:
         # we found multiple matches, report back this error
         msg = _("More than one resource exists with the name or ID '%s'.")
@@ -418,7 +441,12 @@ def format_size(size: ty.Union[int, float, None]) -> str:
     return f'{stripped}{suffix[index]}'
 
 
-def get_client_class(api_name, version, version_map):
+# TODO(stephenfin): Deprecate this? It's not needed with SDK
+def get_client_class(
+    api_name: str,
+    version: ty.Union[str, int, float],
+    version_map: dict[str, type[_T]],
+) -> ty.Any:
     """Returns the client class for the requested API version
 
     :param api_name: the name of the API, e.g. 'compute', 'image', etc
@@ -448,7 +476,13 @@ def get_client_class(api_name, version, version_map):
     return importutils.import_class(client_path)
 
 
-def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
+# TODO(stephenfin): Type the formatters option and return value
+def get_dict_properties(
+    item: dict[str, _T],
+    fields: collections.abc.Sequence[str],
+    mixed_case_fields: ty.Optional[collections.abc.Sequence[str]] = None,
+    formatters: ty.Any = None,
+) -> tuple[ty.Any, ...]:
     """Return a tuple containing the item properties.
 
     :param item: a single dict resource
@@ -469,7 +503,7 @@ def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
             field_name = field.replace(' ', '_')
         else:
             field_name = field.lower().replace(' ', '_')
-        data = item[field_name] if field_name in item else ''
+        data: ty.Any = item[field_name] if field_name in item else ''
         if field in formatters:
             formatter = formatters[field]
             # columns must be either a subclass of FormattableColumn
@@ -502,7 +536,7 @@ def get_dict_properties(item, fields, mixed_case_fields=None, formatters=None):
     return tuple(row)
 
 
-def get_effective_log_level():
+def get_effective_log_level() -> int:
     """Returns the lowest logging level considered by logging handlers
 
     Retrieve and return the smallest log level set among the root
@@ -515,7 +549,7 @@ def get_effective_log_level():
     return min_log_lvl
 
 
-def get_field(item, field):
+def get_field(item: _T, field: str) -> ty.Any:
     try:
         if isinstance(item, dict):
             return item[field]
@@ -526,7 +560,13 @@ def get_field(item, field):
         raise exceptions.CommandError(msg % field)
 
 
-def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
+# TODO(stephenfin): Type the formatters option and return value
+def get_item_properties(
+    item: dict[str, _T],
+    fields: collections.abc.Sequence[str],
+    mixed_case_fields: ty.Optional[collections.abc.Sequence[str]] = None,
+    formatters: ty.Any = None,
+) -> tuple[ty.Any, ...]:
     """Return a tuple containing the item properties.
 
     :param item: a single item resource (e.g. Server, Project, etc)
@@ -571,7 +611,11 @@ def get_item_properties(item, fields, mixed_case_fields=None, formatters=None):
     return tuple(row)
 
 
-def get_password(stdin, prompt=None, confirm=True):
+def get_password(
+    stdin: ty.TextIO,
+    prompt: ty.Optional[str] = None,
+    confirm: bool = True,
+) -> str:
     message = prompt or "User Password:"
     if hasattr(stdin, 'isatty') and stdin.isatty():
         try:
@@ -591,19 +635,18 @@ def get_password(stdin, prompt=None, confirm=True):
     raise exceptions.CommandError(msg)
 
 
-def is_ascii(string):
+def is_ascii(string: ty.Union[str, bytes]) -> bool:
     try:
-        (
+        if isinstance(string, bytes):
             string.decode('ascii')
-            if isinstance(string, bytes)
-            else string.encode('ascii')
-        )
+        else:
+            string.encode('ascii')
         return True
     except (UnicodeEncodeError, UnicodeDecodeError):
         return False
 
 
-def read_blob_file_contents(blob_file):
+def read_blob_file_contents(blob_file: str) -> str:
     try:
         with open(blob_file) as file:
             blob = file.read().strip()
@@ -613,7 +656,11 @@ def read_blob_file_contents(blob_file):
         raise exceptions.CommandError(msg % blob_file)
 
 
-def sort_items(items, sort_str, sort_type=None):
+def sort_items(
+    items: collections.abc.Sequence[_T],
+    sort_str: str,
+    sort_type: ty.Optional[type[ty.Any]] = None,
+) -> collections.abc.Sequence[_T]:
     """Sort items based on sort keys and sort directions given by sort_str.
 
     :param items: a list or generator object of items
@@ -652,7 +699,7 @@ def sort_items(items, sort_str, sort_type=None):
             if direction == 'desc':
                 reverse = True
 
-        def f(x):
+        def f(x: ty.Any) -> ty.Any:
             # Attempts to convert items to same 'sort_type' if provided.
             # This is due to Python 3 throwing TypeError if you attempt to
             # compare different types
@@ -671,15 +718,15 @@ def sort_items(items, sort_str, sort_type=None):
 
 
 def wait_for_delete(
-    manager,
-    res_id,
-    status_field='status',
-    error_status=['error'],
-    exception_name=['NotFound'],
-    sleep_time=5,
-    timeout=300,
-    callback=None,
-):
+    manager: ty.Any,
+    res_id: str,
+    status_field: str = 'status',
+    error_status: collections.abc.Sequence[str] = ['error'],
+    exception_name: collections.abc.Sequence[str] = ['NotFound'],
+    sleep_time: int = 5,
+    timeout: int = 300,
+    callback: ty.Optional[collections.abc.Callable[[int], None]] = None,
+) -> bool:
     """Wait for resource deletion
 
     :param manager: the manager from which we can get the resource
@@ -724,14 +771,14 @@ def wait_for_delete(
 
 
 def wait_for_status(
-    status_f,
-    res_id,
-    status_field='status',
-    success_status=['active'],
-    error_status=['error'],
-    sleep_time=5,
-    callback=None,
-):
+    status_f: collections.abc.Callable[[str], object],
+    res_id: str,
+    status_field: str = 'status',
+    success_status: collections.abc.Sequence[str] = ['active'],
+    error_status: collections.abc.Sequence[str] = ['error'],
+    sleep_time: int = 5,
+    callback: ty.Optional[collections.abc.Callable[[int], None]] = None,
+) -> bool:
     """Wait for status change on a resource during a long-running operation
 
     :param status_f: a status function that takes a single id argument
@@ -760,8 +807,10 @@ def wait_for_status(
 
 
 def get_osc_show_columns_for_sdk_resource(
-    sdk_resource, osc_column_map, invisible_columns=None
-):
+    sdk_resource: resource.Resource,
+    osc_column_map: dict[str, str],
+    invisible_columns: ty.Optional[collections.abc.Sequence[str]] = None,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Get and filter the display and attribute columns for an SDK resource.
 
     Common utility function for preparing the output of an OSC show command.
