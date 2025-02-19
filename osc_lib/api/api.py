@@ -15,6 +15,7 @@
 
 import builtins
 import typing as ty
+import warnings
 
 from keystoneauth1 import exceptions as ksa_exceptions
 from keystoneauth1 import session as ksa_session
@@ -64,6 +65,12 @@ class BaseAPI:
         :param kwargs:
             Keyword arguments passed to keystoneauth1.session.Session().
         """
+
+        warnings.warn(
+            'The BaseAPI class is deprecated for removal. Consider using '
+            'openstacksdk instead else vendoring this code into your client',
+            category=DeprecationWarning,
+        )
 
         super().__init__()
 

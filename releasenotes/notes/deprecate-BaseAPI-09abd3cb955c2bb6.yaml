@@ -1,0 +1,6 @@
+---
+deprecations:
+  - |
+    The ``osc_lib.api.api.BaseAPI`` class has been deprecated for removal.
+    Consider using ``openstacksdk`` instead or vendoring the class into
+    your client.
