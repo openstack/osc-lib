@@ -11,13 +11,19 @@
 #   under the License.
 #
 
+import argparse
+import typing as ty
+
+from openstack import connection
 from openstack import exceptions
 from openstack.identity.v3 import project
 
 from osc_lib.i18n import _
 
 
-def add_project_owner_option_to_parser(parser):
+def add_project_owner_option_to_parser(
+    parser: argparse.ArgumentParser,
+) -> None:
     """Register project and project domain options.
 
     :param parser: argparse.Argument parser object.
@@ -38,7 +44,13 @@ def add_project_owner_option_to_parser(parser):
     )
 
 
-def find_project(sdk_connection, name_or_id, domain_name_or_id=None):
+# TODO(stephenfin): This really doesn't belong here. This should be part of
+# openstacksdk itself.
+def find_project(
+    sdk_connection: connection.Connection,
+    name_or_id: str,
+    domain_name_or_id: ty.Optional[str] = None,
+) -> project.Project:
     """Find a project by its name name or ID.
 
     If Forbidden to find the resource (a common case if the user does not have
@@ -53,7 +65,6 @@ def find_project(sdk_connection, name_or_id, domain_name_or_id=None):
         This can be used when there are multiple projects with a same name.
     :returns: the project object found
     :rtype: `openstack.identity.v3.project.Project`
-
     """
     try:
         if domain_name_or_id:

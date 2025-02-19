@@ -303,7 +303,9 @@ def find_resource(manager, name_or_id, **kwargs):
         raise exceptions.CommandError(msg % name_or_id)
 
 
-def format_dict(data, prefix=None):
+def format_dict(
+    data: dict[str, ty.Any], prefix: ty.Optional[str] = None
+) -> str:
     """Return a formatted string of key value pairs
 
     :param data: a dict
@@ -331,11 +333,13 @@ def format_dict(data, prefix=None):
     return output[:-2]
 
 
-def format_dict_of_list(data, separator='; '):
+def format_dict_of_list(
+    data: ty.Optional[dict[str, list[ty.Any]]], separator: str = '; '
+) -> ty.Optional[str]:
     """Return a formatted string of key value pair
 
     :param data: a dict, key is string, value is a list of string, for example:
-                 {u'public': [u'2001:db8::8', u'172.24.4.6']}
+                 {'public': ['2001:db8::8', '172.24.4.6']}
     :param separator: the separator to use between key/value pair
                       (default: '; ')
     :return: a string formatted to {'key1'=['value1', 'value2']} with separated
@@ -356,7 +360,9 @@ def format_dict_of_list(data, separator='; '):
     return separator.join(output)
 
 
-def format_list(data, separator=', '):
+def format_list(
+    data: ty.Optional[list[ty.Any]], separator: str = ', '
+) -> ty.Optional[str]:
     """Return a formatted strings
 
     :param data: a list of strings
@@ -369,7 +375,9 @@ def format_list(data, separator=', '):
     return separator.join(sorted(data))
 
 
-def format_list_of_dicts(data):
+def format_list_of_dicts(
+    data: ty.Optional[list[dict[str, ty.Any]]],
+) -> ty.Optional[str]:
     """Return a formatted string of key value pairs for each dict
 
     :param data: a list of dicts
@@ -381,10 +389,10 @@ def format_list_of_dicts(data):
     return '\n'.join(format_dict(i) for i in data)
 
 
-def format_size(size):
+def format_size(size: ty.Union[int, float, None]) -> str:
     """Display size of a resource in a human readable format
 
-    :param string size:
+    :param size:
         The size of the resource in bytes.
 
     :returns:
@@ -399,13 +407,12 @@ def format_size(size):
     base = 1000.0
     index = 0
 
-    if size is None:
-        size = 0
-    while size >= base:
+    size_ = float(size) if size is not None else 0.0
+    while size_ >= base:
         index = index + 1
-        size = size / base
+        size_ = size_ / base
 
-    padded = f'{size:.1f}'
+    padded = f'{size_:.1f}'
     stripped = padded.rstrip('0').rstrip('.')
 
     return f'{stripped}{suffix[index]}'

@@ -16,8 +16,12 @@
 """argparse Custom Actions"""
 
 import argparse
+import collections.abc
+import typing as ty
 
 from osc_lib.i18n import _
+
+_T = ty.TypeVar('_T')
 
 
 class KeyValueAction(argparse.Action):
@@ -26,7 +30,16 @@ class KeyValueAction(argparse.Action):
     Ensures that ``dest`` is a dict and values are strings.
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: ty.Union[str, ty.Sequence[ty.Any], None],
+        option_string: ty.Optional[str] = None,
+    ) -> None:
+        if not isinstance(values, str):
+            raise TypeError('expected str')
+
         # Make sure we have an empty dict rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, {})
@@ -39,7 +52,7 @@ class KeyValueAction(argparse.Action):
                 msg = _("Property key must be specified: %s")
                 raise argparse.ArgumentError(self, msg % str(values))
             else:
-                getattr(namespace, self.dest, {}).update([values_list])
+                getattr(namespace, self.dest, {}).update(dict([values_list]))
         else:
             msg = _("Expected 'key=value' type, but got: %s")
             raise argparse.ArgumentError(self, msg % str(values))
@@ -51,7 +64,16 @@ class KeyValueAppendAction(argparse.Action):
     Ensures that ``dest`` is a dict and values are lists of strings.
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: ty.Union[str, ty.Sequence[ty.Any], None],
+        option_string: ty.Optional[str] = None,
+    ) -> None:
+        if not isinstance(values, str):
+            raise TypeError('expected str')
+
         # Make sure we have an empty dict rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, {})
@@ -86,13 +108,19 @@ class MultiKeyValueAction(argparse.Action):
 
     def __init__(
         self,
-        option_strings,
-        dest,
-        nargs=None,
-        required_keys=None,
-        optional_keys=None,
-        **kwargs,
-    ):
+        option_strings: ty.Sequence[str],
+        dest: str,
+        nargs: ty.Union[int, str, None] = None,
+        required_keys: ty.Optional[ty.Sequence[str]] = None,
+        optional_keys: ty.Optional[ty.Sequence[str]] = None,
+        const: ty.Optional[_T] = None,
+        default: ty.Union[_T, str, None] = None,
+        type: ty.Optional[collections.abc.Callable[[str], _T]] = None,
+        choices: ty.Optional[collections.abc.Iterable[_T]] = None,
+        required: bool = False,
+        help: ty.Optional[str] = None,
+        metavar: ty.Union[str, tuple[str, ...], None] = None,
+    ) -> None:
         """Initialize the action object, and parse customized options
 
         Required keys and optional keys can be specified when initializing
@@ -106,12 +134,24 @@ class MultiKeyValueAction(argparse.Action):
             msg = _("Parameter 'nargs' is not allowed, but got %s")
             raise ValueError(msg % nargs)
 
-        super().__init__(option_strings, dest, **kwargs)
+        super().__init__(
+            option_strings,
+            dest,
+            nargs=nargs,
+            const=const,
+            default=default,
+            type=type,
+            choices=choices,
+            required=required,
+            help=help,
+            metavar=metavar,
+        )
 
         # required_keys: A list of keys that is required. None by default.
         if required_keys and not isinstance(required_keys, list):
             msg = _("'required_keys' must be a list")
             raise TypeError(msg)
+
         self.required_keys = set(required_keys or [])
 
         # optional_keys: A list of keys that is optional. None by default.
@@ -120,7 +160,7 @@ class MultiKeyValueAction(argparse.Action):
             raise TypeError(msg)
         self.optional_keys = set(optional_keys or [])
 
-    def validate_keys(self, keys):
+    def validate_keys(self, keys: ty.Sequence[str]) -> None:
         """Validate the provided keys.
 
         :param keys: A list of keys to validate.
@@ -159,7 +199,16 @@ class MultiKeyValueAction(argparse.Action):
                     },
                 )
 
-    def __call__(self, parser, namespace, values, metavar=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: ty.Union[str, ty.Sequence[ty.Any], None],
+        option_string: ty.Optional[str] = None,
+    ) -> None:
+        if not isinstance(values, str):
+            raise TypeError('expected str')
+
         # Make sure we have an empty list rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
@@ -196,12 +245,22 @@ class MultiKeyValueCommaAction(MultiKeyValueAction):
     Ex. key1=val1,val2,key2=val3 => {"key1": "val1,val2", "key2": "val3"}
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: ty.Union[str, ty.Sequence[ty.Any], None],
+        option_string: ty.Optional[str] = None,
+    ) -> None:
         """Overwrite the __call__ function of MultiKeyValueAction
 
         This is done to handle scenarios where we may have comma seperated
         data as a single value.
         """
+        if not isinstance(values, str):
+            msg = _("Invalid key=value pair, non-string value provided: %s")
+            raise argparse.ArgumentError(self, msg % str(values))
+
         # Make sure we have an empty list rather than None
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
@@ -245,7 +304,17 @@ class RangeAction(argparse.Action):
     '6:9' sets ``dest`` to (6, 9)
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: ty.Union[str, ty.Sequence[ty.Any], None],
+        option_string: ty.Optional[str] = None,
+    ) -> None:
+        if not isinstance(values, str):
+            msg = _("Invalid range, non-string value provided")
+            raise argparse.ArgumentError(self, msg)
+
         range = values.split(':')
         if len(range) == 0:
             # Nothing passed, return a zero default
@@ -279,7 +348,17 @@ class NonNegativeAction(argparse.Action):
     Ensures the value is >= 0.
     """
 
-    def __call__(self, parser, namespace, values, option_string=None):
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: ty.Union[str, ty.Sequence[ty.Any], None],
+        option_string: ty.Optional[str] = None,
+    ) -> None:
+        if not isinstance(values, (str, int, float)):
+            msg = _("%s expected a non-negative integer")
+            raise argparse.ArgumentError(self, msg % str(option_string))
+
         if int(values) >= 0:
             setattr(namespace, self.dest, values)
         else:

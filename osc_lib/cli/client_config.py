@@ -14,7 +14,9 @@
 """OpenStackConfig subclass for argument compatibility"""
 
 import logging
+import typing as ty
 
+from keystoneauth1.loading import identity as ksa_loading
 from openstack.config import exceptions as sdk_exceptions
 from openstack.config import loader as config
 from oslo_utils import strutils
@@ -26,7 +28,9 @@ LOG = logging.getLogger(__name__)
 # Sublcass OpenStackConfig in order to munge config values
 # before auth plugins are loaded
 class OSC_Config(config.OpenStackConfig):
-    def _auth_select_default_plugin(self, config):
+    def _auth_select_default_plugin(
+        self, config: dict[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         """Select a default plugin based on supplied arguments
 
         Migrated from auth.select_auth_plugin()
@@ -59,7 +63,9 @@ class OSC_Config(config.OpenStackConfig):
         LOG.debug("Auth plugin {} selected".format(config['auth_type']))
         return config
 
-    def _auth_v2_arguments(self, config):
+    def _auth_v2_arguments(
+        self, config: dict[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         """Set up v2-required arguments from v3 info
 
         Migrated from auth.build_auth_params()
@@ -72,41 +78,49 @@ class OSC_Config(config.OpenStackConfig):
                 config['auth']['tenant_name'] = config['auth']['project_name']
         return config
 
-    def _auth_v2_ignore_v3(self, config):
+    def _auth_v2_ignore_v3(
+        self, config: dict[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         """Remove v3 arguments if present for v2 plugin
 
         Migrated from clientmanager.setup_auth()
         """
-
         # NOTE(hieulq): If USER_DOMAIN_NAME, USER_DOMAIN_ID, PROJECT_DOMAIN_ID
         # or PROJECT_DOMAIN_NAME is present and API_VERSION is 2.0, then
         # ignore all domain related configs.
-        if str(config.get('identity_api_version', '')).startswith(
-            '2'
-        ) and config.get('auth_type').endswith('password'):
-            domain_props = [
-                'project_domain_id',
-                'project_domain_name',
-                'user_domain_id',
-                'user_domain_name',
-            ]
-            for prop in domain_props:
-                if config['auth'].pop(prop, None) is not None:
-                    if config.get('cloud'):
-                        LOG.warning(
-                            "Ignoring domain related config {} for {}"
-                            "because identity API version is 2.0".format(
-                                prop, config['cloud']
-                            )
+        if not str(config.get('identity_api_version', '')).startswith('2'):
+            return config
+
+        if not config.get('auth_type') or not config['auth_type'].endswith(
+            'password'
+        ):
+            return config
+
+        domain_props = [
+            'project_domain_id',
+            'project_domain_name',
+            'user_domain_id',
+            'user_domain_name',
+        ]
+        for prop in domain_props:
+            if config['auth'].pop(prop, None) is not None:
+                if config.get('cloud'):
+                    LOG.warning(
+                        "Ignoring domain related config {} for {}"
+                        "because identity API version is 2.0".format(
+                            prop, config['cloud']
                         )
-                    else:
-                        LOG.warning(
-                            f"Ignoring domain related config {prop} because"
-                            " identity API version is 2.0"
-                        )
+                    )
+                else:
+                    LOG.warning(
+                        f"Ignoring domain related config {prop} because"
+                        " identity API version is 2.0"
+                    )
         return config
 
-    def _auth_default_domain(self, config):
+    def _auth_default_domain(
+        self, config: dict[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         """Set a default domain from available arguments
 
         Migrated from clientmanager.setup_auth()
@@ -147,7 +161,7 @@ class OSC_Config(config.OpenStackConfig):
                 config['auth']['user_domain_id'] = default_domain
         return config
 
-    def auth_config_hook(self, config):
+    def auth_config_hook(self, config: dict[str, ty.Any]) -> dict[str, ty.Any]:
         """Allow examination of config values before loading auth plugin
 
         OpenStackClient will override this to perform additional checks
@@ -165,7 +179,11 @@ class OSC_Config(config.OpenStackConfig):
             )
         return config
 
-    def _validate_auth(self, config, loader, fixed_argparse=None):
+    def _validate_auth(
+        self,
+        config: dict[str, ty.Any],
+        loader: ksa_loading.BaseIdentityLoader[ty.Any],
+    ) -> dict[str, ty.Any]:
         """Validate auth plugin arguments"""
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
 
@@ -229,7 +247,8 @@ class OSC_Config(config.OpenStackConfig):
 
         return config
 
-    def load_auth_plugin(self, config):
+    # TODO(stephenfin): Add type once we have typing for SDK
+    def load_auth_plugin(self, config: dict[str, ty.Any]) -> ty.Any:
         """Get auth plugin and validate args"""
 
         loader = self._get_auth_loader(config)

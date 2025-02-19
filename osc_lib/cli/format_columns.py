@@ -25,45 +25,45 @@ from osc_lib import utils
 class DictColumn(columns.FormattableColumn[dict[str, ty.Any]]):
     """Format column for dict content"""
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         return utils.format_dict(self._value)
 
-    def machine_readable(self):
+    def machine_readable(self) -> dict[str, ty.Any]:
         return dict(self._value or {})
 
 
 class DictListColumn(columns.FormattableColumn[dict[str, list[ty.Any]]]):
     """Format column for dict, key is string, value is list"""
 
-    def human_readable(self):
-        return utils.format_dict_of_list(self._value)
+    def human_readable(self) -> str:
+        return utils.format_dict_of_list(self._value) or ''
 
-    def machine_readable(self):
+    def machine_readable(self) -> dict[str, list[ty.Any]]:
         return dict(self._value or {})
 
 
 class ListColumn(columns.FormattableColumn[list[ty.Any]]):
     """Format column for list content"""
 
-    def human_readable(self):
-        return utils.format_list(self._value)
+    def human_readable(self) -> str:
+        return utils.format_list(self._value) or ''
 
-    def machine_readable(self):
+    def machine_readable(self) -> list[ty.Any]:
         return [x for x in self._value or []]
 
 
 class ListDictColumn(columns.FormattableColumn[list[dict[str, ty.Any]]]):
     """Format column for list of dict content"""
 
-    def human_readable(self):
-        return utils.format_list_of_dicts(self._value)
+    def human_readable(self) -> str:
+        return utils.format_list_of_dicts(self._value) or ''
 
-    def machine_readable(self):
+    def machine_readable(self) -> list[dict[str, ty.Any]]:
         return [dict(x) for x in self._value or []]
 
 
 class SizeColumn(columns.FormattableColumn[ty.Union[int, float]]):
     """Format column for file size content"""
 
-    def human_readable(self):
+    def human_readable(self) -> str:
         return utils.format_size(self._value)

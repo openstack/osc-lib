@@ -10,11 +10,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import argparse
+
 from osc_lib.cli import parseractions
 from osc_lib.i18n import _
 
 
-def add_marker_pagination_option_to_parser(parser):
+def add_marker_pagination_option_to_parser(
+    parser: argparse.ArgumentParser,
+) -> None:
     """Add marker-based pagination options to the parser.
 
     APIs that use marker-based paging use the marker and limit query parameters
@@ -45,7 +49,9 @@ def add_marker_pagination_option_to_parser(parser):
     )
 
 
-def add_offset_pagination_option_to_parser(parser):
+def add_offset_pagination_option_to_parser(
+    parser: argparse.ArgumentParser,
+) -> None:
     """Add offset-based pagination options to the parser.
 
     APIs that use offset-based paging use the offset and limit query parameters
