@@ -567,7 +567,7 @@ class OpenStackShell(app.App):
 
             sys.stdout.write('\n')
             targs = tparser.parse_args(['-f', format])
-            tcmd.run(targs)  # type: ignore
+            tcmd.run(targs)
 
 
 def main(argv: ty.Optional[list[str]] = None) -> int:

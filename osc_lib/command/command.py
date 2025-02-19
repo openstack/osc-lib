@@ -13,7 +13,9 @@
 #   under the License.
 
 import abc
+import argparse
 import logging
+import typing as ty
 
 from cliff import command
 from cliff import lister
@@ -24,22 +26,27 @@ from osc_lib.i18n import _
 
 
 class CommandMeta(abc.ABCMeta):
-    def __new__(mcs, name, bases, cls_dict):
-        if 'log' not in cls_dict:
-            cls_dict['log'] = logging.getLogger(
-                cls_dict['__module__'] + '.' + name
+    def __new__(
+        mcs: type['CommandMeta'],
+        name: str,
+        bases: tuple[type[ty.Any], ...],
+        namespace: dict[str, ty.Any],
+    ) -> 'CommandMeta':
+        if 'log' not in namespace:
+            namespace['log'] = logging.getLogger(
+                namespace['__module__'] + '.' + name
             )
-        return super().__new__(mcs, name, bases, cls_dict)
+        return super().__new__(mcs, name, bases, namespace)
 
 
 class Command(command.Command, metaclass=CommandMeta):
     log: logging.Logger
 
-    def run(self, parsed_args):
+    def run(self, parsed_args: argparse.Namespace) -> int:
         self.log.debug('run(%s)', parsed_args)
         return super().run(parsed_args)
 
-    def validate_os_beta_command_enabled(self):
+    def validate_os_beta_command_enabled(self) -> None:
         if not self.app.options.os_beta_command:
             msg = _(
                 'Caution: This is a beta command and subject to '
@@ -48,7 +55,9 @@ class Command(command.Command, metaclass=CommandMeta):
             )
             raise exceptions.CommandError(msg)
 
-    def deprecated_option_warning(self, old_option, new_option):
+    def deprecated_option_warning(
+        self, old_option: str, new_option: str
+    ) -> None:
         """Emit a warning for use of a deprecated option"""
         self.log.warning(
             _("The %(old)s option is deprecated, please use %(new)s instead.")

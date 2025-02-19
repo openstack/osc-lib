@@ -37,6 +37,7 @@ module = [
     "osc_lib.api.*",
     "osc_lib.cli.*",
     "osc_lib.clientmanager",
+    "osc_lib.command.*",
     "osc_lib.exceptions",
     "osc_lib.i18n",
     "osc_lib.logs",
