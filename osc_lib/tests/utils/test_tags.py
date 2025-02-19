@@ -13,6 +13,7 @@
 #   under the License.
 
 import argparse
+import functools
 import sys
 from unittest import mock
 
@@ -27,7 +28,9 @@ def help_enhancer(_h):
 
 class TestTags(test_utils.TestCase):
     def test_add_tag_filtering_option_to_parser(self):
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            formatter_class=functools.partial(argparse.HelpFormatter, width=78)
+        )
         tags.add_tag_filtering_option_to_parser(parser, 'test')
 
         parsed_args = parser.parse_args(
@@ -60,7 +63,9 @@ class TestTags(test_utils.TestCase):
         self.assertCountEqual(expected, actual)
 
     def test_get_tag_filtering_args(self):
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            formatter_class=functools.partial(argparse.HelpFormatter, width=78)
+        )
         tags.add_tag_filtering_option_to_parser(parser, 'test')
 
         parsed_args = parser.parse_args(
@@ -86,7 +91,9 @@ class TestTags(test_utils.TestCase):
         self.assertEqual(expected, args)
 
     def test_add_tag_option_to_parser_for_create(self):
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            formatter_class=functools.partial(argparse.HelpFormatter, width=78)
+        )
         tags.add_tag_option_to_parser_for_create(parser, 'test')
 
         # Test that --tag and --no-tag are mutually exclusive
@@ -105,7 +112,9 @@ class TestTags(test_utils.TestCase):
         self.assertCountEqual(expected, actual)
 
     def test_add_tag_option_to_parser_for_set(self):
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            formatter_class=functools.partial(argparse.HelpFormatter, width=78)
+        )
         tags.add_tag_option_to_parser_for_set(parser, 'test')
 
         parsed_args = parser.parse_args(['--tag', 'tag1'])
@@ -119,7 +128,9 @@ class TestTags(test_utils.TestCase):
         self.assertCountEqual(expected, actual)
 
     def test_add_tag_option_to_parser_for_unset(self):
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            formatter_class=functools.partial(argparse.HelpFormatter, width=78)
+        )
         tags.add_tag_option_to_parser_for_unset(parser, 'test')
 
         # Test that --tag and --all-tag are mutually exclusive
@@ -209,11 +220,15 @@ class TestTagHelps(test_utils.TestCase):
             options_name = 'options'
         else:
             options_name = 'optional arguments'
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            formatter_class=functools.partial(argparse.HelpFormatter, width=78)
+        )
         meth(parser, 'test')
         self.assertEqual(exp_normal % options_name, parser.format_help())
 
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(
+            formatter_class=functools.partial(argparse.HelpFormatter, width=78)
+        )
         meth(parser, 'test', enhance_help=help_enhancer)
         self.assertEqual(exp_enhanced % options_name, parser.format_help())
 
