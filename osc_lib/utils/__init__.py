@@ -200,7 +200,7 @@ def find_resource(manager, name_or_id, **kwargs):
     # enough information, and domain information is necessary.
     try:
         return manager.get(name_or_id)
-    except Exception:
+    except Exception:  # noqa: S110
         pass
 
     if kwargs:
@@ -208,7 +208,7 @@ def find_resource(manager, name_or_id, **kwargs):
         # for example: /projects/demo&domain_id=30524568d64447fbb3fa8b7891c10dd
         try:
             return manager.get(name_or_id, **kwargs)
-        except Exception:
+        except Exception:  # noqa: S110
             pass
 
     # Case 3: Try to get entity as integer id. Keystone does not have integer
@@ -242,7 +242,7 @@ def find_resource(manager, name_or_id, **kwargs):
             kwargs[manager.resource_class.NAME_ATTR] = name_or_id
         else:
             kwargs['name'] = name_or_id
-    except Exception:
+    except Exception:  # noqa: S110
         pass
 
     # finally try to find entity by name
