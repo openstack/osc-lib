@@ -13,19 +13,24 @@
 
 """Application logging"""
 
+import argparse
+import collections.abc
 import logging
 import sys
+import typing as ty
 import warnings
 
+from openstack.config import cloud_config
 
-def get_loggers():
+
+def get_loggers() -> dict[str, str]:
     loggers = {}
     for logkey in logging.Logger.manager.loggerDict.keys():
         loggers[logkey] = logging.getLevelName(logging.getLogger(logkey).level)
     return loggers
 
 
-def log_level_from_options(options):
+def log_level_from_options(options: argparse.Namespace) -> int:
     # if --debug, --quiet or --verbose is not specified,
     # the default logging level is warning
     log_level = logging.WARNING
@@ -41,7 +46,7 @@ def log_level_from_options(options):
     return log_level
 
 
-def log_level_from_string(level_string):
+def log_level_from_string(level_string: str) -> int:
     log_level = {
         'critical': logging.CRITICAL,
         'error': logging.ERROR,
@@ -52,7 +57,7 @@ def log_level_from_string(level_string):
     return log_level
 
 
-def log_level_from_config(config):
+def log_level_from_config(config: collections.abc.Mapping[str, ty.Any]) -> int:
     # Check the command line option
     verbose_level = config.get('verbose_level')
     if config.get('debug', False):
@@ -70,7 +75,7 @@ def log_level_from_config(config):
     return log_level_from_string(verbose_level)
 
 
-def set_warning_filter(log_level):
+def set_warning_filter(log_level: int) -> None:
     if log_level == logging.ERROR:
         warnings.simplefilter("ignore")
     elif log_level == logging.WARNING:
@@ -89,7 +94,12 @@ class _FileFormatter(logging.Formatter):
     _LOG_MESSAGE_END = '%(message)s'
     _LOG_DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-    def __init__(self, options=None, config=None, **kwargs):
+    def __init__(
+        self,
+        options: ty.Optional[argparse.Namespace] = None,
+        config: ty.Optional[cloud_config.CloudConfig] = None,
+        **kwargs: ty.Any,
+    ) -> None:
         context = {}
         if options:
             context = {
@@ -117,7 +127,7 @@ class _FileFormatter(logging.Formatter):
 class LogConfigurator:
     _CONSOLE_MESSAGE_FORMAT = '%(message)s'
 
-    def __init__(self, options):
+    def __init__(self, options: argparse.Namespace) -> None:
         self.root_logger = logging.getLogger('')
         self.root_logger.setLevel(logging.DEBUG)
 
@@ -166,7 +176,7 @@ class LogConfigurator:
         stevedore_log.setLevel(logging.ERROR)
         iso8601_log.setLevel(logging.ERROR)
 
-    def configure(self, cloud_config):
+    def configure(self, cloud_config: cloud_config.CloudConfig) -> None:
         log_level = log_level_from_config(cloud_config.config)
         set_warning_filter(log_level)
         self.dump_trace = cloud_config.config.get('debug', self.dump_trace)

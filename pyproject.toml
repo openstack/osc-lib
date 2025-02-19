@@ -37,6 +37,8 @@ module = [
     "osc_lib.api.*",
     "osc_lib.cli.*",
     "osc_lib.exceptions",
+    "osc_lib.i18n",
+    "osc_lib.logs",
 ]
 disallow_untyped_calls = true
 disallow_untyped_defs = true
