@@ -590,10 +590,19 @@ def get_item_properties(
         data = getattr(item, field_name, '')
         if field in formatters:
             formatter = formatters[field]
+            # columns must be either a subclass of FormattableColumn
             if isinstance(formatter, type) and issubclass(
                 formatter, cliff_columns.FormattableColumn
             ):
                 data = formatter(data)
+            # or a partial wrapping one (to allow us to pass extra parameters)
+            elif (
+                isinstance(formatter, functools.partial)
+                and isinstance(formatter.func, type)
+                and issubclass(formatter.func, cliff_columns.FormattableColumn)
+            ):
+                data = formatter(data)
+            # otherwise it's probably a legacy-style function
             elif callable(formatter):
                 warnings.warn(
                     'The usage of formatter functions is now discouraged. '
