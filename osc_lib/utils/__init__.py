@@ -536,30 +536,6 @@ def get_dict_properties(
     return tuple(row)
 
 
-def get_effective_log_level() -> int:
-    """Returns the lowest logging level considered by logging handlers
-
-    Retrieve and return the smallest log level set among the root
-    logger's handlers (in case of multiple handlers).
-    """
-    root_log = logging.getLogger()
-    min_log_lvl = logging.CRITICAL
-    for handler in root_log.handlers:
-        min_log_lvl = min(min_log_lvl, handler.level)
-    return min_log_lvl
-
-
-def get_field(item: _T, field: str) -> ty.Any:
-    try:
-        if isinstance(item, dict):
-            return item[field]
-        else:
-            return getattr(item, field)
-    except Exception:
-        msg = _("Resource doesn't have field %s")
-        raise exceptions.CommandError(msg % field)
-
-
 # TODO(stephenfin): Type the formatters option and return value
 def get_item_properties(
     item: dict[str, _T],
@@ -618,6 +594,30 @@ def get_item_properties(
 
         row.append(data)
     return tuple(row)
+
+
+def get_effective_log_level() -> int:
+    """Returns the lowest logging level considered by logging handlers
+
+    Retrieve and return the smallest log level set among the root
+    logger's handlers (in case of multiple handlers).
+    """
+    root_log = logging.getLogger()
+    min_log_lvl = logging.CRITICAL
+    for handler in root_log.handlers:
+        min_log_lvl = min(min_log_lvl, handler.level)
+    return min_log_lvl
+
+
+def get_field(item: _T, field: str) -> ty.Any:
+    try:
+        if isinstance(item, dict):
+            return item[field]
+        else:
+            return getattr(item, field)
+    except Exception:
+        msg = _("Resource doesn't have field %s")
+        raise exceptions.CommandError(msg % field)
 
 
 def get_password(
