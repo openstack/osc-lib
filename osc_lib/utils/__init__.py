@@ -24,6 +24,7 @@ import logging
 import os
 import time
 import typing as ty
+import warnings
 
 from cliff import columns as cliff_columns
 from openstack import resource
@@ -197,7 +198,8 @@ def find_min_match(
 
 
 # TODO(stephenfin): We should return a proper type, but how to do so without
-# using generics?
+# using generics? We should also deprecate this but there are a lot of users
+# still.
 def find_resource(
     manager: ty.Any,
     name_or_id: str,
@@ -440,7 +442,6 @@ def format_size(size: ty.Union[int, float, None]) -> str:
     return f'{stripped}{suffix[index]}'
 
 
-# TODO(stephenfin): Deprecate this? It's not needed with SDK
 def get_client_class(
     api_name: str,
     version: ty.Union[str, int, float],
@@ -453,6 +454,12 @@ def get_client_class(
     :param version_map: a dict of client classes keyed by version
     :rtype: a client class for the requested API version
     """
+    warnings.warn(
+        "This function is deprecated and is not necessary with openstacksdk."
+        "Consider vendoring this if necessary.",
+        category=DeprecationWarning,
+    )
+
     try:
         client_path = version_map[str(version)]
     except (KeyError, ValueError):
@@ -736,6 +743,12 @@ def wait_for_delete(
     :rtype: True on success, False if the resource has gone to error state or
         the timeout has been reached
     """
+    warnings.warn(
+        "This function is deprecated as it does not support openstacksdk "
+        "clients. Consider vendoring this if necessary.",
+        category=DeprecationWarning,
+    )
+
     total_time = 0
     while total_time < timeout:
         try:
@@ -782,6 +795,12 @@ def wait_for_status(
     :param callback: called per sleep cycle, useful to display progress
     :rtype: True on success
     """
+    warnings.warn(
+        "This function is deprecated as it does not support openstacksdk "
+        "clients. Consider vendoring this if necessary.",
+        category=DeprecationWarning,
+    )
+
     while True:
         res = status_f(res_id)
         status = getattr(res, status_field, '').lower()
