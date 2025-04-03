@@ -24,7 +24,6 @@ import logging
 import os
 import time
 import typing as ty
-import warnings
 
 from cliff import columns as cliff_columns
 from openstack import resource
@@ -476,12 +475,13 @@ def get_client_class(
     return importutils.import_class(client_path)
 
 
-# TODO(stephenfin): Type the formatters option and return value
 def get_dict_properties(
     item: dict[str, _T],
     fields: collections.abc.Sequence[str],
     mixed_case_fields: ty.Optional[collections.abc.Sequence[str]] = None,
-    formatters: ty.Any = None,
+    formatters: ty.Optional[
+        dict[str, type[cliff_columns.FormattableColumn[ty.Any]]]
+    ] = None,
 ) -> tuple[ty.Any, ...]:
     """Return a tuple containing the item properties.
 
@@ -518,16 +518,7 @@ def get_dict_properties(
                 and issubclass(formatter.func, cliff_columns.FormattableColumn)
             ):
                 data = formatter(data)
-            # otherwise it's probably a legacy-style function
-            elif callable(formatter):
-                warnings.warn(
-                    'The usage of formatter functions is now discouraged. '
-                    'Consider using cliff.columns.FormattableColumn instead. '
-                    'See reviews linked with bug 1687955 for more detail.',
-                    category=DeprecationWarning,
-                )
-                if data is not None:
-                    data = formatter(data)
+            # otherwise it's invalid
             else:
                 msg = "Invalid formatter provided."
                 raise exceptions.CommandError(msg)
@@ -536,12 +527,13 @@ def get_dict_properties(
     return tuple(row)
 
 
-# TODO(stephenfin): Type the formatters option and return value
 def get_item_properties(
     item: dict[str, _T],
     fields: collections.abc.Sequence[str],
     mixed_case_fields: ty.Optional[collections.abc.Sequence[str]] = None,
-    formatters: ty.Any = None,
+    formatters: ty.Optional[
+        dict[str, type[cliff_columns.FormattableColumn[ty.Any]]]
+    ] = None,
 ) -> tuple[ty.Any, ...]:
     """Return a tuple containing the item properties.
 
@@ -578,16 +570,7 @@ def get_item_properties(
                 and issubclass(formatter.func, cliff_columns.FormattableColumn)
             ):
                 data = formatter(data)
-            # otherwise it's probably a legacy-style function
-            elif callable(formatter):
-                warnings.warn(
-                    'The usage of formatter functions is now discouraged. '
-                    'Consider using cliff.columns.FormattableColumn instead. '
-                    'See reviews linked with bug 1687955 for more detail.',
-                    category=DeprecationWarning,
-                )
-                if data is not None:
-                    data = formatter(data)
+            # otherwise it's invalid
             else:
                 msg = "Invalid formatter provided."
                 raise exceptions.CommandError(msg)
