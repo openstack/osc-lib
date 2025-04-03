@@ -25,9 +25,9 @@ from oslo_utils import strutils
 LOG = logging.getLogger(__name__)
 
 
-# Sublcass OpenStackConfig in order to munge config values
+# Subclass OpenStackConfig in order to munge config values
 # before auth plugins are loaded
-class OSC_Config(config.OpenStackConfig):
+class OSC_Config(config.OpenStackConfig):  # type: ignore
     def _auth_select_default_plugin(
         self, config: dict[str, ty.Any]
     ) -> dict[str, ty.Any]:

@@ -12,8 +12,7 @@ warn_redundant_casts = true
 strict_equality = true
 disallow_untyped_decorators = true
 disallow_any_generics = true
-# TODO(stephenfin): Change this once we've fully typed everything
-disallow_subclassing_any = false
+disallow_subclassing_any = true
 disallow_untyped_calls = true
 disallow_incomplete_defs = true
 disallow_untyped_defs = true
