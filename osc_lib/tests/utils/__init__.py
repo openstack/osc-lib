@@ -14,7 +14,6 @@
 #   under the License.
 #
 
-import contextlib
 import copy
 import json as jsonutils
 import os
@@ -110,24 +109,6 @@ class TestCase(testtools.TestCase):
             if not msg:
                 msg = f'method {m} should not have been called'
             self.fail(msg)
-
-    @contextlib.contextmanager
-    def subTest(self, *args, **kwargs):
-        """This is a wrapper to unittest's subTest method.
-
-        This wrapper suppresses 2 issues:
-         * lack of support in older Python versions
-         * bug in testtools that breaks support for all versions
-        """
-        try:
-            with super().subTest(*args, **kwargs):
-                yield
-        except TypeError:
-            raise
-        except AttributeError:
-            # TODO(elhararb): remove this except clause when subTest is
-            #                 enabled in testtools
-            yield
 
 
 class TestCommand(TestCase):
