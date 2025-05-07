@@ -14,7 +14,6 @@
 
 import argparse
 import functools
-import sys
 from unittest import mock
 
 from osc_lib.tests import utils as test_utils
@@ -216,10 +215,7 @@ class TestTagHelps(test_utils.TestCase):
         :param exp_enhanced: Expected output with ``enhance_help`` set to
             ``help_enhancer``
         """
-        if sys.version_info >= (3, 10):
-            options_name = 'options'
-        else:
-            options_name = 'optional arguments'
+        options_name = 'options'
         parser = argparse.ArgumentParser(
             formatter_class=functools.partial(argparse.HelpFormatter, width=78)
         )

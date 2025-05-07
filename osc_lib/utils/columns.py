@@ -78,7 +78,7 @@ def get_column_definitions(
 
 def get_columns(
     item: dict[str, ty.Any],
-    attr_map: ty.Optional[list[tuple[str, str, str]]] = None,
+    attr_map: list[tuple[str, str, str]] | None = None,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Return pair of resource attributes and corresponding display names.
 

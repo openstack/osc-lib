@@ -223,10 +223,10 @@ def build_auth_plugins_option_parser(
 def get_keystone2keystone_auth(
     local_auth: identity_base.BaseIdentityPlugin,
     service_provider: str,
-    project_id: ty.Optional[str] = None,
-    project_name: ty.Optional[str] = None,
-    project_domain_id: ty.Optional[str] = None,
-    project_domain_name: ty.Optional[str] = None,
+    project_id: str | None = None,
+    project_name: str | None = None,
+    project_domain_id: str | None = None,
+    project_domain_name: str | None = None,
 ) -> k2k.Keystone2Keystone:
     """Return Keystone 2 Keystone authentication for service provider.
 

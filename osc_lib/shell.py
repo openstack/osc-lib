@@ -48,7 +48,7 @@ DEFAULT_DOMAIN = 'default'
 DEFAULT_INTERFACE = 'public'
 
 
-def prompt_for_password(prompt: ty.Optional[str] = None) -> str:
+def prompt_for_password(prompt: str | None = None) -> str:
     """Prompt user for a password
 
     Prompt for a password if stdin is a tty.
@@ -86,15 +86,14 @@ class OpenStackShell(app.App):
 
     def __init__(
         self,
-        description: ty.Optional[str] = None,
-        version: ty.Optional[str] = None,
-        command_manager: ty.Optional[commandmanager.CommandManager] = None,
-        stdin: ty.Optional[ty.TextIO] = None,
-        stdout: ty.Optional[ty.TextIO] = None,
-        stderr: ty.Optional[ty.TextIO] = None,
-        interactive_app_factory: ty.Optional[
-            type['interactive.InteractiveApp']
-        ] = None,
+        description: str | None = None,
+        version: str | None = None,
+        command_manager: commandmanager.CommandManager | None = None,
+        stdin: ty.TextIO | None = None,
+        stdout: ty.TextIO | None = None,
+        stderr: ty.TextIO | None = None,
+        interactive_app_factory: type['interactive.InteractiveApp']
+        | None = None,
         deferred_help: bool = False,
     ) -> None:
         # Patch command.Command to add a default auth_required = True
@@ -198,9 +197,9 @@ class OpenStackShell(app.App):
 
     def build_option_parser(
         self,
-        description: ty.Optional[str],
-        version: ty.Optional[str],
-        argparse_kwargs: ty.Optional[dict[str, ty.Any]] = None,
+        description: str | None,
+        version: str | None,
+        argparse_kwargs: dict[str, ty.Any] | None = None,
     ) -> _argparse.ArgumentParser:
         parser = super().build_option_parser(
             description,
@@ -532,7 +531,7 @@ class OpenStackShell(app.App):
         self,
         cmd: 'command.Command',
         result: int,
-        err: ty.Optional[BaseException],
+        err: BaseException | None,
     ) -> None:
         self.log.debug('clean_up %s: %s', cmd.__class__.__name__, err or '')
 
@@ -570,7 +569,7 @@ class OpenStackShell(app.App):
             tcmd.run(targs)
 
 
-def main(argv: ty.Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
     return OpenStackShell().run(argv)

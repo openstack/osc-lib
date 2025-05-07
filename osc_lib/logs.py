@@ -96,8 +96,8 @@ class _FileFormatter(logging.Formatter):
 
     def __init__(
         self,
-        options: ty.Optional[argparse.Namespace] = None,
-        config: ty.Optional[cloud_config.CloudConfig] = None,
+        options: argparse.Namespace | None = None,
+        config: cloud_config.CloudConfig | None = None,
         **kwargs: ty.Any,
     ) -> None:
         context = {}

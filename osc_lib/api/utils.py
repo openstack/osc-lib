@@ -20,11 +20,11 @@ _T = ty.TypeVar('_T', bound=list[ty.Any])
 
 
 def simple_filter(
-    data: ty.Optional[_T] = None,
-    attr: ty.Optional[str] = None,
-    value: ty.Optional[str] = None,
-    property_field: ty.Optional[str] = None,
-) -> ty.Optional[_T]:
+    data: _T | None = None,
+    attr: str | None = None,
+    value: str | None = None,
+    property_field: str | None = None,
+) -> _T | None:
     """Filter a list of dicts
 
     :param list data:
