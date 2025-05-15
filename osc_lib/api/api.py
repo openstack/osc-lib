@@ -13,7 +13,6 @@
 
 """Base API Library"""
 
-import builtins
 import typing as ty
 import warnings
 
@@ -204,7 +203,7 @@ class BaseAPI:
         session: ty.Optional[ksa_session.Session] = None,
         body: ty.Any = None,
         detailed: bool = False,
-        headers: ty.Optional[dict[str, str]] = None,
+        headers: ty.Optional[ty.Dict[str, str]] = None,
         **params: ty.Any,
     ) -> ty.Union[requests.Response, ty.Any]:
         """Return a list of resources
@@ -291,7 +290,7 @@ class BaseAPI:
         if resource is None:
             resource = path
 
-        def getlist(kw: dict[str, ty.Any]) -> ty.Any:
+        def getlist(kw: ty.Dict[str, ty.Any]) -> ty.Any:
             """Do list call, unwrap resource dict if present"""
             ret = self.list(path, **kw)
             if isinstance(ret, dict) and resource in ret:
@@ -324,9 +323,9 @@ class BaseAPI:
     def find_bulk(
         self,
         path: str,
-        headers: ty.Optional[dict[str, str]] = None,
+        headers: ty.Optional[ty.Dict[str, str]] = None,
         **kwargs: ty.Any,
-    ) -> builtins.list[ty.Any]:
+    ) -> ty.List[ty.Any]:
         """Bulk load and filter locally
 
         :param string path:
@@ -378,7 +377,7 @@ class BaseAPI:
         path: str,
         value: ty.Optional[str] = None,
         attr: ty.Optional[str] = None,
-        headers: ty.Optional[dict[str, str]] = None,
+        headers: ty.Optional[ty.Dict[str, str]] = None,
     ) -> ty.Any:
         """Find a single resource by name or ID
 

@@ -16,7 +16,7 @@
 import typing as ty
 
 
-_T = ty.TypeVar('_T', bound=list[ty.Any])
+_T = ty.TypeVar('_T', bound=ty.List[ty.Any])
 
 
 def simple_filter(
