@@ -27,10 +27,10 @@ from osc_lib.i18n import _
 
 class CommandMeta(abc.ABCMeta):
     def __new__(
-        mcs: type['CommandMeta'],
+        mcs: ty.Type['CommandMeta'],
         name: str,
-        bases: tuple[type[ty.Any], ...],
-        namespace: dict[str, ty.Any],
+        bases: ty.Tuple[ty.Type[ty.Any], ...],
+        namespace: ty.Dict[str, ty.Any],
     ) -> 'CommandMeta':
         if 'log' not in namespace:
             namespace['log'] = logging.getLogger(

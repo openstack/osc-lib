@@ -75,7 +75,7 @@ class ClientManager:
     def __init__(
         self,
         cli_options: cloud_region.CloudRegion,
-        api_version: ty.Optional[dict[str, str]],
+        api_version: ty.Optional[ty.Dict[str, str]],
         pw_func: ty.Optional[_PasswordHelper] = None,
         app_name: ty.Optional[str] = None,
         app_version: ty.Optional[str] = None,
@@ -283,5 +283,5 @@ class ClientManager:
             )
         return endpoint
 
-    def get_configuration(self) -> dict[str, ty.Any]:
+    def get_configuration(self) -> ty.Dict[str, ty.Any]:
         return copy.deepcopy(self._cli_options.config)
