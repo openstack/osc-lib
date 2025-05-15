@@ -16,6 +16,7 @@
 """argparse Custom Actions"""
 
 import argparse
+import collections.abc
 import typing as ty
 
 from osc_lib.i18n import _
@@ -114,11 +115,11 @@ class MultiKeyValueAction(argparse.Action):
         optional_keys: ty.Optional[ty.Sequence[str]] = None,
         const: ty.Optional[_T] = None,
         default: ty.Union[_T, str, None] = None,
-        type: ty.Optional[ty.Callable[[str], _T]] = None,
-        choices: ty.Optional[ty.Iterable[_T]] = None,
+        type: ty.Optional[collections.abc.Callable[[str], _T]] = None,
+        choices: ty.Optional[collections.abc.Iterable[_T]] = None,
         required: bool = False,
         help: ty.Optional[str] = None,
-        metavar: ty.Union[str, ty.Tuple[str, ...], None] = None,
+        metavar: ty.Union[str, tuple[str, ...], None] = None,
     ) -> None:
         """Initialize the action object, and parse customized options
 
@@ -212,7 +213,7 @@ class MultiKeyValueAction(argparse.Action):
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
 
-        params: ty.Dict[str, str] = {}
+        params: dict[str, str] = {}
         for kv in values.split(','):
             # Add value if an assignment else raise ArgumentError
             if '=' in kv:
@@ -264,7 +265,7 @@ class MultiKeyValueCommaAction(MultiKeyValueAction):
         if getattr(namespace, self.dest, None) is None:
             setattr(namespace, self.dest, [])
 
-        params: ty.Dict[str, str] = {}
+        params: dict[str, str] = {}
         key = ''
         for kv in values.split(','):
             # Add value if an assignment else raise ArgumentError
