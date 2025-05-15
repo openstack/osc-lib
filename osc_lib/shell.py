@@ -541,7 +541,7 @@ class OpenStackShell(app.App):
             self.client_manager.sdk_connection.close()
 
         # Close session if available
-        if getattr(self.client_manager.session, "session", None) is not None:
+        if getattr(self.client_manager, "session", None) is not None:
             self.client_manager.session.session.close()
 
         # Process collected timing data
