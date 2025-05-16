@@ -18,14 +18,9 @@ import typing as ty
 
 from osc_lib.command import command
 
-if ty.TYPE_CHECKING:
-    from osc_lib import shell
-
 
 class Timing(command.Lister):
     """Show timing data"""
-
-    app: 'shell.OpenStackShell'
 
     def take_action(
         self, parsed_args: argparse.Namespace

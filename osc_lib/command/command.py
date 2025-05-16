@@ -24,6 +24,9 @@ from cliff import show
 from osc_lib import exceptions
 from osc_lib.i18n import _
 
+if ty.TYPE_CHECKING:
+    from osc_lib import shell
+
 
 class CommandMeta(abc.ABCMeta):
     def __new__(
@@ -41,6 +44,7 @@ class CommandMeta(abc.ABCMeta):
 
 class Command(command.Command, metaclass=CommandMeta):
     log: logging.Logger
+    app: 'shell.OpenStackShell'
 
     def run(self, parsed_args: argparse.Namespace) -> int:
         self.log.debug('run(%s)', parsed_args)
