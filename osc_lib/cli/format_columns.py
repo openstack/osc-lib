@@ -62,7 +62,7 @@ class ListDictColumn(columns.FormattableColumn[list[dict[str, ty.Any]]]):
         return [dict(x) for x in self._value or []]
 
 
-class SizeColumn(columns.FormattableColumn[ty.Union[int, float]]):
+class SizeColumn(columns.FormattableColumn[int | float]):
     """Format column for file size content"""
 
     def human_readable(self) -> str:

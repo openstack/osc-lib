@@ -12,7 +12,6 @@
 #
 
 import argparse
-import typing as ty
 
 from openstack import connection
 from openstack import exceptions
@@ -49,7 +48,7 @@ def add_project_owner_option_to_parser(
 def find_project(
     sdk_connection: connection.Connection,
     name_or_id: str,
-    domain_name_or_id: ty.Optional[str] = None,
+    domain_name_or_id: str | None = None,
 ) -> project.Project:
     """Find a project by its name name or ID.
 

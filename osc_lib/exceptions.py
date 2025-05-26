@@ -15,8 +15,6 @@
 
 """Exception definitions."""
 
-import typing as ty
-
 
 class CommandError(Exception):
     pass
@@ -66,9 +64,9 @@ class ClientException(Exception):
 
     def __init__(
         self,
-        code: ty.Union[int, str],
-        message: ty.Optional[str] = None,
-        details: ty.Optional[str] = None,
+        code: int | str,
+        message: str | None = None,
+        details: str | None = None,
     ):
         if not isinstance(code, int) and message is None:
             message = code

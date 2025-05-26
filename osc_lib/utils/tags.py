@@ -22,8 +22,8 @@ class _CommaListAction(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: ty.Union[str, ty.Sequence[ty.Any], None],
-        option_string: ty.Optional[str] = None,
+        values: str | ty.Sequence[ty.Any] | None,
+        option_string: str | None = None,
     ) -> None:
         if not isinstance(values, str):
             raise TypeError('expected str')

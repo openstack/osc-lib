@@ -59,7 +59,7 @@ class ClientCache:
 
 
 class _PasswordHelper(ty.Protocol):
-    def __call__(self, prompt: ty.Optional[str] = None) -> str: ...
+    def __call__(self, prompt: str | None = None) -> str: ...
 
 
 class ClientManager:
@@ -75,10 +75,10 @@ class ClientManager:
     def __init__(
         self,
         cli_options: cloud_region.CloudRegion,
-        api_version: ty.Optional[dict[str, str]],
-        pw_func: ty.Optional[_PasswordHelper] = None,
-        app_name: ty.Optional[str] = None,
-        app_version: ty.Optional[str] = None,
+        api_version: dict[str, str] | None,
+        pw_func: _PasswordHelper | None = None,
+        app_name: str | None = None,
+        app_version: str | None = None,
     ) -> None:
         """Set up a ClientManager
 
@@ -212,7 +212,7 @@ class ClientManager:
         )
 
     @property
-    def auth_ref(self) -> ty.Optional[ksa_access.AccessInfo]:
+    def auth_ref(self) -> ksa_access.AccessInfo | None:
         """Dereference will trigger an auth if it hasn't already"""
         if (
             not self._auth_required
@@ -226,11 +226,11 @@ class ClientManager:
             self._auth_ref = self.auth.get_auth_ref(self.session)
         return self._auth_ref
 
-    def _override_for(self, service_type: str) -> ty.Optional[str]:
+    def _override_for(self, service_type: str) -> str | None:
         key = '{}_endpoint_override'.format(service_type.replace('-', '_'))
-        return ty.cast(ty.Optional[str], self._cli_options.config.get(key))
+        return ty.cast(str | None, self._cli_options.config.get(key))
 
-    def is_service_available(self, service_type: str) -> ty.Optional[bool]:
+    def is_service_available(self, service_type: str) -> bool | None:
         """Check if a service type is in the current Service Catalog"""
         # If there is an override, assume the service is available
         if self._override_for(service_type):
@@ -256,9 +256,9 @@ class ClientManager:
     def get_endpoint_for_service_type(
         self,
         service_type: str,
-        region_name: ty.Optional[str] = None,
+        region_name: str | None = None,
         interface: str = 'public',
-    ) -> ty.Optional[str]:
+    ) -> str | None:
         """Return the endpoint URL for the service type."""
         # Overrides take priority unconditionally
         override = self._override_for(service_type)

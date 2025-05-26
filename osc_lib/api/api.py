@@ -47,9 +47,9 @@ class BaseAPI:
 
     def __init__(
         self,
-        session: ty.Optional[ksa_session.Session] = None,
-        service_type: ty.Optional[str] = None,
-        endpoint: ty.Optional[str] = None,
+        session: ksa_session.Session | None = None,
+        service_type: str | None = None,
+        endpoint: str | None = None,
         **kwargs: ty.Any,
     ) -> None:
         """Base object that contains some common API objects and methods
@@ -83,7 +83,7 @@ class BaseAPI:
         self.service_type = service_type
         self.endpoint = self._munge_endpoint(endpoint)
 
-    def _munge_endpoint(self, endpoint: ty.Optional[str]) -> ty.Optional[str]:
+    def _munge_endpoint(self, endpoint: str | None) -> str | None:
         """Hook to allow subclasses to massage the passed-in endpoint
 
         Hook to massage passed-in endpoints from arbitrary sources,
@@ -108,7 +108,7 @@ class BaseAPI:
         self,
         method: str,
         url: str,
-        session: ty.Optional[ksa_session.Session] = None,
+        session: ksa_session.Session | None = None,
         **kwargs: ty.Any,
     ) -> requests.Response:
         """Perform call into session
@@ -159,10 +159,10 @@ class BaseAPI:
     def create(
         self,
         url: str,
-        session: ty.Optional[ksa_session.Session] = None,
-        method: ty.Optional[str] = None,
+        session: ksa_session.Session | None = None,
+        method: str | None = None,
         **params: ty.Any,
-    ) -> ty.Union[requests.Response, ty.Any]:
+    ) -> requests.Response | ty.Any:
         """Create a new resource
 
         :param string url:
@@ -185,7 +185,7 @@ class BaseAPI:
     def delete(
         self,
         url: str,
-        session: ty.Optional[ksa_session.Session] = None,
+        session: ksa_session.Session | None = None,
         **params: ty.Any,
     ) -> requests.Response:
         """Delete a resource
@@ -201,12 +201,12 @@ class BaseAPI:
     def list(
         self,
         path: str,
-        session: ty.Optional[ksa_session.Session] = None,
+        session: ksa_session.Session | None = None,
         body: ty.Any = None,
         detailed: bool = False,
-        headers: ty.Optional[dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
         **params: ty.Any,
-    ) -> ty.Union[requests.Response, ty.Any]:
+    ) -> requests.Response | ty.Any:
         """Return a list of resources
 
         GET ${ENDPOINT}/${PATH}?${PARAMS}
@@ -258,9 +258,9 @@ class BaseAPI:
     def find_attr(
         self,
         path: str,
-        value: ty.Optional[str] = None,
-        attr: ty.Optional[str] = None,
-        resource: ty.Optional[str] = None,
+        value: str | None = None,
+        attr: str | None = None,
+        resource: str | None = None,
     ) -> ty.Any:
         """Find a resource via attribute or ID
 
@@ -324,7 +324,7 @@ class BaseAPI:
     def find_bulk(
         self,
         path: str,
-        headers: ty.Optional[dict[str, str]] = None,
+        headers: dict[str, str] | None = None,
         **kwargs: ty.Any,
     ) -> builtins.list[ty.Any]:
         """Bulk load and filter locally
@@ -376,9 +376,9 @@ class BaseAPI:
     def find(
         self,
         path: str,
-        value: ty.Optional[str] = None,
-        attr: ty.Optional[str] = None,
-        headers: ty.Optional[dict[str, str]] = None,
+        value: str | None = None,
+        attr: str | None = None,
+        headers: dict[str, str] | None = None,
     ) -> ty.Any:
         """Find a single resource by name or ID
 
