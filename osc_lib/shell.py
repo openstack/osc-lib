@@ -470,9 +470,6 @@ class OpenStackShell(app.App):
             "cloud cfg: %s", strutils.mask_password(self.cloud.config)
         )
 
-        # Callout for stuff between o-c-c and ClientManager
-        # self._initialize_app_2(self.options)
-
         self._load_plugins()
 
         self._load_commands()
