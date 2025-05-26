@@ -19,8 +19,8 @@ LIST_LONG_ONLY = 'long_only'
 
 
 def get_column_definitions(
-    attr_map: ty.List[ty.Tuple[str, str, str]], long_listing: bool
-) -> ty.Tuple[ty.List[str], ty.List[str]]:
+    attr_map: list[tuple[str, str, str]], long_listing: bool
+) -> tuple[list[str], list[str]]:
     """Return table headers and column names for a listing table.
 
     An attribute map (attr_map) is a list of table entry definitions
@@ -77,9 +77,9 @@ def get_column_definitions(
 
 
 def get_columns(
-    item: ty.Dict[str, ty.Any],
-    attr_map: ty.Optional[ty.List[ty.Tuple[str, str, str]]] = None,
-) -> ty.Tuple[ty.Tuple[str, ...], ty.Tuple[str, ...]]:
+    item: dict[str, ty.Any],
+    attr_map: ty.Optional[list[tuple[str, str, str]]] = None,
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Return pair of resource attributes and corresponding display names.
 
     :param item: a dictionary which represents a resource.

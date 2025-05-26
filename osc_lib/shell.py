@@ -82,7 +82,7 @@ class OpenStackShell(app.App):
     client_manager: clientmanager.ClientManager
 
     log = logging.getLogger(__name__)
-    timing_data: ty.List[ty.Any] = []
+    timing_data: list[ty.Any] = []
 
     def __init__(
         self,
@@ -93,7 +93,7 @@ class OpenStackShell(app.App):
         stdout: ty.Optional[ty.TextIO] = None,
         stderr: ty.Optional[ty.TextIO] = None,
         interactive_app_factory: ty.Optional[
-            ty.Type['interactive.InteractiveApp']
+            type['interactive.InteractiveApp']
         ] = None,
         deferred_help: bool = False,
     ) -> None:
@@ -127,7 +127,7 @@ class OpenStackShell(app.App):
         # Set in subclasses
         self.api_version = None
 
-        self.command_options: ty.List[str] = []
+        self.command_options: list[str] = []
 
         self.do_profile = False
 
@@ -136,7 +136,7 @@ class OpenStackShell(app.App):
         self.log_configurator = logs.LogConfigurator(self.options)
         self.dump_stack_trace = self.log_configurator.dump_trace
 
-    def run(self, argv: ty.List[str]) -> int:
+    def run(self, argv: list[str]) -> int:
         ret_val = 1
         self.command_options = argv
         try:
@@ -180,7 +180,7 @@ class OpenStackShell(app.App):
                 f"osprofiler trace show --html {trace_id} "
             )
 
-    def run_subcommand(self, argv: ty.List[str]) -> int:
+    def run_subcommand(self, argv: list[str]) -> int:
         self.init_profile()
         try:
             ret_value = super().run_subcommand(argv)
@@ -200,7 +200,7 @@ class OpenStackShell(app.App):
         self,
         description: ty.Optional[str],
         version: ty.Optional[str],
-        argparse_kwargs: ty.Optional[ty.Dict[str, ty.Any]] = None,
+        argparse_kwargs: ty.Optional[dict[str, ty.Any]] = None,
     ) -> _argparse.ArgumentParser:
         parser = super().build_option_parser(
             description,
@@ -416,7 +416,7 @@ class OpenStackShell(app.App):
         """
         pass
 
-    def initialize_app(self, argv: ty.List[str]) -> None:
+    def initialize_app(self, argv: list[str]) -> None:
         """Global app init bits:
 
         * set up API versions
@@ -570,7 +570,7 @@ class OpenStackShell(app.App):
             tcmd.run(targs)
 
 
-def main(argv: ty.Optional[ty.List[str]] = None) -> int:
+def main(argv: ty.Optional[list[str]] = None) -> int:
     if argv is None:
         argv = sys.argv[1:]
     return OpenStackShell().run(argv)

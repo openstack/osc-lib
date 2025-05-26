@@ -29,7 +29,7 @@ class Timing(command.Lister):
 
     def take_action(
         self, parsed_args: argparse.Namespace
-    ) -> ty.Tuple[ty.Tuple[str, ...], ty.List[ty.Any]]:
+    ) -> tuple[tuple[str, ...], list[ty.Any]]:
         column_headers = (
             'URL',
             'Seconds',

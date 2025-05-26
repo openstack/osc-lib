@@ -29,8 +29,8 @@ LOG = logging.getLogger(__name__)
 # before auth plugins are loaded
 class OSC_Config(config.OpenStackConfig):  # type: ignore
     def _auth_select_default_plugin(
-        self, config: ty.Dict[str, ty.Any]
-    ) -> ty.Dict[str, ty.Any]:
+        self, config: dict[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         """Select a default plugin based on supplied arguments
 
         Migrated from auth.select_auth_plugin()
@@ -64,8 +64,8 @@ class OSC_Config(config.OpenStackConfig):  # type: ignore
         return config
 
     def _auth_v2_arguments(
-        self, config: ty.Dict[str, ty.Any]
-    ) -> ty.Dict[str, ty.Any]:
+        self, config: dict[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         """Set up v2-required arguments from v3 info
 
         Migrated from auth.build_auth_params()
@@ -79,8 +79,8 @@ class OSC_Config(config.OpenStackConfig):  # type: ignore
         return config
 
     def _auth_v2_ignore_v3(
-        self, config: ty.Dict[str, ty.Any]
-    ) -> ty.Dict[str, ty.Any]:
+        self, config: dict[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         """Remove v3 arguments if present for v2 plugin
 
         Migrated from clientmanager.setup_auth()
@@ -119,8 +119,8 @@ class OSC_Config(config.OpenStackConfig):  # type: ignore
         return config
 
     def _auth_default_domain(
-        self, config: ty.Dict[str, ty.Any]
-    ) -> ty.Dict[str, ty.Any]:
+        self, config: dict[str, ty.Any]
+    ) -> dict[str, ty.Any]:
         """Set a default domain from available arguments
 
         Migrated from clientmanager.setup_auth()
@@ -161,9 +161,7 @@ class OSC_Config(config.OpenStackConfig):  # type: ignore
                 config['auth']['user_domain_id'] = default_domain
         return config
 
-    def auth_config_hook(
-        self, config: ty.Dict[str, ty.Any]
-    ) -> ty.Dict[str, ty.Any]:
+    def auth_config_hook(self, config: dict[str, ty.Any]) -> dict[str, ty.Any]:
         """Allow examination of config values before loading auth plugin
 
         OpenStackClient will override this to perform additional checks
@@ -183,9 +181,9 @@ class OSC_Config(config.OpenStackConfig):  # type: ignore
 
     def _validate_auth(
         self,
-        config: ty.Dict[str, ty.Any],
-        loader: ksa_loading.BaseIdentityLoader,  # type: ignore
-    ) -> ty.Dict[str, ty.Any]:
+        config: dict[str, ty.Any],
+        loader: ksa_loading.BaseIdentityLoader[ty.Any],
+    ) -> dict[str, ty.Any]:
         """Validate auth plugin arguments"""
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
 
@@ -250,7 +248,7 @@ class OSC_Config(config.OpenStackConfig):  # type: ignore
         return config
 
     # TODO(stephenfin): Add type once we have typing for SDK
-    def load_auth_plugin(self, config: ty.Dict[str, ty.Any]) -> ty.Any:
+    def load_auth_plugin(self, config: dict[str, ty.Any]) -> ty.Any:
         """Get auth plugin and validate args"""
 
         loader = self._get_auth_loader(config)

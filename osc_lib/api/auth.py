@@ -39,10 +39,10 @@ class _OptionDict(ty.TypedDict):
 
 
 # List of plugin command line options
-OPTIONS_LIST: ty.Dict[str, _OptionDict] = {}
+OPTIONS_LIST: dict[str, _OptionDict] = {}
 
 
-def get_plugin_list() -> ty.FrozenSet[str]:
+def get_plugin_list() -> frozenset[str]:
     """Gather plugin list and cache it"""
 
     global PLUGIN_LIST
@@ -52,7 +52,7 @@ def get_plugin_list() -> ty.FrozenSet[str]:
     return PLUGIN_LIST
 
 
-def get_options_list() -> ty.Dict[str, _OptionDict]:
+def get_options_list() -> dict[str, _OptionDict]:
     """Gather plugin options so the help action has them available"""
 
     global OPTIONS_LIST
