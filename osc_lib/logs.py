@@ -59,19 +59,22 @@ def log_level_from_string(level_string: str) -> int:
 
 def log_level_from_config(config: collections.abc.Mapping[str, ty.Any]) -> int:
     # Check the command line option
-    verbose_level = config.get('verbose_level')
+    verbose_level_from_config = config.get('verbose_level')
     if config.get('debug', False):
-        verbose_level = 3
-    if verbose_level == 0:
-        verbose_level = 'error'
-    elif verbose_level == 1:
-        # If a command line option has not been specified, check the
-        # configuration file
-        verbose_level = config.get('log_level', 'warning')
-    elif verbose_level == 2:
-        verbose_level = 'info'
-    else:
-        verbose_level = 'debug'
+        verbose_level_from_config = 3
+
+    match verbose_level_from_config:
+        case 0:
+            verbose_level = 'error'
+        case 1:
+            # If a command line option has not been specified, check the
+            # configuration file
+            verbose_level = config.get('log_level', 'warning')
+        case 2:
+            verbose_level = 'info'
+        case _:
+            verbose_level = 'debug'
+
     return log_level_from_string(verbose_level)
 
 

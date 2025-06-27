@@ -338,11 +338,13 @@ class BaseAPI:
         :returns: list of resource dicts
         """
 
-        items = self.list(path)
-        if isinstance(items, dict):
+        resp = self.list(path)
+        if isinstance(resp, dict):
             # strip off the enclosing dict
-            key = list(items.keys())[0]
-            items = items[key]
+            key = list(resp.keys())[0]
+            items = resp[key]
+        else:
+            items = resp
 
         ret = []
         for o in items:

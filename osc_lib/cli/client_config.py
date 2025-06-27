@@ -134,7 +134,7 @@ class OSC_Config(config.OpenStackConfig):  # type: ignore
         default_domain = config.get('default_domain', None)
         if (
             identity_version == '3'
-            and not auth_type.startswith('v2')
+            and (auth_type and not auth_type.startswith('v2'))
             and default_domain
         ):
             # NOTE(stevemar): If PROJECT_DOMAIN_ID or PROJECT_DOMAIN_NAME is
