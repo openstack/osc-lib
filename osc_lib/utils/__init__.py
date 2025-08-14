@@ -443,13 +443,13 @@ def format_size(size: int | float | None) -> str:
 def get_client_class(
     api_name: str,
     version: str | int | float,
-    version_map: dict[str, type[_T]],
+    version_map: dict[str, str],
 ) -> ty.Any:
     """Returns the client class for the requested API version
 
     :param api_name: the name of the API, e.g. 'compute', 'image', etc
     :param version: the requested API version
-    :param version_map: a dict of client classes keyed by version
+    :param version_map: a dict of client class strings keyed by version
     :rtype: a client class for the requested API version
     """
     warnings.warn(
