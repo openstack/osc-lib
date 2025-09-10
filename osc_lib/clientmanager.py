@@ -75,7 +75,7 @@ class ClientManager:
     def __init__(
         self,
         cli_options: cloud_region.CloudRegion,
-        api_version: dict[str, str] | None,
+        api_version: dict[str, str],
         pw_func: _PasswordHelper | None = None,
         app_name: str | None = None,
         app_version: str | None = None,
