@@ -16,7 +16,7 @@ import argparse
 import functools
 from unittest import mock
 
-from osc_lib.tests import utils as test_utils
+from osc_lib.test import base
 from osc_lib.utils import tags
 
 
@@ -25,7 +25,7 @@ def help_enhancer(_h):
     return ''.join(reversed(_h))
 
 
-class TestTags(test_utils.TestCase):
+class TestTags(base.TestCase):
     def test_add_tag_filtering_option_to_parser(self):
         parser = argparse.ArgumentParser(
             formatter_class=functools.partial(argparse.HelpFormatter, width=78)
@@ -206,7 +206,7 @@ class TestTags(test_utils.TestCase):
         mock_client.set_tags.assert_called_once_with(mock_obj, ['tag1'])
 
 
-class TestTagHelps(test_utils.TestCase):
+class TestTagHelps(base.TestCase):
     def _test_tag_method_help(self, meth, exp_normal, exp_enhanced):
         """Vet the help text of the options added by the tag filtering helpers.
 

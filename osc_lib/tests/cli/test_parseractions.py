@@ -11,15 +11,14 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import argparse
 
 from osc_lib.cli import parseractions
-from osc_lib.tests import utils
+from osc_lib.test import base
 
 
-class TestKeyValueAction(utils.TestCase):
+class TestKeyValueAction(base.TestCase):
     def setUp(self):
         super().setUp()
 
@@ -71,7 +70,7 @@ class TestKeyValueAction(utils.TestCase):
             self.assertRaises(SystemExit, self.parser.parse_args, data)
 
 
-class TestKeyValueAppendAction(utils.TestCase):
+class TestKeyValueAppendAction(base.TestCase):
     def setUp(self):
         super().setUp()
 
@@ -130,7 +129,7 @@ class TestKeyValueAppendAction(utils.TestCase):
             self.assertRaises(SystemExit, self.parser.parse_args, data)
 
 
-class TestMultiKeyValueAction(utils.TestCase):
+class TestMultiKeyValueAction(base.TestCase):
     def setUp(self):
         super().setUp()
 
@@ -270,7 +269,7 @@ class TestMultiKeyValueAction(utils.TestCase):
         )
 
 
-class TestMultiKeyValueCommaAction(utils.TestCase):
+class TestMultiKeyValueCommaAction(base.TestCase):
     def setUp(self):
         super().setUp()
         self.parser = argparse.ArgumentParser()
@@ -478,7 +477,7 @@ class TestMultiKeyValueCommaAction(utils.TestCase):
         )
 
 
-class TestNonNegativeAction(utils.TestCase):
+class TestNonNegativeAction(base.TestCase):
     def setUp(self):
         super().setUp()
 

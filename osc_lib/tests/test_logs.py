@@ -15,10 +15,10 @@ import logging
 from unittest import mock
 
 from osc_lib import logs
-from osc_lib.tests import utils
+from osc_lib.test import base
 
 
-class TestContext(utils.TestCase):
+class TestContext(base.TestCase):
     def test_log_level_from_options(self):
         opts = mock.Mock()
         opts.verbose_level = 0
@@ -64,7 +64,7 @@ class TestContext(utils.TestCase):
         simplefilter.assert_called_with("once")
 
 
-class TestFileFormatter(utils.TestCase):
+class TestFileFormatter(base.TestCase):
     def test_nothing(self):
         formatter = logs._FileFormatter()
         self.assertEqual(
@@ -105,7 +105,7 @@ class TestFileFormatter(utils.TestCase):
         )
 
 
-class TestLogConfigurator(utils.TestCase):
+class TestLogConfigurator(base.TestCase):
     def setUp(self):
         super().setUp()
         self.options = mock.Mock()

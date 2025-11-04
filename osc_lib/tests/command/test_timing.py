@@ -9,7 +9,6 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """Test Timing pseudo-command"""
 
@@ -18,9 +17,10 @@ import datetime
 from keystoneauth1 import session
 
 from osc_lib.command import timing
-from osc_lib.tests import fakes
-from osc_lib.tests import utils
+from osc_lib.test import base
 
+AUTH_TOKEN = "foobar"
+AUTH_URL = "http://0.0.0.0"
 
 timing_method = 'GET'
 timing_url = 'http://localhost:5000'
@@ -33,7 +33,7 @@ class FakeGenericClient:
         self.management_url = kwargs['endpoint']
 
 
-class TestTiming(utils.TestCommand):
+class TestTiming(base.TestCommand):
     columns = (
         'URL',
         'Seconds',
@@ -45,13 +45,12 @@ class TestTiming(utils.TestCommand):
         self.app.timing_data = []
 
         self.app.client_manager.compute = FakeGenericClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
+            endpoint=AUTH_URL, token=AUTH_TOKEN
         )
 
         self.app.client_manager.volume = FakeGenericClient(
-            endpoint=fakes.AUTH_URL,
-            token=fakes.AUTH_TOKEN,
+            endpoint=AUTH_URL,
+            token=AUTH_TOKEN,
         )
 
         # Get the command object to test

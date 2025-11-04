@@ -11,15 +11,14 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import collections
 
 from osc_lib.cli import format_columns
-from osc_lib.tests import utils
+from osc_lib.test import base
 
 
-class TestDictColumn(utils.TestCase):
+class TestDictColumn(base.TestCase):
     def test_dict_column(self):
         data = {
             'key1': 'value1',
@@ -40,7 +39,7 @@ class TestDictColumn(utils.TestCase):
         self.assertEqual(type(col.machine_readable()), dict)
 
 
-class TestDictListColumn(utils.TestCase):
+class TestDictListColumn(base.TestCase):
     def test_dict_list_column(self):
         data = {
             'public': ['2001:db8::8', '172.24.4.6'],
@@ -64,7 +63,7 @@ class TestDictListColumn(utils.TestCase):
         self.assertEqual(type(col.machine_readable()), dict)
 
 
-class TestListColumn(utils.TestCase):
+class TestListColumn(base.TestCase):
     def test_list_column(self):
         data = [
             'key1',
@@ -83,7 +82,7 @@ class TestListColumn(utils.TestCase):
         self.assertEqual(type(col.machine_readable()), list)
 
 
-class TestListDictColumn(utils.TestCase):
+class TestListDictColumn(base.TestCase):
     def test_list_dict_column(self):
         data = [
             {'key1': 'value1'},
@@ -107,7 +106,7 @@ class TestListDictColumn(utils.TestCase):
             self.assertEqual(type(x), dict)  # noqa: H211
 
 
-class TestSizeColumn(utils.TestCase):
+class TestSizeColumn(base.TestCase):
     def test_size_column(self):
         content = 1576395005
         col = format_columns.SizeColumn(content)

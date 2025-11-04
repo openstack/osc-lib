@@ -18,10 +18,10 @@ from openstack.identity.v3 import project
 import testtools
 
 from osc_lib.cli import identity as cli_identity
-from osc_lib.tests import utils as test_utils
+from osc_lib.test import base
 
 
-class IdentityUtilsTestCase(test_utils.TestCase):
+class IdentityUtilsTestCase(base.TestCase):
     def test_add_project_owner_option_to_parser(self):
         parser = argparse.ArgumentParser()
         cli_identity.add_project_owner_option_to_parser(parser)

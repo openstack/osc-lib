@@ -9,13 +9,12 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 from osc_lib.cli import client_config
-from osc_lib.tests import utils
+from osc_lib.test import base
 
 
-class TestOSCConfig(utils.TestCase):
+class TestOSCConfig(base.TestCase):
     def setUp(self):
         super().setUp()
 

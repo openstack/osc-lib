@@ -11,18 +11,18 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import copy
 import os
 import sys
 from unittest import mock
 
+import fixtures
+from oslo_utils import importutils
 import testtools
 
 from osc_lib import shell
-from osc_lib.tests import utils
-
+from osc_lib.test import base
 
 DEFAULT_AUTH_URL = "http://127.0.0.1:5000/v2.0/"
 DEFAULT_PROJECT_ID = "xxxx-yyyy-zzzz"
@@ -119,7 +119,181 @@ if shell.osprofiler_profiler:
     global_options['--os-profile'] = ('SECRET_KEY', True, True)
 
 
-class TestShellArgV(utils.TestShell):
+def fake_execute(shell, cmd):
+    """Pretend to execute shell commands."""
+    return shell.run(cmd.split())
+
+
+def make_shell(shell_class=None):
+    """Create a new command shell and mock out some bits."""
+    if shell_class is None:
+        shell_class = shell.OpenStackShell
+    _shell = shell_class()
+    _shell.command_manager = mock.Mock()
+    # _shell.cloud = mock.Mock()
+
+    return _shell
+
+
+def opt2attr(opt):
+    if opt.startswith('--os-'):
+        attr = opt[5:]
+    elif opt.startswith('--'):
+        attr = opt[2:]
+    else:
+        attr = opt
+    return attr.lower().replace('-', '_')
+
+
+def opt2env(opt):
+    return opt[2:].upper().replace('-', '_')
+
+
+class EnvFixture(fixtures.Fixture):
+    """Environment Fixture.
+
+    This fixture replaces os.environ with provided env or an empty env.
+    """
+
+    def __init__(self, env=None):
+        self.new_env = env or {}
+
+    def _setUp(self):
+        self.orig_env, os.environ = os.environ, self.new_env
+        self.addCleanup(self.revert)
+
+    def revert(self):
+        os.environ = self.orig_env
+
+
+class TestShell(base.TestCase):
+    # Full name of the OpenStackShell class to test (cliff.app.App subclass)
+    shell_class_name = "osc_lib.shell.OpenStackShell"
+
+    def setUp(self):
+        super().setUp()
+        self.shell_class = importutils.import_class(self.shell_class_name)
+        self.cmd_patch = mock.patch(self.shell_class_name + ".run_subcommand")
+        self.cmd_save = self.cmd_patch.start()
+        self.addCleanup(self.cmd_patch.stop)
+        self.app = mock.Mock("Test Shell")
+
+    def _assert_initialize_app_arg(self, cmd_options, default_args):
+        """Check the args passed to initialize_app()
+
+        The argv argument to initialize_app() is the remainder from parsing
+        global options declared in both cliff.app and
+        osc_lib.OpenStackShell build_option_parser().  Any global
+        options passed on the command line should not be in argv but in
+        _shell.options.
+        """
+
+        with mock.patch(
+            self.shell_class_name + ".initialize_app",
+            self.app,
+        ):
+            _shell = make_shell(shell_class=self.shell_class)
+            _cmd = cmd_options + " module list"
+            fake_execute(_shell, _cmd)
+
+            self.app.assert_called_with(["module", "list"])
+            for k in default_args.keys():
+                self.assertEqual(
+                    default_args[k],
+                    vars(_shell.options)[k],
+                    f"{k} does not match",
+                )
+
+    def _assert_cloud_region_arg(self, cmd_options, default_args):
+        """Check the args passed to OpenStackConfig.get_one()
+
+        The argparse argument to get_one() is an argparse.Namespace
+        object that contains all of the options processed to this point in
+        initialize_app().
+        """
+
+        cloud = mock.Mock(name="cloudy")
+        cloud.config = {}
+        self.occ_get_one = mock.Mock(return_value=cloud)
+        with mock.patch(
+            "openstack.config.loader.OpenStackConfig.get_one",
+            self.occ_get_one,
+        ):
+            _shell = make_shell(shell_class=self.shell_class)
+            _cmd = cmd_options + " module list"
+            fake_execute(_shell, _cmd)
+
+            self.app.assert_called_with(["module", "list"])
+            opts = self.occ_get_one.call_args[1]['argparse']
+            for k in default_args.keys():
+                self.assertEqual(
+                    default_args[k],
+                    vars(opts)[k],
+                    f"{k} does not match",
+                )
+
+    def _test_options_init_app(self, test_opts):
+        """Test options on the command line"""
+        for opt in test_opts.keys():
+            if not test_opts[opt][1]:
+                continue
+            key = opt2attr(opt)
+            if isinstance(test_opts[opt][0], str):
+                cmd = opt + " " + test_opts[opt][0]
+            else:
+                cmd = opt
+            kwargs = {
+                key: test_opts[opt][0],
+            }
+            self._assert_initialize_app_arg(cmd, kwargs)
+
+    def _test_env_init_app(self, test_opts):
+        """Test options in the environment"""
+        for opt in test_opts.keys():
+            if not test_opts[opt][2]:
+                continue
+            key = opt2attr(opt)
+            kwargs = {
+                key: test_opts[opt][0],
+            }
+            env = {
+                opt2env(opt): test_opts[opt][0],
+            }
+            os.environ = env.copy()
+            self._assert_initialize_app_arg("", kwargs)
+
+    def _test_options_get_one_cloud(self, test_opts):
+        """Test options sent "to openstack.config"""
+        for opt in test_opts.keys():
+            if not test_opts[opt][1]:
+                continue
+            key = opt2attr(opt)
+            if isinstance(test_opts[opt][0], str):
+                cmd = opt + " " + test_opts[opt][0]
+            else:
+                cmd = opt
+            kwargs = {
+                key: test_opts[opt][0],
+            }
+            self._assert_cloud_region_arg(cmd, kwargs)
+
+    def _test_env_get_one_cloud(self, test_opts):
+        """Test environment options sent "to openstack.config"""
+        for opt in test_opts.keys():
+            if not test_opts[opt][2]:
+                continue
+            key = opt2attr(opt)
+            kwargs = {
+                key: test_opts[opt][0],
+            }
+            env = {
+                opt2env(opt): test_opts[opt][0],
+            }
+            os.environ = env.copy()
+            self._assert_cloud_region_arg("", kwargs)
+
+
+class TestShellArgV(TestShell):
     """Test the deferred help flag"""
 
     def setUp(self):
@@ -151,12 +325,12 @@ class TestShellArgV(utils.TestShell):
             self.assertEqual(str, type(self.app.call_args[0][0][0]))
 
 
-class TestShellHelp(utils.TestShell):
+class TestShellHelp(TestShell):
     """Test the deferred help flag"""
 
     def setUp(self):
         super().setUp()
-        self.useFixture(utils.EnvFixture())
+        self.useFixture(EnvFixture())
 
     @testtools.skip("skip until bug 1444983 is resolved")
     def test_help_options(self):
@@ -165,8 +339,8 @@ class TestShellHelp(utils.TestShell):
             "deferred_help": True,
         }
         with mock.patch(self.app_patch + ".initialize_app", self.app):
-            _shell, _cmd = utils.make_shell(), flag
-            utils.fake_execute(_shell, _cmd)
+            _shell, _cmd = make_shell(), flag
+            fake_execute(_shell, _cmd)
 
             self.assertEqual(
                 kwargs["deferred_help"],
@@ -174,7 +348,7 @@ class TestShellHelp(utils.TestShell):
             )
 
 
-class TestShellOptions(utils.TestShell):
+class TestShellOptions(TestShell):
     """Test the option handling by argparse and openstack.config.loader
 
     This covers getting the CLI options through the initial processing
@@ -183,7 +357,7 @@ class TestShellOptions(utils.TestShell):
 
     def setUp(self):
         super().setUp()
-        self.useFixture(utils.EnvFixture())
+        self.useFixture(EnvFixture())
 
     def test_empty_auth(self):
         os.environ = {}
@@ -204,7 +378,7 @@ class TestShellOptions(utils.TestShell):
         self._test_env_get_one_cloud(global_options)
 
 
-class TestShellCli(utils.TestShell):
+class TestShellCli(TestShell):
     """Test handling of specific global options
 
     _shell.options is the parsed command line from argparse
@@ -215,23 +389,23 @@ class TestShellCli(utils.TestShell):
     def setUp(self):
         super().setUp()
         env = {}
-        self.useFixture(utils.EnvFixture(env.copy()))
+        self.useFixture(EnvFixture(env.copy()))
 
     def test_shell_args_no_options(self):
-        _shell = utils.make_shell()
+        _shell = make_shell()
         with mock.patch(
             "osc_lib.shell.OpenStackShell.initialize_app",
             self.app,
         ):
-            utils.fake_execute(_shell, "list user")
+            fake_execute(_shell, "list user")
             self.app.assert_called_with(["list", "user"])
 
     def test_shell_args_tls_options(self):
         """Test the TLS verify and CA cert file options"""
-        _shell = utils.make_shell()
+        _shell = make_shell()
 
         # Default
-        utils.fake_execute(_shell, "module list")
+        fake_execute(_shell, "module list")
         self.assertIsNone(_shell.options.verify)
         self.assertIsNone(_shell.options.insecure)
         self.assertIsNone(_shell.options.cacert)
@@ -239,7 +413,7 @@ class TestShellCli(utils.TestShell):
         self.assertIsNone(_shell.client_manager.cacert)
 
         # --verify
-        utils.fake_execute(_shell, "--verify module list")
+        fake_execute(_shell, "--verify module list")
         self.assertTrue(_shell.options.verify)
         self.assertIsNone(_shell.options.insecure)
         self.assertIsNone(_shell.options.cacert)
@@ -247,7 +421,7 @@ class TestShellCli(utils.TestShell):
         self.assertIsNone(_shell.client_manager.cacert)
 
         # --insecure
-        utils.fake_execute(_shell, "--insecure module list")
+        fake_execute(_shell, "--insecure module list")
         self.assertIsNone(_shell.options.verify)
         self.assertTrue(_shell.options.insecure)
         self.assertIsNone(_shell.options.cacert)
@@ -255,7 +429,7 @@ class TestShellCli(utils.TestShell):
         self.assertIsNone(_shell.client_manager.cacert)
 
         # --os-cacert
-        utils.fake_execute(_shell, "--os-cacert foo module list")
+        fake_execute(_shell, "--os-cacert foo module list")
         self.assertIsNone(_shell.options.verify)
         self.assertIsNone(_shell.options.insecure)
         self.assertEqual('foo', _shell.options.cacert)
@@ -263,7 +437,7 @@ class TestShellCli(utils.TestShell):
         self.assertEqual('foo', _shell.client_manager.cacert)
 
         # --os-cacert and --verify
-        utils.fake_execute(_shell, "--os-cacert foo --verify module list")
+        fake_execute(_shell, "--os-cacert foo --verify module list")
         self.assertTrue(_shell.options.verify)
         self.assertIsNone(_shell.options.insecure)
         self.assertEqual('foo', _shell.options.cacert)
@@ -275,7 +449,7 @@ class TestShellCli(utils.TestShell):
         #                in this combination --insecure now overrides any
         #                --os-cacert setting, where before --insecure
         #                was ignored if --os-cacert was set.
-        utils.fake_execute(_shell, "--os-cacert foo --insecure module list")
+        fake_execute(_shell, "--os-cacert foo --insecure module list")
         self.assertIsNone(_shell.options.verify)
         self.assertTrue(_shell.options.insecure)
         self.assertEqual('foo', _shell.options.cacert)
@@ -284,30 +458,28 @@ class TestShellCli(utils.TestShell):
 
     def test_shell_args_cert_options(self):
         """Test client cert options"""
-        _shell = utils.make_shell()
+        _shell = make_shell()
 
         # Default
-        utils.fake_execute(_shell, "module list")
+        fake_execute(_shell, "module list")
         self.assertIsNone(_shell.options.cert)
         self.assertIsNone(_shell.options.key)
         self.assertIsNone(_shell.client_manager.cert)
 
         # --os-cert
-        utils.fake_execute(_shell, "--os-cert mycert module list")
+        fake_execute(_shell, "--os-cert mycert module list")
         self.assertEqual('mycert', _shell.options.cert)
         self.assertIsNone(_shell.options.key)
         self.assertEqual('mycert', _shell.client_manager.cert)
 
         # --os-key
-        utils.fake_execute(_shell, "--os-key mickey module list")
+        fake_execute(_shell, "--os-key mickey module list")
         self.assertIsNone(_shell.options.cert)
         self.assertEqual('mickey', _shell.options.key)
         self.assertIsNone(_shell.client_manager.cert)
 
         # --os-cert and --os-key
-        utils.fake_execute(
-            _shell, "--os-cert mycert --os-key mickey module list"
-        )
+        fake_execute(_shell, "--os-cert mycert --os-key mickey module list")
         self.assertEqual('mycert', _shell.options.cert)
         self.assertEqual('mickey', _shell.options.key)
         self.assertEqual(('mycert', 'mickey'), _shell.client_manager.cert)
@@ -316,9 +488,9 @@ class TestShellCli(utils.TestShell):
     def test_shell_args_cloud_no_vendor(self, config_mock):
         """Test cloud config options without the vendor file"""
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_1))
-        _shell = utils.make_shell()
+        _shell = make_shell()
 
-        utils.fake_execute(
+        fake_execute(
             _shell,
             "--os-cloud scc module list",
         )
@@ -372,9 +544,9 @@ class TestShellCli(utils.TestShell):
         """Test cloud config options with the vendor file"""
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
         public_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
-        _shell = utils.make_shell()
+        _shell = make_shell()
 
-        utils.fake_execute(
+        fake_execute(
             _shell,
             "--os-cloud megacloud module list",
         )
@@ -420,10 +592,10 @@ class TestShellCli(utils.TestShell):
     def test_shell_args_precedence(self, config_mock, vendor_mock):
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
         vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
-        _shell = utils.make_shell()
+        _shell = make_shell()
 
         # Test command option overriding config file value
-        utils.fake_execute(
+        fake_execute(
             _shell,
             "--os-cloud megacloud --os-region-name krikkit module list",
         )
@@ -461,7 +633,7 @@ class TestShellCli(utils.TestShell):
         )
 
 
-class TestShellCliPrecedence(utils.TestShell):
+class TestShellCliPrecedence(TestShell):
     """Test option precedencr order"""
 
     def setUp(self):
@@ -470,7 +642,7 @@ class TestShellCliPrecedence(utils.TestShell):
             'OS_CLOUD': 'megacloud',
             'OS_REGION_NAME': 'occ-env',
         }
-        self.useFixture(utils.EnvFixture(env.copy()))
+        self.useFixture(EnvFixture(env.copy()))
 
     @mock.patch("openstack.config.loader.OpenStackConfig._load_vendor_file")
     @mock.patch("openstack.config.loader.OpenStackConfig._load_config_file")
@@ -478,10 +650,10 @@ class TestShellCliPrecedence(utils.TestShell):
         """Test environment overriding occ"""
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
         vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
-        _shell = utils.make_shell()
+        _shell = make_shell()
 
         # Test env var
-        utils.fake_execute(
+        fake_execute(
             _shell,
             "module list",
         )
@@ -526,10 +698,10 @@ class TestShellCliPrecedence(utils.TestShell):
         """Test command line overriding environment and occ"""
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_2))
         vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
-        _shell = utils.make_shell()
+        _shell = make_shell()
 
         # Test command option overriding config file value
-        utils.fake_execute(
+        fake_execute(
             _shell,
             "--os-region-name krikkit list user",
         )
@@ -574,10 +746,10 @@ class TestShellCliPrecedence(utils.TestShell):
         """Test command line overriding environment and occ"""
         config_mock.return_value = ('file.yaml', copy.deepcopy(CLOUD_1))
         vendor_mock.return_value = ('file.yaml', copy.deepcopy(PUBLIC_1))
-        _shell = utils.make_shell()
+        _shell = make_shell()
 
         # Test command option overriding config file value
-        utils.fake_execute(
+        fake_execute(
             _shell,
             "--os-cloud scc --os-region-name krikkit list user",
         )

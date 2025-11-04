@@ -9,14 +9,13 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 """API Test Fakes"""
 
 from keystoneauth1 import session
 from requests_mock.contrib import fixture
 
-from osc_lib.tests import utils
+from osc_lib.test import base
 
 
 RESP_ITEM_1 = {
@@ -46,7 +45,7 @@ LIST_BODY = {
 }
 
 
-class TestSession(utils.TestCase):
+class TestSession(base.TestCase):
     BASE_URL = 'https://api.example.com:1234/test'
 
     def setUp(self):

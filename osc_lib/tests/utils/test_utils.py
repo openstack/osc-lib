@@ -21,8 +21,8 @@ from cliff import columns as cliff_columns
 
 from osc_lib.cli import format_columns
 from osc_lib import exceptions
-from osc_lib.tests import fakes
-from osc_lib.tests import utils as test_utils
+from osc_lib.test import base
+from osc_lib.test import fakes
 from osc_lib import utils
 
 PASSWORD = "Pa$$w0rd"
@@ -41,7 +41,7 @@ class FakeOddballResource(fakes.FakeResource):
             return None
 
 
-class TestUtils(test_utils.TestCase):
+class TestUtils(base.TestCase):
     def _get_test_items(self):
         item1 = {'a': 1, 'b': 2}
         item2 = {'a': 1, 'b': 3}
@@ -532,7 +532,7 @@ class NoUniqueMatch(Exception):
     pass
 
 
-class TestFindResource(test_utils.TestCase):
+class TestFindResource(base.TestCase):
     def setUp(self):
         super().setUp()
         self.name = 'legos'
@@ -839,7 +839,7 @@ class TestFindResource(test_utils.TestCase):
         self.assertEqual(expected, actual_unsorted)
 
 
-class TestAssertItemEqual(test_utils.TestCommand):
+class TestAssertItemEqual(base.TestCommand):
     def test_assert_normal_item(self):
         expected = ['a', 'b', 'c']
         actual = ['a', 'b', 'c']
@@ -908,7 +908,7 @@ class TestAssertItemEqual(test_utils.TestCommand):
         self.assertListItemEqual(expected, actual)
 
 
-class TestSDKUtils(test_utils.TestCase):
+class TestSDKUtils(base.TestCase):
     def setUp(self):
         super().setUp()
 

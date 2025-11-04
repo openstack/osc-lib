@@ -9,13 +9,12 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
-from osc_lib.tests import utils as test_utils
+from osc_lib.test import base
 from osc_lib.utils import columns as column_utils
 
 
-class TestColumnUtils(test_utils.TestCase):
+class TestColumnUtils(base.TestCase):
     def test_get_column_definitions(self):
         attr_map = (
             ('id', 'ID', column_utils.LIST_BOTH),

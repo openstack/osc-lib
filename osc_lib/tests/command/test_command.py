@@ -16,8 +16,8 @@ from unittest import mock
 
 from osc_lib.command import command
 from osc_lib import exceptions
-from osc_lib.tests import fakes as test_fakes
-from osc_lib.tests import utils as test_utils
+from osc_lib.test import base
+from osc_lib.test import fakes
 
 
 class FakeCommand(command.Command):
@@ -25,7 +25,7 @@ class FakeCommand(command.Command):
         pass
 
 
-class TestCommand(test_utils.TestCase):
+class TestCommand(base.TestCase):
     def test_command_has_logger(self):
         cmd = FakeCommand(mock.Mock(), mock.Mock())
         self.assertTrue(hasattr(cmd, 'log'))
@@ -37,7 +37,7 @@ class TestCommand(test_utils.TestCase):
     def test_validate_os_beta_command_enabled(self):
         cmd = FakeCommand(mock.Mock(), mock.Mock())
         cmd.app = mock.Mock()
-        cmd.app.options = test_fakes.FakeOptions()
+        cmd.app.options = fakes.FakeOptions()
 
         # No exception is raised when enabled.
         cmd.app.options.os_beta_command = True

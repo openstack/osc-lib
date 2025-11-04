@@ -11,30 +11,54 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
 
 import copy
+import json as jsonutils
 from unittest import mock
 
 from keystoneauth1.access import service_catalog
 from keystoneauth1 import exceptions as ksa_exceptions
+from keystoneauth1 import fixture as ksa_fixture
 from keystoneauth1.identity import generic as generic_plugin
 from keystoneauth1.identity.v3 import k2k
 from keystoneauth1 import loading
 from keystoneauth1 import noauth
 from keystoneauth1 import token_endpoint
 from openstack.config import cloud_config
+from openstack.config import cloud_region
 from openstack.config import defaults
 from openstack import connection
+from requests_mock.contrib import fixture as requests_mock_fixture
 
 from osc_lib.api import auth
 from osc_lib import clientmanager
 from osc_lib import exceptions as exc
-from osc_lib.tests import fakes
-from osc_lib.tests import utils
+from osc_lib.test import base
+from osc_lib.test import fakes
+
+SERVICE_PROVIDER_ID = "bob"
+
+TEST_RESPONSE_DICT = ksa_fixture.V2Token(
+    token_id=fakes.TOKEN, user_name=fakes.USERNAME
+)
+_s = TEST_RESPONSE_DICT.add_service('identity', name='keystone')
+_s.add_endpoint(fakes.AUTH_URL + ':5000/v2.0')
+_s = TEST_RESPONSE_DICT.add_service('network', name='neutron')
+_s.add_endpoint(fakes.AUTH_URL + ':9696')
+_s = TEST_RESPONSE_DICT.add_service('compute', name='nova')
+_s.add_endpoint(fakes.AUTH_URL + ':8774/v2')
+_s = TEST_RESPONSE_DICT.add_service('image', name='glance')
+_s.add_endpoint(fakes.AUTH_URL + ':9292')
+_s = TEST_RESPONSE_DICT.add_service('object', name='swift')
+_s.add_endpoint(fakes.AUTH_URL + ':8080/v1')
+
+TEST_RESPONSE_DICT_V3 = ksa_fixture.V3Token(user_name=fakes.USERNAME)
+TEST_RESPONSE_DICT_V3.set_project_scope()
+
+TEST_VERSIONS = ksa_fixture.DiscoveryList(href=fakes.AUTH_URL)
 
 AUTH_REF = {'version': 'v2.0'}
-AUTH_REF.update(fakes.TEST_RESPONSE_DICT['access'])
+AUTH_REF.update(TEST_RESPONSE_DICT['access'])
 SERVICE_CATALOG = service_catalog.ServiceCatalogV2(AUTH_REF)
 
 AUTH_DICT = {
@@ -57,7 +81,7 @@ class Container:
         pass
 
 
-class TestClientCache(utils.TestCase):
+class TestClientCache(base.TestCase):
     def test_singleton(self):
         # NOTE(dtroyer): Verify that the ClientCache descriptor only invokes
         # the factory one time and always returns the same value after that.
@@ -73,7 +97,132 @@ class TestClientCache(utils.TestCase):
         self.assertEqual("'Container' object has no attribute 'foo'", str(err))
 
 
-class TestClientManager(utils.TestClientManager):
+class BaseTestClientManager(base.TestCase):
+    """ClientManager class test framework"""
+
+    default_password_auth = {
+        'auth_url': fakes.AUTH_URL,
+        'username': fakes.USERNAME,
+        'password': fakes.PASSWORD,
+        'project_name': fakes.PROJECT_NAME,
+    }
+    default_token_auth = {
+        'auth_url': fakes.AUTH_URL,
+        'token': fakes.TOKEN,
+    }
+
+    def setUp(self):
+        super().setUp()
+        self.mock = mock.Mock()
+        self.requests = self.useFixture(requests_mock_fixture.Fixture())
+        # fake v2password token retrieval
+        self.stub_auth(json=TEST_RESPONSE_DICT)
+        # fake token and token_endpoint retrieval
+        self.stub_auth(
+            json=TEST_RESPONSE_DICT,
+            url='/'.join([fakes.AUTH_URL, 'v2.0/tokens']),
+        )
+        # fake v3password token retrieval
+        self.stub_auth(
+            json=TEST_RESPONSE_DICT_V3,
+            url='/'.join([fakes.AUTH_URL, 'v3/auth/tokens']),
+        )
+        # fake password token retrieval
+        self.stub_auth(
+            json=TEST_RESPONSE_DICT_V3,
+            url='/'.join([fakes.AUTH_URL, 'auth/tokens']),
+        )
+        # fake password version endpoint discovery
+        self.stub_auth(json=TEST_VERSIONS, url=fakes.AUTH_URL, verb='GET')
+
+        # Mock the auth plugin
+        self.auth_mock = mock.Mock()
+
+    def stub_auth(self, json=None, url=None, verb=None, **kwargs):
+        subject_token = fakes.TOKEN
+        base_url = fakes.AUTH_URL
+        if json:
+            text = jsonutils.dumps(json)
+            headers = {
+                'X-Subject-Token': subject_token,
+                'Content-Type': 'application/json',
+            }
+        if not url:
+            url = '/'.join([base_url, 'tokens'])
+        url = url.replace("/?", "?")
+        if not verb:
+            verb = 'POST'
+        self.requests.register_uri(
+            verb,
+            url,
+            headers=headers,
+            text=text,
+        )
+
+    def _clientmanager_class(self):
+        """Allow subclasses to override the ClientManager class"""
+        return clientmanager.ClientManager
+
+    def _make_clientmanager(
+        self,
+        auth_args=None,
+        config_args=None,
+        identity_api_version=None,
+        auth_plugin_name=None,
+        auth_required=None,
+    ):
+        if identity_api_version is None:
+            identity_api_version = '2.0'
+        if auth_plugin_name is None:
+            auth_plugin_name = 'password'
+
+        if auth_plugin_name.endswith('password'):
+            auth_dict = copy.deepcopy(self.default_password_auth)
+        elif auth_plugin_name.endswith('token'):
+            auth_dict = copy.deepcopy(self.default_token_auth)
+        else:
+            auth_dict = {}
+
+        if auth_args is not None:
+            auth_dict = auth_args
+
+        cli_options = defaults.get_defaults()
+        cli_options.update(
+            {
+                'auth_type': auth_plugin_name,
+                'auth': auth_dict,
+                'interface': fakes.INTERFACE,
+                'region_name': fakes.REGION_NAME,
+            }
+        )
+        if config_args is not None:
+            cli_options.update(config_args)
+
+        loader = loading.get_plugin_loader(auth_plugin_name)
+        auth_plugin = loader.load_from_options(**auth_dict)
+        client_manager = self._clientmanager_class()(
+            cli_options=cloud_region.CloudRegion(
+                name='t1',
+                region_name='1',
+                config=cli_options,
+                auth_plugin=auth_plugin,
+            ),
+            api_version={
+                'identity': identity_api_version,
+            },
+        )
+        client_manager._auth_required = auth_required is True
+        client_manager.setup_auth()
+        client_manager.auth_ref
+
+        self.assertEqual(
+            auth_plugin_name,
+            client_manager.auth_plugin_name,
+        )
+        return client_manager
+
+
+class TestClientManager(BaseTestClientManager):
     def test_client_manager_none(self):
         none_auth = {
             'endpoint': fakes.AUTH_URL,
@@ -100,7 +249,7 @@ class TestClientManager(utils.TestClientManager):
     def test_client_manager_admin_token(self):
         token_auth = {
             'endpoint': fakes.AUTH_URL,
-            'token': fakes.AUTH_TOKEN,
+            'token': fakes.TOKEN,
         }
         client_manager = self._make_clientmanager(
             auth_args=token_auth,
@@ -112,7 +261,7 @@ class TestClientManager(utils.TestClientManager):
             client_manager._cli_options.config['auth']['endpoint'],
         )
         self.assertEqual(
-            fakes.AUTH_TOKEN,
+            fakes.TOKEN,
             client_manager.auth.get_token(None),
         )
         self.assertIsInstance(
@@ -156,7 +305,7 @@ class TestClientManager(utils.TestClientManager):
             client_manager.auth_ref.version,
         )
         self.assertEqual(
-            fakes.to_unicode_dict(AUTH_REF),
+            AUTH_REF,
             client_manager.auth_ref._data['access'],
         )
         self.assertEqual(
@@ -306,11 +455,7 @@ class TestClientManager(utils.TestClientManager):
 
         auth_args = copy.deepcopy(self.default_password_auth)
         auth_args.pop('username')
-        auth_args.update(
-            {
-                'user_id': fakes.USER_ID,
-            }
-        )
+        auth_args.update({'user_id': fakes.USER_ID})
         self._make_clientmanager(
             auth_args=auth_args,
             identity_api_version='3',
@@ -404,7 +549,7 @@ class TestClientManager(utils.TestClientManager):
                 'auth': AUTH_DICT,
                 'interface': fakes.INTERFACE,
                 'region_name': fakes.REGION_NAME,
-                'service_provider': fakes.SERVICE_PROVIDER_ID,
+                'service_provider': SERVICE_PROVIDER_ID,
                 'remote_project_id': fakes.PROJECT_ID,
             }
         )
@@ -425,7 +570,7 @@ class TestClientManager(utils.TestClientManager):
         # Note(knikolla): Make sure that the auth object is of the correct
         # type and that the service_provider is correctly set.
         self.assertIsInstance(client_manager.auth, k2k.Keystone2Keystone)
-        self.assertEqual(client_manager.auth._sp_id, fakes.SERVICE_PROVIDER_ID)
+        self.assertEqual(client_manager.auth._sp_id, SERVICE_PROVIDER_ID)
         self.assertEqual(client_manager.auth.project_id, fakes.PROJECT_ID)
         self.assertTrue(client_manager._auth_setup_completed)
 
@@ -459,8 +604,6 @@ class TestClientManager(utils.TestClientManager):
         )
         self.assertTrue(client_manager.is_service_available('compute'))
 
-
-class TestClientManagerSDK(utils.TestClientManager):
     def test_client_manager_connection(self):
         client_manager = self._make_clientmanager(
             auth_required=True,
