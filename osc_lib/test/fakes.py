@@ -10,10 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from collections.abc import Iterable
+from collections.abc import Iterable, Mapping
+import json
 import sys
 from typing import Any, Protocol
 from unittest import mock
+
+import requests
 
 AUTH_URL = "https://example.com/identity"
 USERNAME = 'itchy'
@@ -103,6 +106,8 @@ class FakeClientManager:
         self.object_store = None
         self.volume = None
         self.network = None
+        self.sdk_connection = mock.Mock()
+
         self.session = None
         self.auth_ref = None
         self.auth_plugin_name = None
@@ -178,3 +183,37 @@ class FakeResource:
 
     def keys(self) -> Iterable[str]:
         return self._info.keys()
+
+    def to_dict(self) -> dict[str, Any]:
+        return self._info
+
+    @property
+    def info(self) -> dict[str, Any]:
+        return self._info
+
+    def __getitem__(self, item: str) -> Any:
+        return self._info.get(item)
+
+    def get(self, item: str, default: Any = None) -> Any:
+        return self._info.get(item, default)
+
+    def pop(self, key: str, default_value: Any = None) -> Any:
+        return self.info.pop(key, default_value)
+
+
+class FakeResponse(requests.Response):
+    def __init__(
+        self,
+        headers: Mapping[str, str] | None = None,
+        status_code: int = 200,
+        data: object | None = None,
+        encoding: type[str] | type[bytes] | None = None,
+    ) -> None:
+        super().__init__()
+
+        headers = headers or {}
+
+        self.status_code = status_code
+
+        self.headers.update(headers)
+        self._content = json.dumps(data).encode()
