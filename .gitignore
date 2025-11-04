@@ -16,11 +16,14 @@ build
 ChangeLog
 dist
 # Doc related
+doc/api
 doc/build
-doc/source/reference/api/
+doc/source/reference/api
 # Development environment files
 .project
 .pydevproject
 cover
 # Files created by releasenotes build
+RELEASENOTES.rst
 releasenotes/build
+releasenotes/notes/reno.cache

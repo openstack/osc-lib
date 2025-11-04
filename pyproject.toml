@@ -31,6 +31,12 @@ Homepage = "https://docs.openstack.org/osc-lib/"
 Repository = "https://opendev.org/openstack/osc-lib/"
 "Bug Tracker" = "https://storyboard.openstack.org/#!/project/openstack/osc-lib"
 
+[project.optional-dependencies]
+test = [
+    "fixtures>=3.0.0", # Apache-2.0/BSD
+    "testtools>=2.2.0",  # MIT
+]
+
 [tool.setuptools]
 packages = [
     "osc_lib"

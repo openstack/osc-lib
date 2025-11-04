@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    A new ``osc_lib.test`` package has been added. This contains much of the
+    logic previously provided by ``osc_lib.tests.utils``, but is explicitly
+    designed for external consumption. Consumers of ``osc_lib.tests.utils``
+    are encourgaged to migrate over at the earliest opportunity. In most
+    cases, migration will simply involve changing the module path.
