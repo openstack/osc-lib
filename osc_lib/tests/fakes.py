@@ -11,7 +11,8 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
+
+import warnings
 
 from osc_lib.test.base import TestCase, TestCommand
 from osc_lib.test.fakes import (
@@ -66,6 +67,14 @@ __all__ = [
     'USERNAME',
     'VERSION',
 ]
+
+
+warnings.warn(
+    "The osc_lib.tests.fakes module is deprecated for removal and should not "
+    "be used externally. Use the osc_lib.test module instead, which provides "
+    "a public API.",
+    DeprecationWarning,
+)
 
 
 # NOTE(stephenfin): This isn't moved since it's unused now. We can delete it in

@@ -13,6 +13,8 @@
 #   License for the specific language governing permissions and limitations
 #   under the License.
 
+import warnings
+
 from osc_lib.test.base import ParserException, TestCase, TestCommand
 from osc_lib.tests.test_clientmanager import (
     BaseTestClientManager as TestClientManager,
@@ -38,3 +40,10 @@ __all__ = [
     'TestCommand',
     'TestShell',
 ]
+
+warnings.warn(
+    "The osc_lib.tests.utils module is deprecated for removal and should not "
+    "be used externally. Use the osc_lib.test module instead, which provides "
+    "a public API.",
+    DeprecationWarning,
+)

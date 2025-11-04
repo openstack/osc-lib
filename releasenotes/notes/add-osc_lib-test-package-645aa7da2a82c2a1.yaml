@@ -6,3 +6,7 @@ upgrade:
     designed for external consumption. Consumers of ``osc_lib.tests.utils``
     are encourgaged to migrate over at the earliest opportunity. In most
     cases, migration will simply involve changing the module path.
+deprecations:
+  - |
+    The ``osc_lib.tests.utils`` module is now deprecated for removal and
+    has been replaced by ``osc_lib.test``.
