@@ -29,8 +29,11 @@ class ParserException(Exception):
 
 
 class TestCase(testtools.TestCase):  # type: ignore
+    # provide additional context for failures
+    maxDiff = None
+
     def setUp(self) -> None:
-        testtools.TestCase.setUp(self)
+        super().setUp()
 
         if (
             os.environ.get("OS_STDOUT_CAPTURE") == "True"
