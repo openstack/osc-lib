@@ -154,14 +154,18 @@ def check_valid_authentication_options(
         )
 
 
+_ArgumentParserT = ty.TypeVar(
+    '_ArgumentParserT', bound=argparse.ArgumentParser
+)
+
+
 def build_auth_plugins_option_parser(
-    parser: argparse.ArgumentParser,
-) -> argparse.ArgumentParser:
+    parser: _ArgumentParserT,
+) -> _ArgumentParserT:
     """Auth plugins options builder
 
     Builds dynamically the list of options expected by each available
     authentication plugin.
-
     """
     available_plugins = list(get_plugin_list())
     parser.add_argument(
