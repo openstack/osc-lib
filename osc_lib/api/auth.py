@@ -25,12 +25,12 @@ from osc_lib.i18n import _
 from osc_lib import utils
 
 if ty.TYPE_CHECKING:
-    from openstack import connection
+    from openstack.config import cloud_region
 
 
 # Initialize the list of Authentication plugins early in order
 # to get the command-line options
-PLUGIN_LIST = None
+PLUGIN_LIST: frozenset[str] | None = None
 
 
 class _OptionDict(ty.TypedDict):
@@ -77,7 +77,7 @@ def get_options_list() -> dict[str, _OptionDict]:
 
 
 def check_valid_authorization_options(
-    options: 'connection.Connection',
+    options: 'cloud_region.CloudRegion',
     auth_plugin_name: str,
 ) -> None:
     """Validate authorization options, and provide helpful error messages."""
@@ -101,7 +101,7 @@ def check_valid_authorization_options(
 
 
 def check_valid_authentication_options(
-    options: 'connection.Connection',
+    options: 'cloud_region.CloudRegion',
     auth_plugin_name: str,
 ) -> None:
     """Validate authentication options, and provide helpful error messages."""

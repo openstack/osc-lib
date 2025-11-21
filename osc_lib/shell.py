@@ -432,7 +432,11 @@ class OpenStackShell(app.App):
             if self.command_options
             else "",
         )
-        self.log.debug("options: %s", strutils.mask_password(self.options))
+        # https://review.opendev.org/c/openstack/oslo.utils/+/967979
+        self.log.debug(
+            "options: %s",
+            strutils.mask_password(self.options),  # type: ignore
+        )
 
         # Callout for stuff between superclass init and o-c-c
         self._final_defaults()
@@ -467,8 +471,10 @@ class OpenStackShell(app.App):
         self.log_configurator.configure(self.cloud)
         self.dump_stack_trace = self.log_configurator.dump_trace
         self.log.debug("defaults: %s", self.cloud_config.defaults)
+        # https://review.opendev.org/c/openstack/oslo.utils/+/967979
         self.log.debug(
-            "cloud cfg: %s", strutils.mask_password(self.cloud.config)
+            "cloud cfg: %s",
+            strutils.mask_password(self.cloud.config),  # type: ignore
         )
 
         self._load_plugins()

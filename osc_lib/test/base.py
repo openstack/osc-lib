@@ -19,7 +19,7 @@ from unittest import mock
 from cliff import columns as cliff_columns
 from cliff import command as cliff_command
 import fixtures
-import testtools
+import testtools  # type: ignore
 
 from osc_lib.test import fakes
 

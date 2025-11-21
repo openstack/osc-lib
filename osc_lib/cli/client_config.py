@@ -16,7 +16,7 @@
 import logging
 import typing as ty
 
-from keystoneauth1.loading import identity as ksa_loading
+from keystoneauth1 import loading as ksa_loading
 from openstack.config import exceptions as sdk_exceptions
 from openstack.config import loader as config
 from oslo_utils import strutils
@@ -182,7 +182,7 @@ class OSC_Config(config.OpenStackConfig):  # type: ignore
     def _validate_auth(
         self,
         config: dict[str, ty.Any],
-        loader: ksa_loading.BaseIdentityLoader[ty.Any],
+        loader: ksa_loading.BaseLoader[ty.Any],
     ) -> dict[str, ty.Any]:
         """Validate auth plugin arguments"""
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
@@ -241,7 +241,15 @@ class OSC_Config(config.OpenStackConfig):  # type: ignore
 
         if msgs:
             raise sdk_exceptions.OpenStackConfigException('\n'.join(msgs))
-        else:
+
+        if prompt_options:
+            if self._pw_callback is None:
+                # we have no way to get the missing options from the user, so
+                # error out
+                raise sdk_exceptions.OpenStackConfigException(
+                    'Missing authentication information: {prompt_options}'
+                )
+
             for p_opt in prompt_options:
                 config['auth'][p_opt.dest] = self._pw_callback(p_opt.prompt)
 

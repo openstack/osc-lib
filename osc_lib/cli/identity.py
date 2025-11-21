@@ -73,7 +73,8 @@ def find_project(
             domain_id = domain.id
         else:
             domain_id = None
-        return sdk_connection.identity.find_project(
+
+        return sdk_connection.identity.find_project(  # type: ignore
             name_or_id, ignore_missing=False, domain_id=domain_id
         )
     # NOTE: OpenStack SDK raises HttpException for 403 response code.
@@ -81,5 +82,5 @@ def find_project(
     # HttpException and check the status code.
     except exceptions.HttpException as e:
         if e.status_code == 403:
-            return project.Project(id=name_or_id, name=name_or_id)
+            return project.Project(id=name_or_id, name=name_or_id)  # type: ignore
         raise

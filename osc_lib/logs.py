@@ -20,7 +20,7 @@ import sys
 import typing as ty
 import warnings
 
-from openstack.config import cloud_config
+from openstack.config import cloud_region
 
 
 def get_loggers() -> dict[str, str]:
@@ -100,7 +100,7 @@ class _FileFormatter(logging.Formatter):
     def __init__(
         self,
         options: argparse.Namespace | None = None,
-        config: cloud_config.CloudConfig | None = None,
+        config: cloud_region.CloudRegion | None = None,
         **kwargs: ty.Any,
     ) -> None:
         context = {}
@@ -179,7 +179,7 @@ class LogConfigurator:
         stevedore_log.setLevel(logging.ERROR)
         iso8601_log.setLevel(logging.ERROR)
 
-    def configure(self, cloud_config: cloud_config.CloudConfig) -> None:
+    def configure(self, cloud_config: cloud_region.CloudRegion) -> None:
         log_level = log_level_from_config(cloud_config.config)
         set_warning_filter(log_level)
         self.dump_trace = cloud_config.config.get('debug', self.dump_trace)

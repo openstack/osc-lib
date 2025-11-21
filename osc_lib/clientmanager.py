@@ -21,6 +21,7 @@ import typing as ty
 import warnings
 
 from keystoneauth1 import access as ksa_access
+from keystoneauth1.identity import base as ksa_identity_base
 from keystoneauth1 import session as ksa_session
 from openstack.config import cloud_region
 from openstack import connection
@@ -105,7 +106,7 @@ class ClientManager:
 
         self.timing = self._cli_options.timing
 
-        self._auth_ref = None
+        self._auth_ref: ksa_access.AccessInfo | None = None
 
         # self.verify is the Requests-compatible form
         # self.cacert is the form used by the legacy client libs
@@ -142,7 +143,6 @@ class ClientManager:
         This is deferred until authentication is actually attempted because
         it gets in the way of things that do not require auth.
         """
-
         if self._auth_setup_completed:
             return
 
@@ -151,8 +151,7 @@ class ClientManager:
 
         # Basic option checking to avoid unhelpful error messages
         auth.check_valid_authentication_options(
-            self._cli_options,
-            self.auth_plugin_name,
+            self._cli_options, self.auth_plugin_name
         )
 
         # Horrible hack alert...must handle prompt for null password if
@@ -171,7 +170,19 @@ class ClientManager:
         )
         self.auth = self._cli_options.get_auth()
 
+        if self.auth is None:
+            raise exceptions.AuthorizationFailure(
+                'Failed to load authentication information'
+            )
+
         if self._cli_options.service_provider:
+            if not isinstance(self.auth, ksa_identity_base.BaseIdentityPlugin):
+                raise exceptions.AuthorizationFailure(
+                    f'keystone-to-keystone (k2k) federation requires use '
+                    f'of an Identity-based authentication plugin. '
+                    f'Got: {self.auth_plugin_name}'
+                )
+
             self.auth = auth.get_keystone2keystone_auth(
                 self.auth,
                 self._cli_options.service_provider,
@@ -222,6 +233,8 @@ class ClientManager:
         if not self._auth_ref:
             self.setup_auth()
             LOG.debug("Get auth_ref")
+            # narrow type: we know this is set now due to the setup_auth call
+            assert self.auth is not None
             self._auth_ref = self.auth.get_auth_ref(self.session)
         return self._auth_ref
 
@@ -274,7 +287,7 @@ class ClientManager:
                 region_name=region_name,
                 interface=interface,
             )
-        else:
+        elif self.auth:
             # Get the passed endpoint directly from the auth plugin
             endpoint = self.auth.get_endpoint(
                 self.session,
