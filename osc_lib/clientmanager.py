@@ -23,7 +23,6 @@ import warnings
 from keystoneauth1 import access as ksa_access
 from keystoneauth1 import session as ksa_session
 from openstack.config import cloud_region
-from openstack.config import loader as config  # noqa
 from openstack import connection
 from oslo_utils import strutils
 
