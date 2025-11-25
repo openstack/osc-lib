@@ -480,12 +480,16 @@ def get_client_class(
     return importutils.import_class(client_path)
 
 
+FormattableColumnT = ty.TypeVar(
+    'FormattableColumnT', bound=cliff_columns.FormattableColumn[ty.Any]
+)
+
+
 def get_dict_properties(
     item: dict[str, _T],
     fields: collections.abc.Sequence[str],
     mixed_case_fields: collections.abc.Sequence[str] | None = None,
-    formatters: dict[str, type[cliff_columns.FormattableColumn[ty.Any]]]
-    | None = None,
+    formatters: dict[str, type[FormattableColumnT]] | None = None,
 ) -> tuple[ty.Any, ...]:
     """Return a tuple containing the item properties.
 
@@ -528,6 +532,7 @@ def get_dict_properties(
                 raise exceptions.CommandError(msg)
 
         row.append(data)
+
     return tuple(row)
 
 
@@ -535,8 +540,7 @@ def get_item_properties(
     item: dict[str, _T],
     fields: collections.abc.Sequence[str],
     mixed_case_fields: collections.abc.Sequence[str] | None = None,
-    formatters: dict[str, type[cliff_columns.FormattableColumn[ty.Any]]]
-    | None = None,
+    formatters: dict[str, type[FormattableColumnT]] | None = None,
 ) -> tuple[ty.Any, ...]:
     """Return a tuple containing the item properties.
 
