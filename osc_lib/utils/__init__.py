@@ -24,6 +24,7 @@ import logging
 import os
 import time
 import typing as ty
+import uuid
 import warnings
 
 from cliff import columns as cliff_columns
@@ -868,3 +869,25 @@ def get_osc_show_columns_for_sdk_resource(
         new_column = attr_map[column] if column in attr_map else column
         attr_columns.append(new_column)
     return tuple(sorted_display_columns), tuple(attr_columns)
+
+
+def is_uuid_like(value: ty.Any) -> bool:
+    """Returns validation of a value as a UUID.
+
+    :param val: Value to verify
+    :returns: True if UUID-like, else False.
+    """
+    if not isinstance(value, str):
+        return False
+
+    try:
+        formatted_value = (
+            value.replace('urn:', '')
+            .replace('uuid:', '')
+            .strip('{}')
+            .replace('-', '')
+            .lower()
+        )
+        return str(uuid.UUID(value)).replace('-', '') == formatted_value
+    except (TypeError, ValueError, AttributeError):
+        return False
