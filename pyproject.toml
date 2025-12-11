@@ -49,14 +49,7 @@ show_error_context = true
 # evolving right now
 warn_unused_ignores = false
 strict = true
-# keep this in-sync with 'mypy.exclude' in '.pre-commit-config.yaml'
-exclude = '''
-(?x)(
-  doc
-  | examples
-  | releasenotes
-)
-'''
+exclude = '(?x)(doc | releasenotes)'
 
 [[tool.mypy.overrides]]
 module = ["osc_lib.tests.*"]
