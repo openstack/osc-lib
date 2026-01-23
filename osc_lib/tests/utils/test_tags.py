@@ -217,13 +217,19 @@ class TestTagHelps(base.TestCase):
         """
         options_name = 'options'
         parser = argparse.ArgumentParser(
-            formatter_class=functools.partial(argparse.HelpFormatter, width=78)
+            prog='run.py',
+            formatter_class=functools.partial(
+                argparse.HelpFormatter, width=78
+            ),
         )
         meth(parser, 'test')
         self.assertEqual(exp_normal % options_name, parser.format_help())
 
         parser = argparse.ArgumentParser(
-            formatter_class=functools.partial(argparse.HelpFormatter, width=78)
+            prog='run.py',
+            formatter_class=functools.partial(
+                argparse.HelpFormatter, width=78
+            ),
         )
         meth(parser, 'test', enhance_help=help_enhancer)
         self.assertEqual(exp_enhanced % options_name, parser.format_help())
