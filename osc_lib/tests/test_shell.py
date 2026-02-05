@@ -13,10 +13,12 @@
 #   under the License.
 
 import copy
+import io
 import os
 import sys
 from unittest import mock
 
+from cliff import commandmanager
 import fixtures
 from oslo_utils import importutils
 import testtools
@@ -291,6 +293,97 @@ class TestShell(base.TestCase):
             }
             os.environ = env.copy()
             self._assert_cloud_region_arg("", kwargs)
+
+
+class TestShellInit(TestShell):
+    """Test the initialization of the shell"""
+
+    def setUp(self):
+        super().setUp()
+
+    def test_shell_init(self):
+        """Test the initialization of the shell with default values"""
+
+        with (
+            mock.patch(
+                "cliff.app.App.__init__", return_value=None
+            ) as mock_init,
+            mock.patch(
+                "cliff.commandmanager.CommandManager"
+            ) as mock_command_manager,
+        ):
+            _shell = self.shell_class()
+
+            mock_command_manager.assert_called_once_with('openstack.cli')
+
+            mock_init.assert_called_once_with(
+                description=shell.__doc__.strip(),
+                version=None,
+                command_manager=mock_command_manager.return_value,
+                stdin=None,
+                stdout=None,
+                stderr=None,
+                interactive_app_factory=None,
+                deferred_help=True,
+            )
+
+        # Since we mock cliff's app _shell.command_manager is not set
+        self.assertFalse(hasattr(_shell, "command_manager"))
+        self.assertTrue(_shell.dump_stack_trace)
+        self.assertDictEqual({}, _shell.api_version)
+        self.assertListEqual([], _shell.command_options)
+        self.assertFalse(_shell.do_profile)
+
+    def test_shell_init_with_args(self):
+        """Test the initialization of the shell with custom values"""
+
+        description = "Test Shell"
+        version = "1.0.0"
+        command_manager = commandmanager.CommandManager('test-cli')
+        stdin = io.StringIO()
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        interactive_app_factory = mock.Mock()
+        deferred_help = False
+
+        with (
+            mock.patch(
+                "cliff.app.App.__init__", return_value=None
+            ) as mock_init,
+            mock.patch(
+                "cliff.commandmanager.CommandManager"
+            ) as mock_command_manager,
+        ):
+            _shell = self.shell_class(
+                description=description,
+                version=version,
+                command_manager=command_manager,
+                stdin=stdin,
+                stdout=stdout,
+                stderr=stderr,
+                interactive_app_factory=interactive_app_factory,
+                deferred_help=deferred_help,
+            )
+
+            mock_command_manager.assert_not_called()
+
+            mock_init.assert_called_once_with(
+                description=description,
+                version=version,
+                command_manager=command_manager,
+                stdin=stdin,
+                stdout=stdout,
+                stderr=stderr,
+                interactive_app_factory=interactive_app_factory,
+                deferred_help=deferred_help,
+            )
+
+        # Since we mock cliff's app _shell.command_manager is not set
+        self.assertFalse(hasattr(_shell, "command_manager"))
+        self.assertTrue(_shell.dump_stack_trace)
+        self.assertDictEqual({}, _shell.api_version)
+        self.assertListEqual([], _shell.command_options)
+        self.assertFalse(_shell.do_profile)
 
 
 class TestShellArgV(TestShell):
