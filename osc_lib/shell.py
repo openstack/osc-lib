@@ -95,7 +95,7 @@ class OpenStackShell(app.App):
         stderr: ty.TextIO | None = None,
         interactive_app_factory: type['interactive.InteractiveApp']
         | None = None,
-        deferred_help: bool = False,
+        deferred_help: bool = True,
     ) -> None:
         # Patch command.Command to add a default auth_required = True
         setattr(command.Command, 'auth_required', True)
@@ -115,10 +115,14 @@ class OpenStackShell(app.App):
             cm = command_manager
 
         super().__init__(
-            description=__doc__.strip(),
+            description=description or __doc__.strip(),
             version=version,
             command_manager=cm,
-            deferred_help=True,
+            stdin=stdin,
+            stdout=stdout,
+            stderr=stderr,
+            interactive_app_factory=interactive_app_factory,
+            deferred_help=deferred_help,
         )
 
         # Until we have command line arguments parsed, dump any stack traces
