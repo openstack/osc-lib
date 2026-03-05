@@ -660,7 +660,7 @@ def sort_items(
     items: collections.abc.Sequence[_T],
     sort_str: str,
     sort_type: type[ty.Any] | None = None,
-) -> collections.abc.Sequence[_T]:
+) -> list[_T]:
     """Sort items based on sort keys and sort directions given by sort_str.
 
     :param items: a list or generator object of items
@@ -671,7 +671,9 @@ def sort_items(
     :return: sorted items
     """
     if not sort_str:
-        return items
+        # wrap in list so we return a consistent type
+        return list(items)
+
     # items may be a generator object, transform it to a list
     items = list(items)
     sort_keys = sort_str.strip().split(',')
