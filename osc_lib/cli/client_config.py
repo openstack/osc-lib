@@ -27,7 +27,7 @@ LOG = logging.getLogger(__name__)
 
 # Subclass OpenStackConfig in order to munge config values
 # before auth plugins are loaded
-class OSC_Config(config.OpenStackConfig):  # type: ignore
+class OSC_Config(config.OpenStackConfig):
     def _auth_select_default_plugin(
         self, config: dict[str, ty.Any]
     ) -> dict[str, ty.Any]:

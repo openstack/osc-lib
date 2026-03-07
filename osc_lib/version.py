@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import pbr.version  # type: ignore
+import pbr.version
 
 __all__ = ['version_info', 'version_string']
 

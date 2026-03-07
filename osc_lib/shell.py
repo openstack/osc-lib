@@ -439,7 +439,7 @@ class OpenStackShell(app.App):
         # https://review.opendev.org/c/openstack/oslo.utils/+/967979
         self.log.debug(
             "options: %s",
-            strutils.mask_password(self.options),  # type: ignore
+            strutils.mask_password(self.options),
         )
 
         # Callout for stuff between superclass init and o-c-c
@@ -478,7 +478,7 @@ class OpenStackShell(app.App):
         # https://review.opendev.org/c/openstack/oslo.utils/+/967979
         self.log.debug(
             "cloud cfg: %s",
-            strutils.mask_password(self.cloud.config),  # type: ignore
+            strutils.mask_password(self.cloud.config),
         )
 
         self._load_plugins()

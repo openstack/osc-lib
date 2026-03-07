@@ -19,7 +19,7 @@ from unittest import mock
 from cliff import columns as cliff_columns
 from cliff import command as cliff_command
 import fixtures
-import testtools  # type: ignore
+import testtools
 
 from osc_lib.test import fakes
 
@@ -28,7 +28,7 @@ class ParserException(Exception):
     pass
 
 
-class TestCase(testtools.TestCase):  # type: ignore
+class TestCase(testtools.TestCase):
     # provide additional context for failures
     maxDiff = None
 
