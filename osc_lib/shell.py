@@ -16,13 +16,13 @@
 
 """Command-line interface to the OpenStack APIs"""
 
+import argparse
 import getpass
 import logging
 import sys
 import traceback
 import typing as ty
 
-from cliff import _argparse
 from cliff import app
 from cliff import command
 from cliff import commandmanager
@@ -205,7 +205,7 @@ class OpenStackShell(app.App):
         description: str | None,
         version: str | None,
         argparse_kwargs: dict[str, ty.Any] | None = None,
-    ) -> _argparse.ArgumentParser:
+    ) -> argparse.ArgumentParser:
         parser = super().build_option_parser(
             description,
             version,
