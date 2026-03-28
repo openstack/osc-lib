@@ -14,7 +14,7 @@
 """Application logging"""
 
 import argparse
-import collections.abc
+from collections.abc import Mapping
 import logging
 import sys
 import typing as ty
@@ -57,7 +57,7 @@ def log_level_from_string(level_string: str) -> int:
     return log_level
 
 
-def log_level_from_config(config: collections.abc.Mapping[str, ty.Any]) -> int:
+def log_level_from_config(config: Mapping[str, ty.Any]) -> int:
     # Check the command line option
     verbose_level_from_config = config.get('verbose_level')
     if config.get('debug', False):

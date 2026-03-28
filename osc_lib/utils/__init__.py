@@ -16,7 +16,7 @@
 """Common client utilities"""
 
 import argparse
-import collections.abc
+from collections.abc import Callable, Mapping, MutableMapping, Sequence
 import copy
 import functools
 import getpass
@@ -76,10 +76,10 @@ def backward_compat_col_lister(
 
 
 def backward_compat_col_showone(
-    show_object: collections.abc.MutableMapping[str, _T],
+    show_object: MutableMapping[str, _T],
     columns: list[str],
     column_map: dict[str, str],
-) -> collections.abc.MutableMapping[str, _T]:
+) -> MutableMapping[str, _T]:
     """Convert the output object to keep column backward compatibility.
 
     Replace the new column name of output object by old name, so that
@@ -118,10 +118,10 @@ def build_kwargs_dict(arg_name: str, value: _T) -> dict[str, _T]:
 
 
 def calculate_header_and_attrs(
-    column_headers: collections.abc.Sequence[str],
-    attrs: collections.abc.Sequence[str],
+    column_headers: Sequence[str],
+    attrs: Sequence[str],
     parsed_args: argparse.Namespace,
-) -> tuple[collections.abc.Sequence[str], collections.abc.Sequence[str]]:
+) -> tuple[Sequence[str], Sequence[str]]:
     """Calculate headers and attribute names based on parsed_args.column.
 
     When --column (-c) option is specified, this function calculates
@@ -174,10 +174,10 @@ def env(*vars: str, **kwargs: ty.Any) -> str | None:
 
 
 def find_min_match(
-    items: collections.abc.Sequence[_T],
+    items: Sequence[_T],
     sort_attr: str,
     **kwargs: ty.Any,
-) -> collections.abc.Sequence[_T]:
+) -> Sequence[_T]:
     """Find all resources meeting the given minimum constraints
 
     :param items: A List of objects to consider
@@ -488,9 +488,9 @@ FormatterT = (
 
 def get_dict_properties(
     item: dict[str, _T],
-    fields: collections.abc.Sequence[str],
-    mixed_case_fields: collections.abc.Sequence[str] | None = None,
-    formatters: collections.abc.Mapping[str, FormatterT] | None = None,
+    fields: Sequence[str],
+    mixed_case_fields: Sequence[str] | None = None,
+    formatters: Mapping[str, FormatterT] | None = None,
 ) -> tuple[ty.Any, ...]:
     """Return a tuple containing the item properties.
 
@@ -539,9 +539,9 @@ def get_dict_properties(
 
 def get_item_properties(
     item: dict[str, _T],
-    fields: collections.abc.Sequence[str],
-    mixed_case_fields: collections.abc.Sequence[str] | None = None,
-    formatters: collections.abc.Mapping[str, FormatterT] | None = None,
+    fields: Sequence[str],
+    mixed_case_fields: Sequence[str] | None = None,
+    formatters: Mapping[str, FormatterT] | None = None,
 ) -> tuple[ty.Any, ...]:
     """Return a tuple containing the item properties.
 
@@ -657,7 +657,7 @@ def read_blob_file_contents(blob_file: str) -> str:
 
 
 def sort_items(
-    items: collections.abc.Sequence[_T],
+    items: Sequence[_T],
     sort_str: str,
     sort_type: type[ty.Any] | None = None,
 ) -> list[_T]:
@@ -723,11 +723,11 @@ def wait_for_delete(
     manager: ty.Any,
     res_id: str,
     status_field: str = 'status',
-    error_status: collections.abc.Sequence[str] = ['error'],
-    exception_name: collections.abc.Sequence[str] = ['NotFound'],
+    error_status: Sequence[str] = ['error'],
+    exception_name: Sequence[str] = ['NotFound'],
     sleep_time: int = 5,
     timeout: int = 300,
-    callback: collections.abc.Callable[[int], None] | None = None,
+    callback: Callable[[int], None] | None = None,
 ) -> bool:
     """Wait for resource deletion
 
@@ -779,13 +779,13 @@ def wait_for_delete(
 
 
 def wait_for_status(
-    status_f: collections.abc.Callable[[str], object],
+    status_f: Callable[[str], object],
     res_id: str,
     status_field: str = 'status',
-    success_status: collections.abc.Sequence[str] = ['active'],
-    error_status: collections.abc.Sequence[str] = ['error'],
+    success_status: Sequence[str] = ['active'],
+    error_status: Sequence[str] = ['error'],
     sleep_time: int = 5,
-    callback: collections.abc.Callable[[int], None] | None = None,
+    callback: Callable[[int], None] | None = None,
 ) -> bool:
     """Wait for status change on a resource during a long-running operation
 
@@ -823,7 +823,7 @@ def wait_for_status(
 def get_osc_show_columns_for_sdk_resource(
     sdk_resource: resource.Resource,
     osc_column_map: dict[str, str],
-    invisible_columns: collections.abc.Sequence[str] | None = None,
+    invisible_columns: Sequence[str] | None = None,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Get and filter the display and attribute columns for an SDK resource.
 

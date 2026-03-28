@@ -11,7 +11,7 @@
 #   under the License.
 
 import argparse
-import collections.abc
+from collections.abc import Callable
 import typing as ty
 
 from osc_lib.i18n import _
@@ -33,7 +33,7 @@ class _CommaListAction(argparse.Action):
 def add_tag_filtering_option_to_parser(
     parser: argparse.ArgumentParser,
     resource_name: str,
-    enhance_help: collections.abc.Callable[[str], str] = lambda _h: _h,
+    enhance_help: Callable[[str], str] = lambda _h: _h,
 ) -> None:
     """Add tag filtering options to a parser.
 
@@ -120,7 +120,7 @@ def get_tag_filtering_args(
 def add_tag_option_to_parser_for_create(
     parser: argparse.ArgumentParser,
     resource_name: str,
-    enhance_help: collections.abc.Callable[[str], str] = lambda _h: _h,
+    enhance_help: Callable[[str], str] = lambda _h: _h,
 ) -> None:
     """Add tag options to a parser for create commands.
 
@@ -153,7 +153,7 @@ def add_tag_option_to_parser_for_create(
 def add_tag_option_to_parser_for_set(
     parser: argparse.ArgumentParser,
     resource_name: str,
-    enhance_help: collections.abc.Callable[[str], str] = lambda _h: _h,
+    enhance_help: Callable[[str], str] = lambda _h: _h,
 ) -> None:
     """Add tag options to a parser for set commands.
 
@@ -191,7 +191,7 @@ def add_tag_option_to_parser_for_set(
 def add_tag_option_to_parser_for_unset(
     parser: argparse.ArgumentParser,
     resource_name: str,
-    enhance_help: collections.abc.Callable[[str], str] = lambda _h: _h,
+    enhance_help: Callable[[str], str] = lambda _h: _h,
 ) -> None:
     """Add tag options to a parser for set commands.
 

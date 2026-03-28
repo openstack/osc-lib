@@ -16,7 +16,7 @@
 """argparse Custom Actions"""
 
 import argparse
-import collections.abc
+from collections.abc import Callable, Iterable
 import typing as ty
 
 from osc_lib.i18n import _
@@ -115,8 +115,8 @@ class MultiKeyValueAction(argparse.Action):
         optional_keys: ty.Sequence[str] | None = None,
         const: _T | None = None,
         default: _T | str | None = None,
-        type: collections.abc.Callable[[str], _T] | None = None,
-        choices: collections.abc.Iterable[_T] | None = None,
+        type: Callable[[str], _T] | None = None,
+        choices: Iterable[_T] | None = None,
         required: bool = False,
         help: str | None = None,
         metavar: str | tuple[str, ...] | None = None,
