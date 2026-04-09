@@ -11,8 +11,8 @@
 #   under the License.
 
 import argparse
-from collections.abc import Callable
-import typing as ty
+from collections.abc import Callable, Sequence
+from typing import Any
 
 from osc_lib.i18n import _
 
@@ -22,7 +22,7 @@ class _CommaListAction(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: str | ty.Sequence[ty.Any] | None,
+        values: str | Sequence[Any] | None,
         option_string: str | None = None,
     ) -> None:
         if not isinstance(values, str):
@@ -97,7 +97,7 @@ def add_tag_filtering_option_to_parser(
 
 def get_tag_filtering_args(
     parsed_args: argparse.Namespace,
-    args: dict[str, ty.Any],
+    args: dict[str, Any],
 ) -> None:
     """Adds the tag arguments to an args list.
 
@@ -227,7 +227,7 @@ def add_tag_option_to_parser_for_unset(
 
 
 def update_tags_for_set(
-    client: ty.Any, obj: ty.Any, parsed_args: argparse.Namespace
+    client: Any, obj: Any, parsed_args: argparse.Namespace
 ) -> None:
     """Set the tags on an object.
 
@@ -246,7 +246,7 @@ def update_tags_for_set(
 
 
 def update_tags_for_unset(
-    client: ty.Any, obj: ty.Any, parsed_args: argparse.Namespace
+    client: Any, obj: Any, parsed_args: argparse.Namespace
 ) -> None:
     """Unset the tags on an object.
 

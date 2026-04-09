@@ -14,7 +14,7 @@
 """OpenStackConfig subclass for argument compatibility"""
 
 import logging
-import typing as ty
+from typing import Any
 
 from keystoneauth1 import loading as ksa_loading
 from openstack.config import exceptions as sdk_exceptions
@@ -29,8 +29,8 @@ LOG = logging.getLogger(__name__)
 # before auth plugins are loaded
 class OSC_Config(config.OpenStackConfig):
     def _auth_select_default_plugin(
-        self, config: dict[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+        self, config: dict[str, Any]
+    ) -> dict[str, Any]:
         """Select a default plugin based on supplied arguments
 
         Migrated from auth.select_auth_plugin()
@@ -63,9 +63,7 @@ class OSC_Config(config.OpenStackConfig):
         LOG.debug("Auth plugin {} selected".format(config['auth_type']))
         return config
 
-    def _auth_v2_arguments(
-        self, config: dict[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+    def _auth_v2_arguments(self, config: dict[str, Any]) -> dict[str, Any]:
         """Set up v2-required arguments from v3 info
 
         Migrated from auth.build_auth_params()
@@ -78,9 +76,7 @@ class OSC_Config(config.OpenStackConfig):
                 config['auth']['tenant_name'] = config['auth']['project_name']
         return config
 
-    def _auth_v2_ignore_v3(
-        self, config: dict[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+    def _auth_v2_ignore_v3(self, config: dict[str, Any]) -> dict[str, Any]:
         """Remove v3 arguments if present for v2 plugin
 
         Migrated from clientmanager.setup_auth()
@@ -118,9 +114,7 @@ class OSC_Config(config.OpenStackConfig):
                     )
         return config
 
-    def _auth_default_domain(
-        self, config: dict[str, ty.Any]
-    ) -> dict[str, ty.Any]:
+    def _auth_default_domain(self, config: dict[str, Any]) -> dict[str, Any]:
         """Set a default domain from available arguments
 
         Migrated from clientmanager.setup_auth()
@@ -161,7 +155,7 @@ class OSC_Config(config.OpenStackConfig):
                 config['auth']['user_domain_id'] = default_domain
         return config
 
-    def auth_config_hook(self, config: dict[str, ty.Any]) -> dict[str, ty.Any]:
+    def auth_config_hook(self, config: dict[str, Any]) -> dict[str, Any]:
         """Allow examination of config values before loading auth plugin
 
         OpenStackClient will override this to perform additional checks
@@ -181,9 +175,9 @@ class OSC_Config(config.OpenStackConfig):
 
     def _validate_auth(
         self,
-        config: dict[str, ty.Any],
-        loader: ksa_loading.BaseLoader[ty.Any],
-    ) -> dict[str, ty.Any]:
+        config: dict[str, Any],
+        loader: ksa_loading.BaseLoader[Any],
+    ) -> dict[str, Any]:
         """Validate auth plugin arguments"""
         # May throw a keystoneauth1.exceptions.NoMatchingPlugin
 
@@ -256,7 +250,7 @@ class OSC_Config(config.OpenStackConfig):
         return config
 
     # TODO(stephenfin): Add type once we have typing for SDK
-    def load_auth_plugin(self, config: dict[str, ty.Any]) -> ty.Any:
+    def load_auth_plugin(self, config: dict[str, Any]) -> Any:
         """Get auth plugin and validate args"""
 
         loader = self._get_auth_loader(config)

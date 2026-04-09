@@ -14,7 +14,7 @@
 """Base API Library"""
 
 import builtins
-import typing as ty
+from typing import Any, NoReturn
 import warnings
 
 from keystoneauth1 import exceptions as ksa_exceptions
@@ -50,7 +50,7 @@ class BaseAPI:
         session: ksa_session.Session | None = None,
         service_type: str | None = None,
         endpoint: str | None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> None:
         """Base object that contains some common API objects and methods
 
@@ -109,7 +109,7 @@ class BaseAPI:
         method: str,
         url: str,
         session: ksa_session.Session | None = None,
-        **kwargs: ty.Any,
+        **kwargs: Any,
     ) -> requests.Response:
         """Perform call into session
 
@@ -161,8 +161,8 @@ class BaseAPI:
         url: str,
         session: ksa_session.Session | None = None,
         method: str | None = None,
-        **params: ty.Any,
-    ) -> requests.Response | ty.Any:
+        **params: Any,
+    ) -> requests.Response | Any:
         """Create a new resource
 
         :param string url:
@@ -186,7 +186,7 @@ class BaseAPI:
         self,
         url: str,
         session: ksa_session.Session | None = None,
-        **params: ty.Any,
+        **params: Any,
     ) -> requests.Response:
         """Delete a resource
 
@@ -202,11 +202,11 @@ class BaseAPI:
         self,
         path: str,
         session: ksa_session.Session | None = None,
-        body: ty.Any = None,
+        body: Any = None,
         detailed: bool = False,
         headers: dict[str, str] | None = None,
-        **params: ty.Any,
-    ) -> requests.Response | ty.Any:
+        **params: Any,
+    ) -> requests.Response | Any:
         """Return a list of resources
 
         GET ${ENDPOINT}/${PATH}?${PARAMS}
@@ -261,7 +261,7 @@ class BaseAPI:
         value: str | None = None,
         attr: str | None = None,
         resource: str | None = None,
-    ) -> ty.Any:
+    ) -> Any:
         """Find a resource via attribute or ID
 
         Most APIs return a list wrapped by a dict with the resource
@@ -291,7 +291,7 @@ class BaseAPI:
         if resource is None:
             resource = path
 
-        def getlist(kw: dict[str, ty.Any]) -> ty.Any:
+        def getlist(kw: dict[str, Any]) -> Any:
             """Do list call, unwrap resource dict if present"""
             ret = self.list(path, **kw)
             if isinstance(ret, dict) and resource in ret:
@@ -325,8 +325,8 @@ class BaseAPI:
         self,
         path: str,
         headers: dict[str, str] | None = None,
-        **kwargs: ty.Any,
-    ) -> builtins.list[ty.Any]:
+        **kwargs: Any,
+    ) -> builtins.list[Any]:
         """Bulk load and filter locally
 
         :param string path:
@@ -356,7 +356,7 @@ class BaseAPI:
 
         return ret
 
-    def find_one(self, path: str, **kwargs: ty.Any) -> ty.Any:
+    def find_one(self, path: str, **kwargs: Any) -> Any:
         """Find a resource by name or ID
 
         :param string path:
@@ -381,7 +381,7 @@ class BaseAPI:
         value: str | None = None,
         attr: str | None = None,
         headers: dict[str, str] | None = None,
-    ) -> ty.Any:
+    ) -> Any:
         """Find a single resource by name or ID
 
         :param string path:
@@ -394,7 +394,7 @@ class BaseAPI:
             Headers dictionary to pass to requests
         """
 
-        def raise_not_found() -> ty.NoReturn:
+        def raise_not_found() -> NoReturn:
             msg = _("%s not found") % value
             raise exceptions.NotFound(404, msg)
 

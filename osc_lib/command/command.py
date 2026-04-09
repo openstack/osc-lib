@@ -15,7 +15,7 @@
 import abc
 import argparse
 import logging
-import typing as ty
+from typing import Any, TYPE_CHECKING
 
 from cliff import command
 from cliff import lister
@@ -24,7 +24,7 @@ from cliff import show
 from osc_lib import exceptions
 from osc_lib.i18n import _
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     from osc_lib import shell
 
 
@@ -32,8 +32,8 @@ class CommandMeta(abc.ABCMeta):
     def __new__(
         mcs: type['CommandMeta'],
         name: str,
-        bases: tuple[type[ty.Any], ...],
-        namespace: dict[str, ty.Any],
+        bases: tuple[type[Any], ...],
+        namespace: dict[str, Any],
     ) -> 'CommandMeta':
         if 'log' not in namespace:
             namespace['log'] = logging.getLogger(

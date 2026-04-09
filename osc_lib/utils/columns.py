@@ -11,7 +11,7 @@
 #   under the License.
 
 import operator
-import typing as ty
+from typing import Any
 
 LIST_BOTH = 'both'
 LIST_SHORT_ONLY = 'short_only'
@@ -77,7 +77,7 @@ def get_column_definitions(
 
 
 def get_columns(
-    item: dict[str, ty.Any],
+    item: dict[str, Any],
     attr_map: list[tuple[str, str, str]] | None = None,
 ) -> tuple[tuple[str, ...], tuple[str, ...]]:
     """Return pair of resource attributes and corresponding display names.

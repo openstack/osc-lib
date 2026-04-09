@@ -17,11 +17,12 @@
 
 import argparse
 from collections.abc import Callable, Iterable
-import typing as ty
+from typing import Any, TypeVar
+from collections.abc import Sequence
 
 from osc_lib.i18n import _
 
-_T = ty.TypeVar('_T')
+_T = TypeVar('_T')
 
 
 class KeyValueAction(argparse.Action):
@@ -34,7 +35,7 @@ class KeyValueAction(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: str | ty.Sequence[ty.Any] | None,
+        values: str | Sequence[Any] | None,
         option_string: str | None = None,
     ) -> None:
         if not isinstance(values, str):
@@ -68,7 +69,7 @@ class KeyValueAppendAction(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: str | ty.Sequence[ty.Any] | None,
+        values: str | Sequence[Any] | None,
         option_string: str | None = None,
     ) -> None:
         if not isinstance(values, str):
@@ -108,11 +109,11 @@ class MultiKeyValueAction(argparse.Action):
 
     def __init__(
         self,
-        option_strings: ty.Sequence[str],
+        option_strings: Sequence[str],
         dest: str,
         nargs: int | str | None = None,
-        required_keys: ty.Sequence[str] | None = None,
-        optional_keys: ty.Sequence[str] | None = None,
+        required_keys: Sequence[str] | None = None,
+        optional_keys: Sequence[str] | None = None,
         const: _T | None = None,
         default: _T | str | None = None,
         type: Callable[[str], _T] | None = None,
@@ -160,7 +161,7 @@ class MultiKeyValueAction(argparse.Action):
             raise TypeError(msg)
         self.optional_keys = set(optional_keys or [])
 
-    def validate_keys(self, keys: ty.Sequence[str]) -> None:
+    def validate_keys(self, keys: Sequence[str]) -> None:
         """Validate the provided keys.
 
         :param keys: A list of keys to validate.
@@ -203,7 +204,7 @@ class MultiKeyValueAction(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: str | ty.Sequence[ty.Any] | None,
+        values: str | Sequence[Any] | None,
         option_string: str | None = None,
     ) -> None:
         if not isinstance(values, str):
@@ -249,7 +250,7 @@ class MultiKeyValueCommaAction(MultiKeyValueAction):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: str | ty.Sequence[ty.Any] | None,
+        values: str | Sequence[Any] | None,
         option_string: str | None = None,
     ) -> None:
         """Overwrite the __call__ function of MultiKeyValueAction
@@ -308,7 +309,7 @@ class RangeAction(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: str | ty.Sequence[ty.Any] | None,
+        values: str | Sequence[Any] | None,
         option_string: str | None = None,
     ) -> None:
         if not isinstance(values, str):
@@ -352,7 +353,7 @@ class NonNegativeAction(argparse.Action):
         self,
         parser: argparse.ArgumentParser,
         namespace: argparse.Namespace,
-        values: str | ty.Sequence[ty.Any] | None,
+        values: str | Sequence[Any] | None,
         option_string: str | None = None,
     ) -> None:
         if not isinstance(values, str | int | float):

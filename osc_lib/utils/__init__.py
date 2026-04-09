@@ -23,7 +23,7 @@ import getpass
 import logging
 import os
 import time
-import typing as ty
+from typing import Any, TextIO, TypeVar
 import uuid
 import warnings
 
@@ -36,7 +36,7 @@ from osc_lib.i18n import _
 
 LOG = logging.getLogger(__name__)
 
-_T = ty.TypeVar('_T')
+_T = TypeVar('_T')
 
 
 def backward_compat_col_lister(
@@ -156,7 +156,7 @@ def calculate_header_and_attrs(
         return column_headers, attrs
 
 
-def env(*vars: str, **kwargs: ty.Any) -> str | None:
+def env(*vars: str, **kwargs: Any) -> str | None:
     """Search for the first defined of possibly many env vars
 
     Returns the first environment variable defined in vars, or
@@ -176,7 +176,7 @@ def env(*vars: str, **kwargs: ty.Any) -> str | None:
 def find_min_match(
     items: Sequence[_T],
     sort_attr: str,
-    **kwargs: ty.Any,
+    **kwargs: Any,
 ) -> Sequence[_T]:
     """Find all resources meeting the given minimum constraints
 
@@ -202,10 +202,10 @@ def find_min_match(
 # using generics? We should also deprecate this but there are a lot of users
 # still.
 def find_resource(
-    manager: ty.Any,
+    manager: Any,
     name_or_id: str,
-    **kwargs: ty.Any,
-) -> ty.Any:
+    **kwargs: Any,
+) -> Any:
     """Helper for the _find_* methods.
 
     :param manager: A client manager class
@@ -328,7 +328,7 @@ def find_resource(
         raise exceptions.CommandError(msg % name_or_id)
 
 
-def format_dict(data: dict[str, ty.Any], prefix: str | None = None) -> str:
+def format_dict(data: dict[str, Any], prefix: str | None = None) -> str:
     """Return a formatted string of key value pairs
 
     :param data: a dict
@@ -357,7 +357,7 @@ def format_dict(data: dict[str, ty.Any], prefix: str | None = None) -> str:
 
 
 def format_dict_of_list(
-    data: dict[str, list[ty.Any]] | None, separator: str = '; '
+    data: dict[str, list[Any]] | None, separator: str = '; '
 ) -> str | None:
     """Return a formatted string of key value pair
 
@@ -383,9 +383,7 @@ def format_dict_of_list(
     return separator.join(output)
 
 
-def format_list(
-    data: list[ty.Any] | None, separator: str = ', '
-) -> str | None:
+def format_list(data: list[Any] | None, separator: str = ', ') -> str | None:
     """Return a formatted strings
 
     :param data: a list of strings
@@ -399,7 +397,7 @@ def format_list(
 
 
 def format_list_of_dicts(
-    data: list[dict[str, ty.Any]] | None,
+    data: list[dict[str, Any]] | None,
 ) -> str | None:
     """Return a formatted string of key value pairs for each dict
 
@@ -445,7 +443,7 @@ def get_client_class(
     api_name: str,
     version: str | int | float,
     version_map: dict[str, str],
-) -> ty.Any:
+) -> Any:
     """Returns the client class for the requested API version
 
     :param api_name: the name of the API, e.g. 'compute', 'image', etc
@@ -482,7 +480,7 @@ def get_client_class(
 
 
 FormatterT = (
-    type[cliff_columns.FormattableColumn[ty.Any]] | functools.partial[ty.Any]
+    type[cliff_columns.FormattableColumn[Any]] | functools.partial[Any]
 )
 
 
@@ -491,7 +489,7 @@ def get_dict_properties(
     fields: Sequence[str],
     mixed_case_fields: Sequence[str] | None = None,
     formatters: Mapping[str, FormatterT] | None = None,
-) -> tuple[ty.Any, ...]:
+) -> tuple[Any, ...]:
     """Return a tuple containing the item properties.
 
     :param item: a single dict resource
@@ -512,7 +510,7 @@ def get_dict_properties(
             field_name = field.replace(' ', '_')
         else:
             field_name = field.lower().replace(' ', '_')
-        data: ty.Any = item[field_name] if field_name in item else ''
+        data: Any = item[field_name] if field_name in item else ''
         if field in formatters:
             formatter = formatters[field]
             # columns must be either a subclass of FormattableColumn
@@ -542,7 +540,7 @@ def get_item_properties(
     fields: Sequence[str],
     mixed_case_fields: Sequence[str] | None = None,
     formatters: Mapping[str, FormatterT] | None = None,
-) -> tuple[ty.Any, ...]:
+) -> tuple[Any, ...]:
     """Return a tuple containing the item properties.
 
     :param item: a single item resource (e.g. Server, Project, etc)
@@ -600,7 +598,7 @@ def get_effective_log_level() -> int:
     return min_log_lvl
 
 
-def get_field(item: _T, field: str) -> ty.Any:
+def get_field(item: _T, field: str) -> Any:
     try:
         if isinstance(item, dict):
             return item[field]
@@ -612,7 +610,7 @@ def get_field(item: _T, field: str) -> ty.Any:
 
 
 def get_password(
-    stdin: ty.TextIO,
+    stdin: TextIO,
     prompt: str | None = None,
     confirm: bool = True,
 ) -> str:
@@ -659,7 +657,7 @@ def read_blob_file_contents(blob_file: str) -> str:
 def sort_items(
     items: Sequence[_T],
     sort_str: str,
-    sort_type: type[ty.Any] | None = None,
+    sort_type: type[Any] | None = None,
 ) -> list[_T]:
     """Sort items based on sort keys and sort directions given by sort_str.
 
@@ -701,7 +699,7 @@ def sort_items(
             if direction == 'desc':
                 reverse = True
 
-        def f(x: ty.Any) -> ty.Any:
+        def f(x: Any) -> Any:
             # Attempts to convert items to same 'sort_type' if provided.
             # This is due to Python 3 throwing TypeError if you attempt to
             # compare different types
@@ -720,7 +718,7 @@ def sort_items(
 
 
 def wait_for_delete(
-    manager: ty.Any,
+    manager: Any,
     res_id: str,
     status_field: str = 'status',
     error_status: Sequence[str] = ['error'],
@@ -873,7 +871,7 @@ def get_osc_show_columns_for_sdk_resource(
     return tuple(sorted_display_columns), tuple(attr_columns)
 
 
-def is_uuid_like(value: ty.Any) -> bool:
+def is_uuid_like(value: Any) -> bool:
     """Returns validation of a value as a UUID.
 
     :param val: Value to verify

@@ -14,7 +14,7 @@
 """Timing Implementation"""
 
 import argparse
-import typing as ty
+from typing import Any
 
 from osc_lib.command import command
 
@@ -24,7 +24,7 @@ class Timing(command.Lister):
 
     def take_action(
         self, parsed_args: argparse.Namespace
-    ) -> tuple[tuple[str, ...], list[ty.Any]]:
+    ) -> tuple[tuple[str, ...], list[Any]]:
         column_headers = (
             'URL',
             'Seconds',

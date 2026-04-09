@@ -17,7 +17,7 @@
 
 import copy
 import logging
-import typing as ty
+from typing import Any, Protocol, cast
 import warnings
 
 from keystoneauth1 import access as ksa_access
@@ -36,7 +36,7 @@ LOG = logging.getLogger(__name__)
 class ClientCache:
     """Descriptor class for caching created client handles."""
 
-    def __init__(self, factory: ty.Any) -> None:
+    def __init__(self, factory: Any) -> None:
         warnings.warn(
             "The ClientCache class is deprecated for removal as it has no "
             "users.",
@@ -46,7 +46,7 @@ class ClientCache:
         self.factory = factory
         self._handle = None
 
-    def __get__(self, instance: ty.Any, owner: ty.Any) -> ty.Any:
+    def __get__(self, instance: Any, owner: Any) -> Any:
         # Tell the ClientManager to login to keystone
         if self._handle is None:
             try:
@@ -58,7 +58,7 @@ class ClientCache:
         return self._handle
 
 
-class _PasswordHelper(ty.Protocol):
+class _PasswordHelper(Protocol):
     def __call__(self, prompt: str | None = None) -> str: ...
 
 
@@ -240,7 +240,7 @@ class ClientManager:
 
     def _override_for(self, service_type: str) -> str | None:
         key = '{}_endpoint_override'.format(service_type.replace('-', '_'))
-        return ty.cast(str | None, self._cli_options.config.get(key))
+        return cast(str | None, self._cli_options.config.get(key))
 
     def is_service_available(self, service_type: str) -> bool | None:
         """Check if a service type is in the current Service Catalog"""
@@ -295,5 +295,5 @@ class ClientManager:
             )
         return endpoint
 
-    def get_configuration(self) -> dict[str, ty.Any]:
+    def get_configuration(self) -> dict[str, Any]:
         return copy.deepcopy(self._cli_options.config)

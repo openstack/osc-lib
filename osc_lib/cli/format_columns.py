@@ -15,50 +15,50 @@
 
 """Formattable column for specify content type"""
 
-import typing as ty
+from typing import Any
 
 from cliff import columns
 
 from osc_lib import utils
 
 
-class DictColumn(columns.FormattableColumn[dict[str, ty.Any]]):
+class DictColumn(columns.FormattableColumn[dict[str, Any]]):
     """Format column for dict content"""
 
     def human_readable(self) -> str:
         return utils.format_dict(self._value)
 
-    def machine_readable(self) -> dict[str, ty.Any]:
+    def machine_readable(self) -> dict[str, Any]:
         return dict(self._value or {})
 
 
-class DictListColumn(columns.FormattableColumn[dict[str, list[ty.Any]]]):
+class DictListColumn(columns.FormattableColumn[dict[str, list[Any]]]):
     """Format column for dict, key is string, value is list"""
 
     def human_readable(self) -> str:
         return utils.format_dict_of_list(self._value) or ''
 
-    def machine_readable(self) -> dict[str, list[ty.Any]]:
+    def machine_readable(self) -> dict[str, list[Any]]:
         return dict(self._value or {})
 
 
-class ListColumn(columns.FormattableColumn[list[ty.Any]]):
+class ListColumn(columns.FormattableColumn[list[Any]]):
     """Format column for list content"""
 
     def human_readable(self) -> str:
         return utils.format_list(self._value) or ''
 
-    def machine_readable(self) -> list[ty.Any]:
+    def machine_readable(self) -> list[Any]:
         return [x for x in self._value or []]
 
 
-class ListDictColumn(columns.FormattableColumn[list[dict[str, ty.Any]]]):
+class ListDictColumn(columns.FormattableColumn[list[dict[str, Any]]]):
     """Format column for list of dict content"""
 
     def human_readable(self) -> str:
         return utils.format_list_of_dicts(self._value) or ''
 
-    def machine_readable(self) -> list[dict[str, ty.Any]]:
+    def machine_readable(self) -> list[dict[str, Any]]:
         return [dict(x) for x in self._value or []]
 
 

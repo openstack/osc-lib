@@ -14,7 +14,7 @@
 """Authentication Library"""
 
 import argparse
-import typing as ty
+from typing import TYPE_CHECKING, TypedDict, TypeVar
 
 from keystoneauth1.identity import base as identity_base
 from keystoneauth1.identity.v3 import k2k
@@ -24,7 +24,7 @@ from osc_lib import exceptions as exc
 from osc_lib.i18n import _
 from osc_lib import utils
 
-if ty.TYPE_CHECKING:
+if TYPE_CHECKING:
     from openstack.config import cloud_region
 
 
@@ -33,7 +33,7 @@ if ty.TYPE_CHECKING:
 PLUGIN_LIST: frozenset[str] | None = None
 
 
-class _OptionDict(ty.TypedDict):
+class _OptionDict(TypedDict):
     env: str
     help: str
 
@@ -154,9 +154,7 @@ def check_valid_authentication_options(
         )
 
 
-_ArgumentParserT = ty.TypeVar(
-    '_ArgumentParserT', bound=argparse.ArgumentParser
-)
+_ArgumentParserT = TypeVar('_ArgumentParserT', bound=argparse.ArgumentParser)
 
 
 def build_auth_plugins_option_parser(

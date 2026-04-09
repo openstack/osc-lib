@@ -13,10 +13,10 @@
 
 """API Utilities Library"""
 
-import typing as ty
+from typing import Any, TypeVar
 
 
-_T = ty.TypeVar('_T', bound=list[ty.Any])
+_T = TypeVar('_T', bound=list[Any])
 
 
 def simple_filter(
