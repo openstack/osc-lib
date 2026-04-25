@@ -279,6 +279,8 @@ class ClientManager:
 
         if not interface:
             interface = 'public'
+
+        endpoint = None
         # See if we are using password flow auth, i.e. we have a
         # service catalog to select endpoints from
         if self.auth_ref:
@@ -293,6 +295,7 @@ class ClientManager:
                 self.session,
                 interface=interface,
             )
+
         return endpoint
 
     def get_configuration(self) -> dict[str, Any]:
