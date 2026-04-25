@@ -33,6 +33,7 @@ class IdentityUtilsTestCase(base.TestCase):
 
     def test_find_project(self):
         sdk_connection = mock.Mock()
+        sdk_connection.identity.api_version = '3'
         sdk_find_project = sdk_connection.identity.find_project
         sdk_find_project.return_value = mock.sentinel.project1
 
@@ -47,6 +48,7 @@ class IdentityUtilsTestCase(base.TestCase):
         domain1.id = 'id-domain1'
 
         sdk_connection = mock.Mock()
+        sdk_connection.identity.api_version = '3'
         sdk_find_domain = sdk_connection.identity.find_domain
         sdk_find_domain.return_value = domain1
         sdk_find_project = sdk_connection.identity.find_project
@@ -63,6 +65,7 @@ class IdentityUtilsTestCase(base.TestCase):
 
     def test_find_project_with_forbidden_exception(self):
         sdk_connection = mock.Mock()
+        sdk_connection.identity.api_version = '3'
         sdk_find_project = sdk_connection.identity.find_project
         exc = exceptions.HttpException()
         exc.status_code = 403
@@ -76,6 +79,7 @@ class IdentityUtilsTestCase(base.TestCase):
 
     def test_find_project_with_generic_exception(self):
         sdk_connection = mock.Mock()
+        sdk_connection.identity.api_version = '3'
         sdk_find_project = sdk_connection.identity.find_project
         exc = exceptions.HttpException()
         # Some value other than 403.

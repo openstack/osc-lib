@@ -16,6 +16,7 @@ import argparse
 from openstack import connection
 from openstack import exceptions
 from openstack.identity.v3 import project
+from openstack import utils
 
 from osc_lib.i18n import _
 
@@ -66,15 +67,18 @@ def find_project(
     :rtype: `openstack.identity.v3.project.Project`
     """
     try:
+        identity_client = utils.ensure_service_version(
+            sdk_connection.identity, '3'
+        )
         if domain_name_or_id:
-            domain = sdk_connection.identity.find_domain(
+            domain = identity_client.find_domain(
                 domain_name_or_id, ignore_missing=False
             )
             domain_id = domain.id
         else:
             domain_id = None
 
-        return sdk_connection.identity.find_project(  # type: ignore
+        return identity_client.find_project(
             name_or_id, ignore_missing=False, domain_id=domain_id
         )
     # NOTE: OpenStack SDK raises HttpException for 403 response code.
@@ -82,5 +86,5 @@ def find_project(
     # HttpException and check the status code.
     except exceptions.HttpException as e:
         if e.status_code == 403:
-            return project.Project(id=name_or_id, name=name_or_id)  # type: ignore
+            return project.Project(id=name_or_id, name=name_or_id)
         raise
