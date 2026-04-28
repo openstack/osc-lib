@@ -242,7 +242,12 @@ class ClientManager:
         key = '{}_endpoint_override'.format(service_type.replace('-', '_'))
         return cast(str | None, self._cli_options.config.get(key))
 
-    def is_service_available(self, service_type: str) -> bool | None:
+    def is_service_available(
+        self,
+        service_type: str,
+        region_name: str | None = None,
+        interface: str = 'public',
+    ) -> bool | None:
         """Check if a service type is in the current Service Catalog"""
         # If there is an override, assume the service is available
         if self._override_for(service_type):
@@ -255,7 +260,11 @@ class ClientManager:
         # Assume that the network endpoint is enabled.
         service_available = None
         if service_catalog:
-            if service_type in service_catalog.get_endpoints():
+            if service_type in service_catalog.get_endpoints(
+                service_type=service_type,
+                region_name=region_name,
+                interface=interface,
+            ):
                 service_available = True
                 LOG.debug("%s endpoint in service catalog", service_type)
             else:
