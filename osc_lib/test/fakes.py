@@ -109,7 +109,7 @@ class FakeClientManager:
         self.sdk_connection = mock.Mock()
 
         self.session = None
-        self.auth_ref = None
+        self.auth_ref = mock.Mock()
         self.auth_plugin_name = None
 
     def get_configuration(self) -> dict[str, Any]:
