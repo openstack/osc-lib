@@ -9,11 +9,21 @@
 #   WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #   License for the specific language governing permissions and limitations
 #   under the License.
-#
+
+from typing import cast
+import warnings
 
 from osc_lib import version as _version
 
-__all__ = ['__version__']
 
-
-__version__ = _version.version_string
+def __getattr__(name: str) -> str:
+    if name == '__version__':
+        warnings.warn(
+            "Accessing osc_lib.__version__ is deprecated and will be "
+            "removed in a future release. Use importlib.metadata instead: "
+            "importlib.metadata.version('osc-lib')",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return cast(str, _version.version_string)
+    raise AttributeError(f"module 'osc_lib' has no attribute {name!r}")
