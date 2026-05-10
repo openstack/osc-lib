@@ -9,7 +9,6 @@
 .coverage
 .idea
 .stestr/
-.testrepository
 .tox
 AUTHORS
 build
