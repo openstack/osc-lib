@@ -32,7 +32,7 @@ repos:
         name: flake8
         additional_dependencies:
           - hacking>=6.0.1,<6.1.0
-          - flake8-import-order>=0.18.2,<0.19.0
+          - flake8-import-order~=0.19.2
         language: python
         entry: flake8
         files: '^.*\.py$'

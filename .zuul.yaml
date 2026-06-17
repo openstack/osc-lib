@@ -11,13 +11,6 @@
         - osc-functional-devstack:
             required-projects:
               - openstack/python-openstackclient
-        - osc-functional-devstack-tips:
-            voting: false
-            # The functional-tips job only tests the latest and shouldn't be run
-            # on the stable branches
-            branches: ^(?!stable)
-            required-projects:
-              - openstack/python-openstackclient
     gate:
       jobs:
         - osc-functional-devstack:
