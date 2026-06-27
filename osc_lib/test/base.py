@@ -11,7 +11,7 @@
 # under the License.
 
 import argparse
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 import os
 from typing import Any
 from unittest import mock
@@ -55,6 +55,11 @@ class TestCase(testtools.TestCase):
             if not msg:
                 msg = f'method {m} should not have been called'
             self.fail(msg)
+
+    def assertIsSubset(
+        self, expected: Iterable[Any], actual: Iterable[Any]
+    ) -> None:
+        self.assertTrue(set(expected).issubset(set(actual)))
 
 
 class TestCommand(TestCase):
