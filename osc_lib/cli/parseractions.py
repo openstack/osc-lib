@@ -255,7 +255,7 @@ class MultiKeyValueCommaAction(MultiKeyValueAction):
     ) -> None:
         """Overwrite the __call__ function of MultiKeyValueAction
 
-        This is done to handle scenarios where we may have comma seperated
+        This is done to handle scenarios where we may have comma separated
         data as a single value.
         """
         if not isinstance(values, str):
