@@ -10,7 +10,7 @@ authors = [
 ]
 readme = {file = "README.rst", content-type = "text/x-rst"}
 license = "Apache-2.0"
-dynamic = ["version", "dependencies"]
+dynamic = ["version"]
 requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -24,6 +24,38 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
+]
+dependencies = [
+    "cliff>=4.9.0", # Apache-2.0
+    "keystoneauth1>=5.10.0", # Apache-2.0
+    "openstacksdk>=4.12.0", # Apache-2.0
+    "oslo.i18n>=3.15.3", # Apache-2.0
+    "oslo.utils>=3.33.0", # Apache-2.0
+    "pbr!=2.1.0,>=2.0.0", # Apache-2.0
+    "requests>=2.14.2", # Apache-2.0
+    "stevedore>=1.20.0", # Apache-2.0
+]
+
+[dependency-groups]
+# NOTE(stephenfin): The duplication between this and the extra is intentional.
+# The extra is for external consumers of our test utils. This is for us.
+test = [
+    "coverage!=4.4,>=4.0", # Apache-2.0
+    "fixtures>=3.0.0", # Apache-2.0/BSD
+    "requests-mock>=1.1.0", # Apache-2.0
+    "stestr>=1.0.0", # Apache-2.0
+    "testtools>=2.2.0", # MIT
+    "osprofiler>=1.4.0", # Apache-2.0
+]
+doc = [
+    "openstackdocstheme>=2.2.1", # Apache-2.0
+    "reno>=3.1.0", # Apache-2.0
+    "sphinx>=2.0.0,!=2.1.0", # BSD
+    "sphinxcontrib-apidoc>=0.2.0", # BSD
+]
+types = [
+    "mypy",
+    "types-requests",
 ]
 
 [project.urls]
