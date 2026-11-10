@@ -6,4 +6,3 @@
    :maxdepth: 2
 
    transition
-   change_log
