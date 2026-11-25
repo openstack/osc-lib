@@ -18,6 +18,7 @@
 
 import argparse
 import getpass
+import importlib.metadata
 import logging
 import sys
 import traceback
@@ -39,7 +40,6 @@ from osc_lib import exceptions as exc
 from osc_lib.i18n import _
 from osc_lib import logs
 from osc_lib import utils
-from osc_lib import version
 
 osprofiler_profiler = importutils.try_import("osprofiler.profiler")
 
@@ -513,13 +513,14 @@ class OpenStackShell(app.App):
         self.client_manager._auth_required = validate
 
         # Validate auth options
+        version = importlib.metadata.version('osc-lib')
         self.cloud = self.cloud_config.get_one(
             cloud=self.options.cloud,
             argparse=self.options,
             validate=validate,
             app_name=self.client_manager._app_name,
             app_version=self.client_manager._app_version,
-            additional_user_agent=[('osc-lib', version.version_string)],
+            additional_user_agent=[('osc-lib', version)],
         )
         # Push the updated args into ClientManager
         self.client_manager._cli_options = self.cloud
